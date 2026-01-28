@@ -10,25 +10,16 @@ import { TrendShareCard } from "../components/satori/TrendShareCard";
 import { StatsShareCard } from "../components/satori/StatsShareCard";
 
 const require = createRequire(import.meta.url);
-function resolveFontPath() {
-  try {
-    return require.resolve(
-      "next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf"
-    );
-  } catch {}
-  try {
-    const nextPackagePath = require.resolve("next/package.json");
-    return path.join(
-      path.dirname(nextPackagePath),
-      "dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf"
-    );
-  } catch {}
-  return path.join(
-    process.cwd(),
-    "node_modules/next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf"
-  );
-}
-const fontPath = resolveFontPath();
+const fontAsset = require("next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf");
+const fontPath =
+  typeof fontAsset === "string"
+    ? fontAsset
+    : typeof fontAsset?.default === "string"
+      ? fontAsset.default
+      : path.join(
+          process.cwd(),
+          "node_modules/next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf"
+        );
 
 let cachedFont: Buffer | null = null;
 const cachedImages = new Map<string, string>();
