@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { render } from "@react-email/render";
 import { FypScoutReportEmail } from "../../../emails/fyp-scout-report";
 import { adminDb, getWeeklyData } from "../../../src/lib/firebase-admin";
+import { mapReportToWeeklyData } from "../../../src/domain/report/adapter";
+import { mockReports } from "../../../src/domain/report/mock";
 import {
   renderDiagnosisBarChartImage,
   renderTrendProgressImage,
@@ -11,6 +13,58 @@ import crypto from "node:crypto";
 
 interface WrappedRequestBody {
   uid: string;
+}
+
+export async function GET(request: Request) {
+  try {
+    const url = new URL(request.url);
+    const caseKey = url.searchParams.get("case") ?? "curious";
+    const report = mockReports[caseKey] ?? mockReports.curious;
+    const assetBaseUrl =
+      process.env.EMAIL_ASSET_BASE_URL || url.origin;
+
+    const weeklyData = mapReportToWeeklyData("preview-user", report, {
+      assetBaseUrl
+    });
+
+    const assetId = crypto.randomUUID();
+    const progressPng = await renderTrendProgressImage({
+      progress: weeklyData.hero.trendProgress,
+      startLabel: weeklyData.trend.startTag,
+      endLabel: weeklyData.trend.endTag,
+      width: 520,
+      height: 64
+    });
+    const barChartPng = await renderDiagnosisBarChartImage({
+      lastWeekLabel: weeklyData.diagnosis.lastWeekLabel,
+      thisWeekLabel: weeklyData.diagnosis.thisWeekLabel,
+      lastWeekValue: weeklyData.diagnosis.lastWeekValue,
+      thisWeekValue: weeklyData.diagnosis.thisWeekValue,
+      width: 300,
+      height: 140
+    });
+
+    weeklyData.trend.progressImageUrl = await uploadPngToVercelBlob(
+      progressPng,
+      `preview/${caseKey}-${assetId}-progress.png`
+    );
+    weeklyData.diagnosis.barChartImageUrl = await uploadPngToVercelBlob(
+      barChartPng,
+      `preview/${caseKey}-${assetId}-bars.png`
+    );
+
+    const html = await render(<FypScoutReportEmail data={weeklyData} />, {
+      pretty: true
+    });
+
+    return new NextResponse(html, {
+      headers: { "content-type": "text/html; charset=utf-8" }
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {

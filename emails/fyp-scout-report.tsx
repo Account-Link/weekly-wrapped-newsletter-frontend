@@ -14,6 +14,8 @@ import {
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
 import type { WeeklyData } from "../src/lib/firebase-admin";
+import { TrendProgressBlock } from "./components/TrendProgressBlock";
+import { DiagnosisBarChartBlock } from "./components/DiagnosisBarChartBlock";
 
 interface FypScoutReportEmailProps {
   data: WeeklyData;
@@ -23,19 +25,6 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   const assetBaseUrl = data.hero.imageUrl
     ? data.hero.imageUrl.split("/figma/")[0]
     : "";
-  const clampPercent = (value: number) =>
-    `${Math.max(0, Math.min(100, value))}%`;
-  const trendWidth = clampPercent(data.hero.trendProgress);
-  const leftTrendWidth = clampPercent(100 - data.hero.trendProgress);
-
-  // Vertical bar heights for diagnosis (max 100px)
-  const maxBarHeight = 100;
-  const thisWeekHeight = Math.round(
-    (data.diagnosis.thisWeekValue / 100) * maxBarHeight,
-  );
-  const lastWeekHeight = Math.round(
-    (data.diagnosis.lastWeekValue / 100) * maxBarHeight,
-  );
   const tailwindConfig = {
     theme: {
       spacing: {
@@ -192,35 +181,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   data.trend.discoveryText
                 )}
               </Text>
-              <Section align="center">
-                {data.trend.progressImageUrl && (
-                  <Section className="w-full mx-auto">
-                    <Img
-                      src={data.trend.progressImageUrl}
-                      alt="Trend progress"
-                      width="100%"
-                      height="auto"
-                      className="block"
-                    />
-                  </Section>
-                )}
-              </Section>
-              <Section className="text-[16px] text-black font-bold">
-                <Row>
-                  <Column className="w-[50%]" align="left">
-                    <Text className="mt-[0px] mb-[0px]">{data.trend.startTag}</Text>
-                    <Text className="mt-[0px]">
-                      {data.trend.startPercent}
-                    </Text>
-                  </Column>
-                  <Column className="w-[50%]" align="right">
-                    <Text className="mt-[0px] mb-[0px]">{data.trend.endTag}</Text>
-                    <Text className="mt-[0px]">
-                      {data.trend.endPercent}
-                    </Text>
-                  </Column>
-                </Row>
-              </Section>
+              <TrendProgressBlock
+                progressImageUrl={data.trend.progressImageUrl}
+                startTag={data.trend.startTag}
+                startPercent={data.trend.startPercent}
+                endTag={data.trend.endTag}
+                endPercent={data.trend.endPercent}
+              />
               <Button
                 className="w-[236px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-black text-center text-white text-[18px] font-bold"
                 href={data.trend.shareUrl || "https://react.email"}
@@ -279,16 +246,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 {data.diagnosis.milesComment}
               </Text>
 
-              <Section className="mx-auto mb-10 align-bottom">
-                {data.diagnosis.barChartImageUrl && (
-                  <Img
-                    src={data.diagnosis.barChartImageUrl}
-                    alt="Weekly comparison"
-                    width="100%"
-                    className="block mx-auto"
-                  />
-                )}
-              </Section>
+              <DiagnosisBarChartBlock
+                barChartImageUrl={data.diagnosis.barChartImageUrl}
+                lastWeekLabel={data.diagnosis.lastWeekLabel}
+                thisWeekLabel={data.diagnosis.thisWeekLabel}
+                lastWeekValue={data.diagnosis.lastWeekValue}
+                thisWeekValue={data.diagnosis.thisWeekValue}
+              />
 
               <Text className="text-[28px] text-[#fff] my-[30px] mb-[30px]">
                 • New contents you got into •

@@ -2,19 +2,37 @@ import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import { put } from "@vercel/blob";
 import { readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { TrendProgress } from "../components/satori/TrendProgress";
 import { DiagnosisBarChart } from "../components/satori/DiagnosisBarChart";
 import { TrendShareCard } from "../components/satori/TrendShareCard";
 import { StatsShareCard } from "../components/satori/StatsShareCard";
 
-const fontPath = path.join(
-  process.cwd(),
-  "node_modules/next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf"
-);
+const require = createRequire(import.meta.url);
+function resolveFontPath() {
+  try {
+    return require.resolve(
+      "next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf"
+    );
+  } catch {}
+  try {
+    const nextPackagePath = require.resolve("next/package.json");
+    return path.join(
+      path.dirname(nextPackagePath),
+      "dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf"
+    );
+  } catch {}
+  return path.join(
+    process.cwd(),
+    "node_modules/next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf"
+  );
+}
+const fontPath = resolveFontPath();
 
 let cachedFont: Buffer | null = null;
 const cachedImages = new Map<string, string>();
+const RENDER_SCALE = 4;
 
 async function loadFontData() {
   if (!cachedFont) {
@@ -39,6 +57,12 @@ async function loadImageData(filename: string) {
 
 async function loadFireIconData() {
   return loadImageData("fire.png");
+}
+
+function renderSvgToPng(svg: string) {
+  const resvg = new Resvg(svg, { fitTo: { mode: "zoom", value: RENDER_SCALE } });
+  const pngData = resvg.render();
+  return Buffer.from(pngData.asPng());
 }
 
 export async function renderTrendProgressImage(options: {
@@ -70,9 +94,7 @@ export async function renderTrendProgressImage(options: {
     }
   );
 
-  const resvg = new Resvg(svg, { fitTo: { mode: "width", value: width } });
-  const pngData = resvg.render();
-  return Buffer.from(pngData.asPng());
+  return renderSvgToPng(svg);
 }
 
 export async function renderDiagnosisBarChartImage(options: {
@@ -104,9 +126,7 @@ export async function renderDiagnosisBarChartImage(options: {
     }
   );
 
-  const resvg = new Resvg(svg, { fitTo: { mode: "width", value: width } });
-  const pngData = resvg.render();
-  return Buffer.from(pngData.asPng());
+  return renderSvgToPng(svg);
 }
 
 export async function renderTrendShareCardImage(options: {
@@ -156,9 +176,7 @@ export async function renderTrendShareCardImage(options: {
     }
   );
 
-  const resvg = new Resvg(svg, { fitTo: { mode: "width", value: width } });
-  const pngData = resvg.render();
-  return Buffer.from(pngData.asPng());
+  return renderSvgToPng(svg);
 }
 
 export async function renderStatsShareCardImage(options: {
@@ -210,9 +228,7 @@ export async function renderStatsShareCardImage(options: {
     }
   );
 
-  const resvg = new Resvg(svg, { fitTo: { mode: "width", value: width } });
-  const pngData = resvg.render();
-  return Buffer.from(pngData.asPng());
+  return renderSvgToPng(svg);
 }
 
 export async function uploadPngToVercelBlob(

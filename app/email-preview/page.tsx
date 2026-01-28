@@ -9,6 +9,8 @@ import {
   renderStatsShareCardImage,
   uploadPngToVercelBlob
 } from "@/lib/satori-assets";
+import { TrendShareCard } from "@/components/satori/TrendShareCard";
+import { StatsShareCard } from "@/components/satori/StatsShareCard";
 import crypto from "node:crypto";
 
 const assetBaseUrl =
@@ -29,6 +31,10 @@ export default async function EmailPreviewPage({
   });
 
   const assetId = crypto.randomUUID();
+  const contentIcons = data.newContents.slice(0, 3).map((content) => content.stickerUrl);
+  const contentLabels = data.newContents.slice(0, 3).map((content) => content.label);
+  while (contentIcons.length < 3) contentIcons.push("");
+  while (contentLabels.length < 3) contentLabels.push("");
   const progressPng = await renderTrendProgressImage({
     progress: data.hero.trendProgress,
     startLabel: data.trend.startTag,
@@ -76,7 +82,7 @@ export default async function EmailPreviewPage({
       lastWeekValue: data.diagnosis.lastWeekValue,
       thisWeekValue: data.diagnosis.thisWeekValue,
     },
-    contentLabels: data.newContents.map((c) => c.label),
+    contentLabels,
   });
 
   data.trend.shareUrl = await uploadPngToVercelBlob(
@@ -93,10 +99,19 @@ export default async function EmailPreviewPage({
   const html = await render(<FypScoutReportEmail data={data} />, {
     pretty: true
   });
+  const sidebarCardStyle = {
+    background: "#FFFFFF",
+    border: "1px solid #E5E7EB",
+    borderRadius: 12,
+    padding: 12
+  };
+  const debugScale = 0.6;
+  const debugWidth = 600;
+  const debugHeight = 1000;
 
   return (
-    <main style={{ margin: 0, padding: 16, background: "#F3F4F6", display: 'flex', gap: 20 }}>
-      <div style={{ flex: 1, maxWidth: 800 }}>
+    <main style={{ margin: 0, padding: 16, background: "#F3F4F6", display: "grid", gridTemplateColumns: "minmax(0, 1fr) 520px", gap: 24, alignItems: "start" }}>
+      <div style={{ minWidth: 0 }}>
         <h2 style={{fontSize: 20, marginBottom: 10}}>Email Preview</h2>
         <iframe
           title="FYP Scout Email Preview"
@@ -109,20 +124,62 @@ export default async function EmailPreviewPage({
           }}
         />
       </div>
-      <div style={{ width: 400, display: 'flex', flexDirection: 'column', gap: 20 }}>
-         <h2 style={{fontSize: 20}}>Generated Share Cards</h2>
-         
-         <div>
-            <h3 style={{fontSize: 16, marginBottom: 5}}>Trend Share Card</h3>
-            <img src={data.trend.shareUrl} style={{width: '100%', border: '1px solid #ccc'}} />
-            <a href={data.trend.shareUrl} target="_blank" style={{display: 'block', marginTop: 5, fontSize: 12}}>Open Original</a>
-         </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <h2 style={{fontSize: 20, marginBottom: 4}}>Generated Share Cards</h2>
+        <div style={sidebarCardStyle}>
+          <h3 style={{fontSize: 16, marginBottom: 8}}>Trend Share Card</h3>
+          <img src={data.trend.shareUrl} style={{width: "100%", border: "1px solid #E5E7EB", borderRadius: 8}} />
+          <a href={data.trend.shareUrl} target="_blank" style={{display: "block", marginTop: 8, fontSize: 12}}>Open Original</a>
+        </div>
 
-         <div>
-            <h3 style={{fontSize: 16, marginBottom: 5}}>Stats Share Card</h3>
-            <img src={data.diagnosis.shareUrl} style={{width: '100%', border: '1px solid #ccc'}} />
-            <a href={data.diagnosis.shareUrl} target="_blank" style={{display: 'block', marginTop: 5, fontSize: 12}}>Open Original</a>
-         </div>
+        <div style={sidebarCardStyle}>
+          <h3 style={{fontSize: 16, marginBottom: 8}}>Stats Share Card</h3>
+          <img src={data.diagnosis.shareUrl} style={{width: "100%", border: "1px solid #E5E7EB", borderRadius: 8}} />
+          <a href={data.diagnosis.shareUrl} target="_blank" style={{display: "block", marginTop: 8, fontSize: 12}}>Open Original</a>
+        </div>
+
+        <div style={sidebarCardStyle}>
+          <h3 style={{fontSize: 16, marginBottom: 12}}>HTML Debug</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ width: debugWidth * debugScale, height: debugHeight * debugScale, overflow: "hidden", border: "1px solid #E5E7EB", borderRadius: 8, background: "#ECECEC" }}>
+              <div style={{ width: debugWidth, height: debugHeight, transform: `scale(${debugScale})`, transformOrigin: "top left" }}>
+                <TrendShareCard
+                  topicIconData={data.trend.stickerUrl}
+                  topicTitle={data.trend.topic.replace(/“|”/g, "")}
+                  topicSubtitle={data.trend.statusText}
+                  discoveryRank={data.trend.rank ?? 0}
+                  totalDiscovery={data.trend.totalDiscoverers.toLocaleString()}
+                  progress={data.hero.trendProgress}
+                  fireIconData={`${assetBaseUrl}/figma/fire.png`}
+                  hashtag={data.trend.startTag}
+                  hashtagPercent={data.trend.startPercent}
+                  globalPercent={data.trend.endPercent}
+                  footerDecorData={`${assetBaseUrl}/figma/footer-decors.png`}
+                />
+              </div>
+            </div>
+            <div style={{ width: debugWidth * debugScale, height: debugHeight * debugScale, overflow: "hidden", border: "1px solid #E5E7EB", borderRadius: 8, background: "#000000" }}>
+              <div style={{ width: debugWidth, height: debugHeight, transform: `scale(${debugScale})`, transformOrigin: "top left" }}>
+                <StatsShareCard
+                  headerIconData={`${assetBaseUrl}/figma/feedling-icon.png`}
+                  totalVideos={data.diagnosis.totalVideosValue}
+                  totalTime={`${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`}
+                  runIconData={`${assetBaseUrl}/figma/download-icon_black.png`}
+                  miles={`${data.diagnosis.miles}`}
+                  barChartData={{
+                    lastWeekLabel: data.diagnosis.lastWeekLabel,
+                    thisWeekLabel: data.diagnosis.thisWeekLabel,
+                    lastWeekValue: data.diagnosis.lastWeekValue,
+                    thisWeekValue: data.diagnosis.thisWeekValue,
+                  }}
+                  contentIcons={contentIcons}
+                  contentLabels={contentLabels}
+                  footerDecorData={`${assetBaseUrl}/figma/torn-paper-bottom-grey.png`}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );
