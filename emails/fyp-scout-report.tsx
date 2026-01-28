@@ -134,7 +134,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* TREND SECTION */}
-            <Section className="h-[492px] bg-bgNudge text-center text-black">
+            <Section className="h-[492px] bg-bgNudge text-center text-black p-[40px]">
               {/* Layer 1: Frames (Bottom) */}
               {/* <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
                 <Img
@@ -192,22 +192,38 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   data.trend.discoveryText
                 )}
               </Text>
-              <Section className="my-5" align="center">
+              <Section align="center">
                 {data.trend.progressImageUrl && (
-                  <Section className="w-[520px] mx-auto">
+                  <Section className="w-full mx-auto">
                     <Img
                       src={data.trend.progressImageUrl}
                       alt="Trend progress"
-                      width="520"
-                      height="64"
+                      width="100%"
+                      height="auto"
                       className="block"
                     />
                   </Section>
                 )}
               </Section>
+              <Section className="text-[16px] text-black font-bold">
+                <Row>
+                  <Column className="w-[50%]" align="left">
+                    <Text className="mt-[0px] mb-[0px]">{data.trend.startTag}</Text>
+                    <Text className="mt-[0px]">
+                      {data.trend.startPercent}
+                    </Text>
+                  </Column>
+                  <Column className="w-[50%]" align="right">
+                    <Text className="mt-[0px] mb-[0px]">{data.trend.endTag}</Text>
+                    <Text className="mt-[0px]">
+                      {data.trend.endPercent}
+                    </Text>
+                  </Column>
+                </Row>
+              </Section>
               <Button
                 className="w-[236px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-black text-center text-white text-[18px] font-bold"
-                href="https://react.email"
+                href={data.trend.shareUrl || "https://react.email"}
               >
                 {data.trend.ctaLabel}
                 <Img
@@ -221,7 +237,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* DIAGNOSIS SECTION */}
-            <Section className="bg-bgDark py-10 px-5 text-white text-center">
+            <Section className="bg-bgDark py-10 px-[40px] text-white text-center">
               <Text className="text-[30px] font-bold mb-[60px]">
                 {data.diagnosis.title}
               </Text>
@@ -263,36 +279,14 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 {data.diagnosis.milesComment}
               </Text>
 
-              <Section className="mx-auto mb-10 max-w-[300px] h-[140px] align-bottom">
-                {data.diagnosis.barChartImageUrl ? (
+              <Section className="mx-auto mb-10 align-bottom">
+                {data.diagnosis.barChartImageUrl && (
                   <Img
                     src={data.diagnosis.barChartImageUrl}
                     alt="Weekly comparison"
-                    width="300"
-                    height="140"
+                    width="100%"
                     className="block mx-auto"
                   />
-                ) : (
-                  <Row>
-                    <Column className="text-center align-bottom w-1/2">
-                      <Text className="text-[12px] mb-[5px] text-[#AAAAAA]">
-                        {data.diagnosis.lastWeekLabel}
-                      </Text>
-                      <Section
-                        className="bg-chartMuted w-[20px] mx-auto rounded-t-[5px]"
-                        style={{ height: `${lastWeekHeight}px` }}
-                      />
-                    </Column>
-                    <Column className="text-center align-bottom w-1/2">
-                      <Text className="text-[12px] mb-[5px] text-[#AAAAAA]">
-                        {data.diagnosis.thisWeekLabel}
-                      </Text>
-                      <Section
-                        className="bg-chartActive w-[20px] mx-auto rounded-t-[5px]"
-                        style={{ height: `${thisWeekHeight}px` }}
-                      />
-                    </Column>
-                  </Row>
                 )}
               </Section>
 
@@ -343,7 +337,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
               <Button
                 className="w-[288px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold"
-                href="https://react.email"
+                href={data.diagnosis.shareUrl || "https://react.email"}
               >
                 {data.weeklyNudge.ctaLabel}
                 <Img

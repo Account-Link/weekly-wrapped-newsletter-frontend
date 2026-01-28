@@ -106,6 +106,7 @@ export interface WeeklyTrend {
   ctaLabel: string;
   ctaIconUrl: string;
   progressImageUrl?: string;
+  shareUrl?: string;
 }
 
 export interface WeeklyDiagnosis {
@@ -123,6 +124,7 @@ export interface WeeklyDiagnosis {
   thisWeekValue: number; // 0-100
   lastWeekValue: number; // 0-100
   barChartImageUrl?: string;
+  shareUrl?: string;
 }
 
 export interface WeeklyNewContent {

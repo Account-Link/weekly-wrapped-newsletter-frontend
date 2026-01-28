@@ -5,6 +5,8 @@ import { mockReports } from "@/domain/report/mock";
 import {
   renderDiagnosisBarChartImage,
   renderTrendProgressImage,
+  renderTrendShareCardImage,
+  renderStatsShareCardImage,
   uploadPngToVercelBlob
 } from "@/lib/satori-assets";
 import crypto from "node:crypto";
@@ -52,14 +54,50 @@ export default async function EmailPreviewPage({
     `preview/${caseKey}-${assetId}-bars.png`
   );
 
+  // Generate and Upload Share Cards
+  const trendCardPng = await renderTrendShareCardImage({
+    topicTitle: data.trend.topic.replace(/“|”/g, ""), // Remove quotes if added by adapter
+    topicSubtitle: data.trend.statusText,
+    discoveryRank: data.trend.rank ?? 0,
+    totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
+    progress: data.hero.trendProgress,
+    hashtag: data.trend.startTag,
+    hashtagPercent: data.trend.startPercent,
+    globalPercent: data.trend.endPercent,
+  });
+
+  const statsCardPng = await renderStatsShareCardImage({
+    totalVideos: data.diagnosis.totalVideosValue,
+    totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
+    miles: `${data.diagnosis.miles}`,
+    barChartData: {
+      lastWeekLabel: data.diagnosis.lastWeekLabel,
+      thisWeekLabel: data.diagnosis.thisWeekLabel,
+      lastWeekValue: data.diagnosis.lastWeekValue,
+      thisWeekValue: data.diagnosis.thisWeekValue,
+    },
+    contentLabels: data.newContents.map((c) => c.label),
+  });
+
+  data.trend.shareUrl = await uploadPngToVercelBlob(
+    trendCardPng,
+    `preview/${caseKey}-${assetId}-share-trend.png`
+  );
+
+  data.diagnosis.shareUrl = await uploadPngToVercelBlob(
+    statsCardPng,
+    `preview/${caseKey}-${assetId}-share-stats.png`
+  );
+
   // 重要逻辑：服务端渲染邮件 HTML 供本地预览
   const html = await render(<FypScoutReportEmail data={data} />, {
     pretty: true
   });
 
   return (
-    <main style={{ margin: 0, padding: 16, background: "#F3F4F6" }}>
-      <div style={{ margin: "0 auto" }}>
+    <main style={{ margin: 0, padding: 16, background: "#F3F4F6", display: 'flex', gap: 20 }}>
+      <div style={{ flex: 1, maxWidth: 800 }}>
+        <h2 style={{fontSize: 20, marginBottom: 10}}>Email Preview</h2>
         <iframe
           title="FYP Scout Email Preview"
           srcDoc={html}
@@ -70,9 +108,21 @@ export default async function EmailPreviewPage({
             background: "#FFFFFF"
           }}
         />
-        {/* <p style={{ fontSize: 12, color: "#666", textAlign: "center" }}>
-          切换案例：/email-preview?case=curious | excited | sleepy | dizzy | cozy
-        </p> */}
+      </div>
+      <div style={{ width: 400, display: 'flex', flexDirection: 'column', gap: 20 }}>
+         <h2 style={{fontSize: 20}}>Generated Share Cards</h2>
+         
+         <div>
+            <h3 style={{fontSize: 16, marginBottom: 5}}>Trend Share Card</h3>
+            <img src={data.trend.shareUrl} style={{width: '100%', border: '1px solid #ccc'}} />
+            <a href={data.trend.shareUrl} target="_blank" style={{display: 'block', marginTop: 5, fontSize: 12}}>Open Original</a>
+         </div>
+
+         <div>
+            <h3 style={{fontSize: 16, marginBottom: 5}}>Stats Share Card</h3>
+            <img src={data.diagnosis.shareUrl} style={{width: '100%', border: '1px solid #ccc'}} />
+            <a href={data.diagnosis.shareUrl} target="_blank" style={{display: 'block', marginTop: 5, fontSize: 12}}>Open Original</a>
+         </div>
       </div>
     </main>
   );
