@@ -11,7 +11,7 @@ import { StatsShareCard } from "../components/satori/StatsShareCard";
 
 const require = createRequire(import.meta.url);
 const fontAsset = require("next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf");
-const fontPath =
+const resolvedFontPath =
   typeof fontAsset === "string"
     ? fontAsset
     : typeof fontAsset?.default === "string"
@@ -20,6 +20,9 @@ const fontPath =
           process.cwd(),
           "node_modules/next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf"
         );
+const fontPath = resolvedFontPath.startsWith("/_next/")
+  ? path.join(process.cwd(), resolvedFontPath.replace(/^\/_next\//, ".next/"))
+  : resolvedFontPath;
 
 let cachedFont: Buffer | null = null;
 const cachedImages = new Map<string, string>();
