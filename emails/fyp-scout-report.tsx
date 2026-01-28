@@ -111,8 +111,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           <style>{responsiveAndDarkModeCss}</style>
         </Head>
         <Preview>FYP Scout Weekly Newsletter</Preview>
-        <Body className="bg-bgDark m-0 font-sans body">
-          <Container className="w-full mx-auto bg-bgDark">
+        <Body className="m-0 font-sans body">
+          <Container className="w-full max-w-[600px] mx-auto bg-bgDark">
             {/* OPENING SECTION */}
             <Section className="bg-bgDark pt-[30px] px-5 text-center text-white">
               <Img
@@ -193,8 +193,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 )}
               </Text>
               <Section className="my-5" align="center">
-                {data.trend.progressImageUrl ? (
-                  <Section className="w-[520px] mx-0" align="left">
+                {data.trend.progressImageUrl && (
+                  <Section className="w-[520px] mx-auto">
                     <Img
                       src={data.trend.progressImageUrl}
                       alt="Trend progress"
@@ -203,59 +203,6 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                       className="block"
                     />
                   </Section>
-                ) : (
-                  <>
-                    <Section className="w-[520px] mx-auto h-[32px] bg-[#D1D1D1] rounded-[32px]">
-                      <Row>
-                        <Column
-                          align="left"
-                          className="bg-trendFill rounded-[32px] h-full"
-                          style={{ width: trendWidth }}
-                        >
-                          <Img
-                            src={`${assetBaseUrl}/figma/fire.png`}
-                            alt=""
-                            width="45"
-                            height="55"
-                            style={{
-                              display: "inline-block",
-                              verticalAlign: "middle"
-                            }}
-                          />
-                        </Column>
-                        <Column style={{ width: leftTrendWidth }}></Column>
-                      </Row>
-                    </Section>
-                    <Section className="w-[520px] mx-auto">
-                      <Section className="h-[32px] bg-[#D1D1D1] rounded-[32px] w-full">
-                        <Section
-                          className="relative bg-trendFill rounded-[32px] h-full"
-                          style={{ width: trendWidth }}
-                          align="left"
-                        >
-                          <Img
-                            src={`${assetBaseUrl}/figma/fire.png`}
-                            alt=""
-                            width="45"
-                            height="55"
-                            className="absolute top-[-11px] right-[-22px]"
-                          />
-                        </Section>
-                      </Section>
-                    </Section>
-                    <Row>
-                      <Column style={{ width: "15%" }}>
-                        <Text className="text-[12px] font-bold">
-                          {data.trend.startTag}
-                        </Text>
-                      </Column>
-                      <Column style={{ width: "15%" }}>
-                        <Text className="text-[12px] font-bold">
-                          {data.trend.endTag}
-                        </Text>
-                      </Column>
-                    </Row>
-                  </>
                 )}
               </Section>
               <Button
@@ -275,45 +222,42 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
             {/* DIAGNOSIS SECTION */}
             <Section className="bg-bgDark py-10 px-5 text-white text-center">
-              <Text className="text-[20px] font-bold mb-5">
+              <Text className="text-[30px] font-bold mb-[60px]">
                 {data.diagnosis.title}
               </Text>
 
               <Row className="mb-5">
-                <Column className="border border-[#555] rounded-[30px] p-2.5 w-[245px] h-[104px]">
-                  <Text className="text-[18px] font-bold text-brand">
+                <Column className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px]">
+                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px]">
                     {data.diagnosis.totalVideosValue}{" "}
-                    <span className="text-[12px] text-white font-normal ml-[5px]">
-                      {data.diagnosis.totalVideosUnit}
-                    </span>
+                    {data.diagnosis.totalVideosUnit}
                   </Text>
-                  <Text className="text-[12px] text-[#AAAAAA] mt-[5px]">
+                  <Text className="text-[14px] text-[#ffffff] mt-[5px]">
                     Total Videos
                   </Text>
                 </Column>
-                <Column className="border border-[#fffff] rounded-[30px] p-2.5 w-[245px] h-[104px] mr-[30px]">
-                  <Text className="text-[18px] font-bold text-brand">
+                <Column className="w-[30px]"></Column>
+                <Column className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] mr-[30px]">
+                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px]">
                     {data.diagnosis.totalTimeValue}{" "}
-                    <span className="text-[12px] text-white font-normal ml-[5px]">
-                      {data.diagnosis.totalTimeUnit}
-                    </span>
+                    {data.diagnosis.totalTimeUnit}
                   </Text>
-                  <Text className="text-[12px] text-[#AAAAAA] mt-[5px]">
+                  <Text className="text-[14px] text-[#ffffff] mt-[5px]">
                     Total Time
                   </Text>
                 </Column>
               </Row>
 
-              <Text className="text-[14px] mb-[30px]">
+              <Text className="text-[18px] mb-[30px] leading-[32px] font-bold">
                 {data.diagnosis.comparisonDiff && (
-                  <span className="text-brand font-bold">
+                  <span className="text-[24px] text-brand">
                     {data.diagnosis.comparisonDiff}{" "}
                   </span>
                 )}
                 {data.diagnosis.comparisonText}
                 <br />
                 Your thumb ran{" "}
-                <span className="text-brand font-bold">
+                <span className="text-[24px] text-brand">
                   {data.diagnosis.miles} miles
                 </span>{" "}
                 {data.diagnosis.milesComment}
@@ -352,105 +296,118 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 )}
               </Section>
 
-              <Text className="text-[16px] text-[#AAAAAA] my-[30px] mb-[20px]">
+              <Text className="text-[28px] text-[#fff] my-[30px] mb-[30px]">
                 • New contents you got into •
               </Text>
               <Row className="mb-[30px]">
                 {data.newContents.map((content) => (
-                  <Column key={content.label} className="text-center w-1/3">
+                  <Column
+                    key={content.label}
+                    className="text-center w-1/3"
+                    align="center"
+                  >
                     <Img
                       src={content.stickerUrl}
-                      width="88"
-                      height="88"
-                      className="rounded-full border-2 border-[#555] mb-[10px]"
+                      width="150"
+                      height="150"
+                      className="rounded-full border-[1px] border-[#ffffff4d] mb-[10px] mx-auto"
                     />
-                    <Text className="text-[12px] text-white">
+                    <Text className="text-[16px] text-white font-bold">
                       {content.label}
                     </Text>
                   </Column>
                 ))}
               </Row>
 
-              <Text className="text-[16px] text-[#AAAAAA] my-[30px] mb-[20px]">
+              <Text className="text-[28px] text-[#fff] my-[30px] mb-[30px]">
                 - Deepest rabbit hole -
               </Text>
-              <Section className="bg-[#222] rounded-[10px] p-5 my-5 text-left">
+              <Section className="text-left mb-[40px]">
                 <Row>
                   <Column style={{ width: "60%" }}>
-                    <Text className="text-[12px] text-brand mb-[5px]">
+                    <Text className="text-[18px] text-brand font-bold mb-[16px]">
                       {data.rabbitHole.timeLabel}
                     </Text>
-                    <Text className="text-[16px] font-bold text-white">
+                    <Text className="text-[30px] font-bold text-white leading-[40px]">
                       {data.rabbitHole.description}
                     </Text>
                   </Column>
-                  <Column style={{ width: "40%" }}>
+                  <Column style={{ width: "40%" }} align="right">
                     <Img
-                      src={data.rabbitHole.imageUrl}
-                      width="120"
-                      className="rounded-full border-2 border-white"
+                      src={`${assetBaseUrl}/figma/cat_sleep.png`}
+                      width="160"
                     />
                   </Column>
                 </Row>
               </Section>
 
-              <Section className="bg-white rounded-[20px] py-[10px] px-5 inline-block my-5">
-                <Link href="#" className="text-black no-underline font-bold">
-                  <Text className="m-0 text-black">
-                    {data.weeklyNudge.ctaLabel}
-                  </Text>
-                </Link>
-              </Section>
+              <Button
+                className="w-[288px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold"
+                href="https://react.email"
+              >
+                {data.weeklyNudge.ctaLabel}
+                <Img
+                  src={`${assetBaseUrl}/figma/download-icon_black.png`}
+                  alt=""
+                  width="13"
+                  height="13"
+                  className="inline-block ml-[10px]"
+                />
+              </Button>
             </Section>
 
             {/* NUDGE SECTION */}
-            <Section className="bg-bgNudge pt-10 px-5 text-center text-black">
-              <Text className="text-[18px] font-bold mb-[10px]">
+            <Section className="bg-bgNudge py-[60px] text-center text-black">
+              <Text className="text-[30px] font-bold mb-[60px]">
                 {data.weeklyNudge.title}
               </Text>
-              <Text className="text-[14px] mb-5">
-                {data.weeklyNudge.message}
-              </Text>
-              <Section className="bg-trendFill rounded-[20px] py-[10px] px-[30px] inline-block mb-10">
-                <Link href="#" className="text-white no-underline font-bold">
-                  Share Invite Link
-                </Link>
-              </Section>
-              <Img
-                src={`${assetBaseUrl}/figma/torn-paper-bottom-grey.png`}
-                alt="Divider"
-                width="600"
-                className="block w-full max-w-[600px]"
-              />
+              <Text className="text-[18px]">{data.weeklyNudge.message}</Text>
+              <Button
+                className="w-[248px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-trendFill text-center text-white text-[18px] font-bold"
+                href="https://react.email"
+              >
+                Share Invite Link
+                <Img
+                  src={`${assetBaseUrl}/figma/share-icon.png`}
+                  alt=""
+                  width="13"
+                  height="13"
+                  className="inline-block ml-[10px]"
+                />
+              </Button>
             </Section>
 
             {/* FOOTER */}
             <Section className="bg-bgDark py-10 px-5 text-center text-white">
               <Img
                 src={`${assetBaseUrl}/figma/feedling-icon.png`}
-                width="80"
-                height="80"
-                className="rounded-[10px] mb-[10px]"
+                width="120"
+                height="120"
+                className="rounded-[10px] mb-[10px] mx-auto"
               />
-              <Text className="text-[18px] font-bold mb-[10px]">
+              <Text className="text-[30px] font-bold mb-[30px]">
                 Who’s Feedling?
               </Text>
-              <Text className="text-[12px] text-[#AAAAAA] mb-5 max-w-[400px] mx-auto">
+              <Text className="text-[14px] text-[#fff] mb-5 max-w-[520px] mx-auto">
                 Feeding is an app that turns your TikTok habits into a virtual
                 pet you grow and nurture with your scrolling. We're launching
                 soon!
               </Text>
-              <Section className="bg-white rounded-[20px] py-[10px] px-5 inline-block mb-10">
-                <Link href="#" className="text-black no-underline font-bold">
-                  Follow us on TikTok
-                </Link>
-              </Section>
-              <Img
-                src={`${assetBaseUrl}/figma/footer-decors.png`}
-                width="600"
-                className="w-full max-w-[600px]"
-              />
+              <Button
+                className="w-[276px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold"
+                href="https://react.email"
+              >
+                Follow us on TikTok
+                <Img
+                  src={`${assetBaseUrl}/figma/tiktok-icon.png`}
+                  alt=""
+                  width="13"
+                  height="13"
+                  className="inline-block ml-[10px]"
+                />
+              </Button>
             </Section>
+            <Text className="text-[14px] text-[#fff] text-center">@ 2025 Honey Badger Cooperation Labs, Inc.</Text>
           </Container>
         </Body>
       </Html>
