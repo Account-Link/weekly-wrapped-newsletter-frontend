@@ -2,27 +2,16 @@ import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import { put } from "@vercel/blob";
 import { readFile } from "node:fs/promises";
-import { createRequire } from "node:module";
 import path from "node:path";
 import { TrendProgress } from "../components/satori/TrendProgress";
 import { DiagnosisBarChart } from "../components/satori/DiagnosisBarChart";
 import { TrendShareCard } from "../components/satori/TrendShareCard";
 import { StatsShareCard } from "../components/satori/StatsShareCard";
 
-const require = createRequire(import.meta.url);
-const fontAsset = require("next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf");
-const resolvedFontPath =
-  typeof fontAsset === "string"
-    ? fontAsset
-    : typeof fontAsset?.default === "string"
-      ? fontAsset.default
-      : path.join(
-          process.cwd(),
-          "node_modules/next/dist/compiled/@vercel/og/noto-sans-v27-latin-regular.ttf"
-        );
-const fontPath = resolvedFontPath.startsWith("/_next/")
-  ? path.join(process.cwd(), resolvedFontPath.replace(/^\/_next\//, ".next/"))
-  : resolvedFontPath;
+const fontPath = path.join(
+  process.cwd(),
+  "public/fonts/noto-sans-v27-latin-regular.ttf"
+);
 
 let cachedFont: Buffer | null = null;
 const cachedImages = new Map<string, string>();
