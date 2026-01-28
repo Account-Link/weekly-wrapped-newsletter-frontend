@@ -1,11 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-    serverComponentsExternalPackages: ["@resvg/resvg-js"]
-  },
+  serverExternalPackages: ["@resvg/resvg-js"],
   webpack: (config) => {
     config.externals.push("@resvg/resvg-js");
+    config.module.rules.push({
+      test: /\.ttf$/,
+      type: "asset/resource"
+    });
     return config;
   }
 };
