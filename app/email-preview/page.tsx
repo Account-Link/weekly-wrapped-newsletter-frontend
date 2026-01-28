@@ -1,0 +1,79 @@
+import { render } from "@react-email/render";
+import { FypScoutReportEmail } from "../../emails/fyp-scout-report";
+import { mapReportToWeeklyData } from "@/domain/report/adapter";
+import { mockReports } from "@/domain/report/mock";
+import {
+  renderDiagnosisBarChartImage,
+  renderTrendProgressImage,
+  uploadPngToVercelBlob
+} from "@/lib/satori-assets";
+import crypto from "node:crypto";
+
+const assetBaseUrl =
+  process.env.EMAIL_ASSET_BASE_URL || "http://localhost:3000";
+
+export default async function EmailPreviewPage({
+  searchParams
+}: {
+  params?: Promise<Record<string, string | string[] | undefined>>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const caseKey =
+    typeof resolvedSearchParams.case === "string" ? resolvedSearchParams.case : "curious";
+  const report = mockReports[caseKey] ?? mockReports.curious;
+  const data = mapReportToWeeklyData("preview-user", report, {
+    assetBaseUrl
+  });
+
+  const assetId = crypto.randomUUID();
+  const progressPng = await renderTrendProgressImage({
+    progress: data.hero.trendProgress,
+    startLabel: data.trend.startTag,
+    endLabel: data.trend.endTag,
+    width: 520,
+    height: 64
+  });
+  const barChartPng = await renderDiagnosisBarChartImage({
+    lastWeekLabel: data.diagnosis.lastWeekLabel,
+    thisWeekLabel: data.diagnosis.thisWeekLabel,
+    lastWeekValue: data.diagnosis.lastWeekValue,
+    thisWeekValue: data.diagnosis.thisWeekValue,
+    width: 300,
+    height: 140
+  });
+
+  data.trend.progressImageUrl = await uploadPngToVercelBlob(
+    progressPng,
+    `preview/${caseKey}-${assetId}-progress.png`
+  );
+  data.diagnosis.barChartImageUrl = await uploadPngToVercelBlob(
+    barChartPng,
+    `preview/${caseKey}-${assetId}-bars.png`
+  );
+
+  // 重要逻辑：服务端渲染邮件 HTML 供本地预览
+  const html = await render(<FypScoutReportEmail data={data} />, {
+    pretty: true
+  });
+
+  return (
+    <main style={{ margin: 0, padding: 16, background: "#F3F4F6" }}>
+      <div style={{ margin: "0 auto" }}>
+        <iframe
+          title="FYP Scout Email Preview"
+          srcDoc={html}
+          style={{
+            width: "100%",
+            height: "100vh",
+            border: "none",
+            background: "#FFFFFF"
+          }}
+        />
+        {/* <p style={{ fontSize: 12, color: "#666", textAlign: "center" }}>
+          切换案例：/email-preview?case=curious | excited | sleepy | dizzy | cozy
+        </p> */}
+      </div>
+    </main>
+  );
+}
