@@ -26,7 +26,6 @@ export function TrendProgressBlock({
               width="520px"
               height="auto"
               style={{ margin: "0 auto", display: "inline-block" }}
-              align="center"
             />
           </Section>
         )}
