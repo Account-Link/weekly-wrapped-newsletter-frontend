@@ -25,13 +25,14 @@ export function TrendProgressBlock({
               alt="Trend progress"
               width="520px"
               height="auto"
+              className="mobile-img-330"
               style={{ margin: "0 auto", display: "inline-block" }}
             />
           </Section>
         )}
       </Section>
       <Section
-        className=" w-[520px] text-[16px] text-black font-bold"
+        className=" w-[520px] text-[16px] text-black font-bold mobile-width-330"
         align="center"
       >
         <Row>

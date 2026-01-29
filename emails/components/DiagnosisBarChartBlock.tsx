@@ -18,7 +18,7 @@ export function DiagnosisBarChartBlock({
           src={barChartImageUrl}
           alt="Weekly comparison"
           width="520"
-          className="block mx-auto"
+          className="block mx-auto mobile-img-330"
         />
       )}
     </Section>
