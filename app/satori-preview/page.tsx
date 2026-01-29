@@ -31,7 +31,10 @@ export default async function SatoriPreviewPage({
       ? resolvedSearchParams.case
       : "curious";
   const report = mockReports[caseKey] ?? mockReports.curious;
-  const data = mapReportToWeeklyData("preview-user", report, { assetBaseUrl });
+  const data = mapReportToWeeklyData("preview-user", report, {
+    assetBaseUrl,
+    trackingBaseUrl: assetBaseUrl,
+  });
 
   const assetId = crypto.randomUUID();
   const progressPng = await renderTrendProgressImage({

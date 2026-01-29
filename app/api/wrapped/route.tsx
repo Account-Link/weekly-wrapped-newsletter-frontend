@@ -23,6 +23,7 @@ export async function GET(request: Request) {
 
     const weeklyData = mapReportToWeeklyData("preview-user", report, {
       assetBaseUrl,
+      trackingBaseUrl: assetBaseUrl,
     });
 
     const assetId = crypto.randomUUID();

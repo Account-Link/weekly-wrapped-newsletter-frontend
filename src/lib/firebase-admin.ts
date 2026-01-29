@@ -153,6 +153,7 @@ export interface WeeklyData {
   uid: string;
   weekStart: string; // ISO date string
   weekEnd: string; // ISO date string
+  trackingBaseUrl: string;
   hero: WeeklyHero;
   opening: WeeklyOpening;
   trend: WeeklyTrend;
@@ -203,6 +204,7 @@ export async function getWeeklyData(uid: string): Promise<WeeklyData> {
     uid,
     weekStart: start.toISOString().slice(0, 10),
     weekEnd: end.toISOString().slice(0, 10),
+    trackingBaseUrl: assetBaseUrl,
     hero: {
       imageUrl: "https://assets.fyp-scout.example/cat-feedling.png",
       imageAlt: "Feedling 猫咪",

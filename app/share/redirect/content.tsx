@@ -1,14 +1,14 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function RedirectContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const url = searchParams.get("url");
   const type = searchParams.get("type") || "unknown";
   const uid = searchParams.get("uid") || "anonymous";
+  const weekStart = searchParams.get("weekStart");
   const [status, setStatus] = useState("Redirecting...");
 
   useEffect(() => {
@@ -17,21 +17,25 @@ export default function RedirectContent() {
       return;
     }
 
-    // 1. Tracking
-    console.log(`[Tracking] Redirect: ${type}`, {
-      targetUrl: url,
-      uid,
-      timestamp: new Date().toISOString(),
-    });
+    fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event: "email_button_click",
+        type,
+        uid,
+        weekStart: weekStart || null,
+        source: "email",
+        targetUrl: url,
+      }),
+    }).catch(() => null);
 
-    // 2. Redirect
-    // Use window.location for external links to ensure full page load
     const timer = setTimeout(() => {
-        window.location.href = url;
-    }, 500); // Small delay to ensure tracking (optional, or rely on beacon)
+      window.location.href = url;
+    }, 500);
 
     return () => clearTimeout(timer);
-  }, [url, type, uid, router]);
+  }, [url, type, uid, weekStart]);
 
   if (!url) {
     return (

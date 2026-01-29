@@ -23,6 +23,7 @@ import {
 
 export interface AdapterOptions {
   assetBaseUrl: string;
+  trackingBaseUrl: string;
 }
 
 export function mapReportToWeeklyData(
@@ -131,6 +132,7 @@ export function mapReportToWeeklyData(
     uid,
     weekStart: report.weekRange.split(" - ")[0],
     weekEnd: report.weekRange.split(" - ")[1] || report.weekRange,
+    trackingBaseUrl: options.trackingBaseUrl,
     hero: {
       imageUrl: `${assetBaseUrl}/figma/opening-cat.png`,
       imageAlt: "Feedling Cat",

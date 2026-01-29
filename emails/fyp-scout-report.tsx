@@ -24,6 +24,11 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   const assetBaseUrl = data.hero.imageUrl
     ? data.hero.imageUrl.split("/figma/")[0]
     : "";
+  const trackingPixelUrl = data.trackingBaseUrl
+    ? `${data.trackingBaseUrl}/api/track?event=email_open&uid=${encodeURIComponent(
+        data.uid,
+      )}&weekStart=${encodeURIComponent(data.weekStart)}&source=email`
+    : "";
   const tailwindConfig = {
     theme: {
       spacing: {
@@ -167,6 +172,15 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
         </Head>
         <Preview>FYP Scout Weekly Newsletter</Preview>
         <Body className="m-0 w-full font-sans body">
+          {trackingPixelUrl ? (
+            <Img
+              src={trackingPixelUrl}
+              alt=""
+              width="1"
+              height="1"
+              style={{ display: "none" }}
+            />
+          ) : null}
           <Container className="w-full max-w-[1080px] mx-auto bg-bgDark">
             {/* OPENING SECTION */}
             <Section className="bg-bgDark pt-[30px] px-5 text-center text-white">
