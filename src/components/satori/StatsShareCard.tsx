@@ -218,6 +218,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
                   style={{
                     width: 100,
                     height: 100,
+                    display: "flex",
                   }}
                 >
                   <img
