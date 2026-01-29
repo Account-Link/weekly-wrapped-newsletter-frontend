@@ -12,7 +12,10 @@ import {
 import crypto from "node:crypto";
 
 const assetBaseUrl =
-  process.env.EMAIL_ASSET_BASE_URL || "http://localhost:3000";
+  process.env.EMAIL_ASSET_BASE_URL ||
+  (process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000");
 
 export async function generateEmailHtml(caseKey: string = "curious") {
   const report = mockReports[caseKey] ?? mockReports.curious;

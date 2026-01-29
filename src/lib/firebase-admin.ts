@@ -187,7 +187,11 @@ export async function getWeeklyData(uid: string): Promise<WeeklyData> {
     .toISOString()
     .slice(0, 10)}`;
   // 重要逻辑：本地预览需使用完整 URL，生产可替换为 CDN
-  const assetBaseUrl = process.env.EMAIL_ASSET_BASE_URL || "http://localhost:3000";
+  const assetBaseUrl =
+    process.env.EMAIL_ASSET_BASE_URL ||
+    (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
 
   return {
     uid,
