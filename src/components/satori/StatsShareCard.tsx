@@ -39,7 +39,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
     <div
       style={{
         width: 390,
-        minHeight: 693,
+        height: 980,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -59,7 +59,6 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
           top: 0,
           left: 0,
           width: "100%",
-          height: "auto",
           objectFit: "cover",
           zIndex: 0,
         }}
@@ -168,7 +167,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
               fontWeight: 700,
             }}
           >
-            <span>🏃 Your thumb ran </span>
+            <span>Your thumb ran </span>
             <span style={{ color: "#FF5678", marginLeft: 6, marginRight: 6 }}>
               {miles + " miles"}
             </span>
@@ -178,17 +177,13 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
         {/* Bar Chart Section */}
         <div
           style={{
-            width: barChartWidth ?? 330,
-            height: barChartHeight ?? "auto",
+            width: 330,
+            height: 265,
             display: "flex",
             marginBottom: 20,
           }}
         >
-          <DiagnosisBarChart
-            {...barChartData}
-            width={barChartWidth}
-            height={barChartHeight}
-          />
+          <DiagnosisBarChart {...barChartData} width={330} height={265} />
         </div>
 
         {/* New Contents Section */}
@@ -247,7 +242,6 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
           bottom: 0,
           left: 0,
           width: "100%",
-          height: "auto",
           objectFit: "cover",
           zIndex: 0,
         }}

@@ -34,7 +34,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
     <div
       style={{
         width: 390,
-        minHeight: 693,
+        height: 693,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -51,7 +51,6 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
           top: 0,
           left: 0,
           width: "100%",
-          height: "auto",
           objectFit: "cover",
           zIndex: 0,
         }}
@@ -77,7 +76,6 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
         <img
           src={topicIconData}
           width={180}
-          height="auto"
           style={{ objectFit: "contain", marginBottom: 32 }}
           alt="Topic"
         />
@@ -153,13 +151,15 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
             gap: 8,
           }}
         >
-          <TrendProgress
-            width={330}
-            progress={progress}
-            startLabel={hashtag}
-            endLabel={"Everywhere"}
-            fireIconData={fireIconData}
-          />
+          <div style={{ display: "flex", width: 330, height: 32 }}>
+            <TrendProgress
+              width={330}
+              progress={progress}
+              startLabel={hashtag}
+              endLabel={"Everywhere"}
+              fireIconData={fireIconData}
+            />
+          </div>
 
           <div
             style={{
@@ -199,7 +199,6 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
           bottom: 0,
           left: 0,
           width: "100%",
-          height: "auto",
           objectFit: "cover",
           zIndex: 0,
         }}

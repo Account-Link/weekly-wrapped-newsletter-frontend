@@ -154,18 +154,29 @@ export async function renderTrendShareCardImage(options: {
   globalPercent: string;
   width?: number;
   height?: number;
+  topicIconData?: string;
+  topBgData?: string;
+  bottomBgData?: string;
 }) {
   const width = options.width ?? 600;
   const height = options.height ?? 1000;
   const fontData = await loadFontData();
 
-  const [topicIconData, fireIconData, topBgData, bottomBgData] =
-    await Promise.all([
-      loadImageData("trend-icon.png"),
-      loadImageData("fire.png"),
-      loadImageData("trend-card-bg_top.png"),
-      loadImageData("trend-card-bg_bottom.png"),
-    ]);
+  const [
+    defaultTopicIconData,
+    fireIconData,
+    defaultTopBgData,
+    defaultBottomBgData,
+  ] = await Promise.all([
+    loadImageData("trend-icon.png"),
+    loadImageData("fire.png"),
+    loadImageData("trend-card-bg_top.png"),
+    loadImageData("trend-card-bg_bottom.png"),
+  ]);
+
+  const topicIconData = options.topicIconData ?? defaultTopicIconData;
+  const topBgData = options.topBgData ?? defaultTopBgData;
+  const bottomBgData = options.bottomBgData ?? defaultBottomBgData;
 
   const svg = await satori(
     <TrendShareCard

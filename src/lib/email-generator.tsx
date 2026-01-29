@@ -52,12 +52,12 @@ export async function generateEmailHtml(caseKey: string = "curious") {
 
   data.trend.progressImageUrl = await uploadPngToVercelBlob(
     progressPng,
-    `preview/${caseKey}-${assetId}-progress.png`
+    `preview/${caseKey}-${assetId}-progress.png`,
   );
 
   data.diagnosis.barChartImageUrl = await uploadPngToVercelBlob(
     barChartPng,
-    `preview/${caseKey}-${assetId}-bars.png`
+    `preview/${caseKey}-${assetId}-bars.png`,
   );
 
   // Generate and Upload Share Cards
@@ -70,6 +70,8 @@ export async function generateEmailHtml(caseKey: string = "curious") {
     hashtag: data.trend.startTag,
     hashtagPercent: data.trend.startPercent,
     globalPercent: data.trend.endPercent,
+    width: 390,
+    height: 693,
   });
 
   const statsCardPng = await renderStatsShareCardImage({
@@ -83,16 +85,18 @@ export async function generateEmailHtml(caseKey: string = "curious") {
       thisWeekValue: data.diagnosis.thisWeekValue,
     },
     contentLabels,
+    width: 390,
+    height: 980,
   });
 
   data.trend.shareUrl = await uploadPngToVercelBlob(
     trendCardPng,
-    `preview/${caseKey}-${assetId}-share-trend.png`
+    `preview/${caseKey}-${assetId}-share-trend.png`,
   );
 
   data.diagnosis.shareUrl = await uploadPngToVercelBlob(
     statsCardPng,
-    `preview/${caseKey}-${assetId}-share-stats.png`
+    `preview/${caseKey}-${assetId}-share-stats.png`,
   );
 
   const html = await render(<FypScoutReportEmail data={data} />, {

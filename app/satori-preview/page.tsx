@@ -2,7 +2,9 @@ import { TrendShareCard } from "@/components/satori/TrendShareCard";
 import { StatsShareCard } from "@/components/satori/StatsShareCard";
 import {
   renderDiagnosisBarChartImage,
+  renderStatsShareCardImage,
   renderTrendProgressImage,
+  renderTrendShareCardImage,
   uploadPngToVercelBlob,
 } from "@/lib/satori-assets";
 import { DiagnosisBarChart } from "@/components/satori/DiagnosisBarChart";
@@ -48,6 +50,34 @@ export default async function SatoriPreviewPage({
     height: 265,
   });
 
+  const statsShareCardPng = await renderStatsShareCardImage({
+    totalVideos: data.diagnosis.totalVideosValue,
+    totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
+    miles: `${data.diagnosis.miles}`,
+    barChartData: {
+      lastWeekLabel: data.diagnosis.lastWeekLabel,
+      thisWeekLabel: data.diagnosis.thisWeekLabel,
+      lastWeekValue: data.diagnosis.lastWeekValue,
+      thisWeekValue: data.diagnosis.thisWeekValue,
+    },
+    contentLabels: data.newContents.slice(0, 3).map((c) => c.label),
+    width: 390,
+    height: 980,
+  });
+
+  const trendShareCardPng = await renderTrendShareCardImage({
+    topicTitle: data.trend.topic.replace(/“|”/g, ""),
+    topicSubtitle: data.trend.statusText,
+    discoveryRank: data.trend.rank ?? 0,
+    totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
+    progress: data.hero.trendProgress,
+    hashtag: data.trend.startTag,
+    hashtagPercent: data.trend.startPercent,
+    globalPercent: data.trend.endPercent,
+    width: 390,
+    height: 693,
+  });
+
   const progressUrl = await uploadPngToVercelBlob(
     progressPng,
     `preview/${caseKey}-${assetId}-progress.png`,
@@ -55,6 +85,14 @@ export default async function SatoriPreviewPage({
   const barsUrl = await uploadPngToVercelBlob(
     barChartPng,
     `preview/${caseKey}-${assetId}-bars.png`,
+  );
+  const statsShareCardUrl = await uploadPngToVercelBlob(
+    statsShareCardPng,
+    `preview/${caseKey}-${assetId}-stats-share-card.png`,
+  );
+  const trendShareCardUrl = await uploadPngToVercelBlob(
+    trendShareCardPng,
+    `preview/${caseKey}-${assetId}-trend-share-card.png`,
   );
 
   const contentIcons = data.newContents.slice(0, 3).map((c) => c.stickerUrl);
@@ -154,7 +192,7 @@ export default async function SatoriPreviewPage({
 
       <div style={{ gridColumn: "1 / -1", ...moduleBoxStyle("#fff") }}>
         <h3 style={{ fontSize: 18, marginBottom: 8 }}>Generated PNGs</h3>
-        <div style={{ display: "flex", gap: 16 }}>
+        <div>
           <div>
             <h4 style={{ fontSize: 14, marginBottom: 6 }}>TrendProgress.png</h4>
             <img
@@ -174,6 +212,34 @@ export default async function SatoriPreviewPage({
               style={{
                 width: 520,
                 height: 265,
+                border: "1px solid #E5E7EB",
+                borderRadius: 8,
+              }}
+            />
+          </div>
+          <div>
+            <h4 style={{ fontSize: 14, marginBottom: 6 }}>
+              StatsShareCard.png
+            </h4>
+            <img
+              src={statsShareCardUrl}
+              style={{
+                width: 390,
+                height: "auto",
+                border: "1px solid #E5E7EB",
+                borderRadius: 8,
+              }}
+            />
+          </div>
+          <div>
+            <h4 style={{ fontSize: 14, marginBottom: 6 }}>
+              TrendShareCard.png
+            </h4>
+            <img
+              src={trendShareCardUrl}
+              style={{
+                width: 390,
+                height: "auto",
                 border: "1px solid #E5E7EB",
                 borderRadius: 8,
               }}
