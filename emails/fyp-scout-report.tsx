@@ -170,7 +170,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 endPercent={data.trend.endPercent}
               />
               <Button
-                className="w-[236px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-black text-center text-white text-[18px] font-bold align-middle"
+                className="w-[236px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-black text-center text-white text-[18px] font-bold block"
                 href={data.trend.shareUrl || "https://react.email"}
               >
                 {data.trend.ctaLabel}
@@ -288,7 +288,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               </Section>
 
               <Button
-                className="w-[288px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold align-middle"
+                className="w-[288px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold block"
                 href={data.diagnosis.shareUrl || "https://react.email"}
               >
                 {data.weeklyNudge.ctaLabel}
@@ -310,7 +310,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Text>
                 <Text className="text-[18px]">{data.weeklyNudge.message}</Text>
                 <Button
-                  className="w-[248px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-trendFill text-center text-white text-[18px] font-bold align-middle"
+                  className="w-[248px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-trendFill text-center text-white text-[18px] font-bold block"
                   href="https://react.email"
                 >
                   Share Invite Link
@@ -347,11 +347,11 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Text>
                 <Text className="text-[14px] leading-[20px] text-[#fff] mb-[60px] mx-auto">
                   Feeding is an app that turns your TikTok habits into a virtual
-                  pet you grow and nurture with your scrolling. We're launching
-                  soon!
+                  pet you grow and nurture with your scrolling. We&apos;re
+                  launching soon!
                 </Text>
                 <Button
-                  className="w-[276px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold align-middle"
+                  className="w-[276px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold block"
                   href="https://react.email"
                 >
                   Follow us on TikTok

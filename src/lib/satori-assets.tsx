@@ -267,7 +267,7 @@ export async function renderStatsShareCardImage(options: {
 
 export async function uploadPngToVercelBlob(buffer: Buffer, fileName: string) {
   // TODO: 调试模式 - 强制使用 Base64 以验证样式，后续测试上传时设为 false
-  const forceBase64 = true;
+  const forceBase64 = false;
   const token =
     process.env.BLOB_READ_WRITE_TOKEN ||
     process.env.VERCEL_BLOB_READ_WRITE_TOKEN;

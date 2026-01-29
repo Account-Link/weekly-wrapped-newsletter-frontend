@@ -18,12 +18,14 @@
     "@vercel/blob": "^2.0.1",
     "firebase-admin": "^12.5.0",
     "next": "^15.1.0",
+    "nodemailer": "^7.0.13",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "satori": "^0.19.1"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",
+    "@types/nodemailer": "^7.0.9",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "eslint": "^8.57.0",
