@@ -1,6 +1,5 @@
 import {
   Body,
-  Button,
   Column,
   Container,
   Head,
@@ -15,6 +14,7 @@ import { Tailwind } from "@react-email/tailwind";
 import type { WeeklyData } from "../src/lib/firebase-admin";
 import { TrendProgressBlock } from "./components/TrendProgressBlock";
 import { DiagnosisBarChartBlock } from "./components/DiagnosisBarChartBlock";
+import { EmailButton } from "./components/EmailButton";
 
 interface FypScoutReportEmailProps {
   data: WeeklyData;
@@ -168,26 +168,12 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 endTag={data.trend.endTag}
                 endPercent={data.trend.endPercent}
               />
-              <Button
-                className="w-[236px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-black text-center text-white text-[18px] font-bold block"
-                style={{
-                  height: "61px",
-                  lineHeight: "61px",
-                  display: "block",
-                  textAlign: "center",
-                  padding: "0",
-                }}
+              <EmailButton
                 href={data.trend.shareUrl || "https://react.email"}
-              >
-                {data.trend.ctaLabel}
-                <Img
-                  src={`${assetBaseUrl}/figma/download-icon.png`}
-                  alt=""
-                  width="13"
-                  height="13"
-                  className="inline-block ml-[10px]"
-                />
-              </Button>
+                label={data.trend.ctaLabel}
+                iconUrl={`${assetBaseUrl}/figma/download-icon.png`}
+                type="black"
+              />
             </Section>
 
             {/* DIAGNOSIS SECTION */}
@@ -299,26 +285,12 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Row>
               </Section>
 
-              <Button
-                className="w-[288px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold block"
-                style={{
-                  height: "61px",
-                  lineHeight: "61px",
-                  display: "block",
-                  textAlign: "center",
-                  padding: "0",
-                }}
+              <EmailButton
                 href={data.diagnosis.shareUrl || "https://react.email"}
-              >
-                {data.weeklyNudge.ctaLabel}
-                <Img
-                  src={`${assetBaseUrl}/figma/download-icon_black.png`}
-                  alt=""
-                  width="13"
-                  height="13"
-                  className="inline-block ml-[10px]"
-                />
-              </Button>
+                label={data.weeklyNudge.ctaLabel}
+                iconUrl={`${assetBaseUrl}/figma/download-icon_black.png`}
+                type="white"
+              />
             </Section>
 
             {/* NUDGE SECTION */}
@@ -328,26 +300,12 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   “Try putting your phone down before 3 AM this week!”
                 </Text>
                 <Text className="text-[18px]">{data.weeklyNudge.message}</Text>
-                <Button
-                  className="w-[248px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-trendFill text-center text-white text-[18px] font-bold block"
-                  style={{
-                    height: "61px",
-                    lineHeight: "61px",
-                    display: "block",
-                    textAlign: "center",
-                    padding: "0",
-                  }}
+                <EmailButton
                   href={data.weeklyNudge.linkUrl || "https://react.email"}
-                >
-                  Share Invite Link
-                  <Img
-                    src={`${assetBaseUrl}/figma/share-icon.png`}
-                    alt=""
-                    width="13"
-                    height="13"
-                    className="inline-block ml-[10px]"
-                  />
-                </Button>
+                  label="Share Invite Link"
+                  iconUrl={`${assetBaseUrl}/figma/share-icon.png`}
+                  type="blue"
+                />
               </Section>
             </Section>
 
@@ -376,26 +334,12 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   pet you grow and nurture with your scrolling. We&apos;re
                   launching soon!
                 </Text>
-                <Button
-                  className="w-[276px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold block"
-                  style={{
-                    height: "61px",
-                    lineHeight: "61px",
-                    display: "block",
-                    textAlign: "center",
-                    padding: "0",
-                  }}
+                <EmailButton
                   href={data.footer.tiktokUrl || "https://tiktok.com"}
-                >
-                  Follow us on TikTok
-                  <Img
-                    src={`${assetBaseUrl}/figma/tiktok-icon.png`}
-                    alt=""
-                    width="13"
-                    height="13"
-                    className="inline-block ml-[10px]"
-                  />
-                </Button>
+                  label="Follow us on TikTok"
+                  iconUrl={`${assetBaseUrl}/figma/tiktok-icon.png`}
+                  type="white"
+                />
                 <Text className="text-[14px] text-[#fff] text-center">
                   @ 2025 Honey Badger Cooperation Labs, Inc.
                 </Text>

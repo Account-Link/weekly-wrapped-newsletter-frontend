@@ -1,0 +1,84 @@
+import { Column, Img, Link, Row, Section } from "@react-email/components";
+import type { CSSProperties } from "react";
+
+type EmailButtonType = "black" | "white" | "blue";
+
+interface EmailButtonProps {
+  href: string;
+  label: string;
+  iconUrl?: string;
+  iconWidth?: number;
+  iconHeight?: number;
+  type: EmailButtonType;
+}
+
+const typeStyles: Record<EmailButtonType, CSSProperties> = {
+  black: {
+    backgroundColor: "#000000",
+    color: "#FFFFFF",
+  },
+  white: {
+    backgroundColor: "#FFFFFF",
+    color: "#000000",
+  },
+  blue: {
+    backgroundColor: "#6A00F4",
+    color: "#FFFFFF",
+  },
+};
+
+export function EmailButton({
+  href,
+  label,
+  iconUrl,
+  iconWidth = 13,
+  iconHeight = 13,
+  type,
+}: EmailButtonProps) {
+  return (
+    <Section align="center">
+      <Row>
+        <Column align="center">
+          <Link
+            href={href}
+            style={{
+              display: "inline-block",
+              height: "56px",
+              lineHeight: "56px",
+              padding: "0 36px",
+              borderRadius: "60px",
+              fontSize: "18px",
+              fontWeight: 700,
+              textDecoration: "none",
+              textAlign: "center",
+              boxSizing: "border-box",
+              ...typeStyles[type],
+            }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                verticalAlign: "middle",
+              }}
+            >
+              {label}
+            </span>
+            {iconUrl ? (
+              <Img
+                src={iconUrl}
+                alt=""
+                width={iconWidth}
+                height={iconHeight}
+                style={{
+                  display: "inline-block",
+                  verticalAlign: "middle",
+                  marginLeft: 10,
+                }}
+              />
+            ) : null}
+          </Link>
+        </Column>
+      </Row>
+    </Section>
+  );
+}
