@@ -13,7 +13,7 @@ export function DiagnosisBarChartBlock({
   lastWeekLabel,
   thisWeekLabel,
   lastWeekValue,
-  thisWeekValue
+  thisWeekValue,
 }: DiagnosisBarChartBlockProps) {
   const maxBarHeight = 100;
   const thisWeekHeight = Math.round((thisWeekValue / 100) * maxBarHeight);
@@ -25,8 +25,7 @@ export function DiagnosisBarChartBlock({
         <Img
           src={barChartImageUrl}
           alt="Weekly comparison"
-          width="300"
-          height="140"
+          width="520"
           className="block mx-auto"
         />
       ) : (

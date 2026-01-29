@@ -13,31 +13,35 @@ export function TrendProgressBlock({
   startTag,
   startPercent,
   endTag,
-  endPercent
+  endPercent,
 }: TrendProgressBlockProps) {
   return (
     <>
       <Section align="center">
         {progressImageUrl && (
-          <Section className="w-full mx-auto">
+          <Section className="w-full mx-auto text-center" align="center">
             <Img
               src={progressImageUrl}
               alt="Trend progress"
-              width="100%"
+              width="520px"
               height="auto"
-              className="block"
+              style={{ margin: "0 auto", display: "inline-block" }}
+              align="center"
             />
           </Section>
         )}
       </Section>
-      <Section className="text-[16px] text-black font-bold">
+      <Section
+        className=" w-[520px] text-[16px] text-black font-bold"
+        align="center"
+      >
         <Row>
           <Column className="w-[50%]" align="left">
-            <Text className="mt-[0px] mb-[0px]">{startTag}</Text>
+            <Text className="mt-[0px] leading-[14px] mb-[0px]">{startTag}</Text>
             <Text className="mt-[0px]">{startPercent}</Text>
           </Column>
           <Column className="w-[50%]" align="right">
-            <Text className="mt-[0px] mb-[0px]">{endTag}</Text>
+            <Text className="mt-[0px] leading-[14px] mb-[0px]">{endTag}</Text>
             <Text className="mt-[0px]">{endPercent}</Text>
           </Column>
         </Row>

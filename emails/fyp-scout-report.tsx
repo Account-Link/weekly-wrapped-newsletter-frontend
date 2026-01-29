@@ -97,25 +97,26 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
         <Head>
           <meta name="color-scheme" content="light dark" />
           <meta name="supported-color-schemes" content="light dark" />
-          <style>{responsiveAndDarkModeCss}</style>
+          <style></style>
         </Head>
         <Preview>FYP Scout Weekly Newsletter</Preview>
-        <Body className="m-0 font-sans body">
-          <Container className="w-full max-w-[600px] mx-auto bg-bgDark">
+        <Body className="m-0 w-full font-sans body">
+          <Container className="w-full max-w-[1080px] mx-auto bg-bgDark">
             {/* OPENING SECTION */}
             <Section className="bg-bgDark pt-[30px] px-5 text-center text-white">
               <Img
-                src={`${assetBaseUrl}/figma/cat.gif`}
+                src={`${assetBaseUrl}/figma/cat_main.png`}
                 alt="Opening Cat"
-                width="223"
-                height="223"
+                width="520"
+                height="200"
                 className="mx-auto mb-[38px]"
               />
-              <Text className="text-[30px] font-bold leading-[40px]">
-                {data.opening.title}
+              <Text className="text-[30px] font-bold leading-[40px] mb-[0px]">
+                This week you explored
               </Text>
-              <Text className="text-[30px] font-bold leading-[40px]">
-                {data.opening.subtitle}
+              <Text className="text-[30px] font-bold leading-[40px] mt-[0px]">
+                a lot of <span className="text-brand">New Corners</span> in
+                TikTok.
               </Text>
               <Text className="text-[18px] text-white mb-10">
                 {data.opening.dateRange}
@@ -123,48 +124,28 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* TREND SECTION */}
-            <Section className="h-[492px] bg-bgNudge text-center text-black p-[40px]">
-              {/* Layer 1: Frames (Bottom) */}
-              {/* <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-                <Img
-                  src={`${assetBaseUrl}/figma/frame1.png`}
-                  className="absolute left-0 top-2 max-w-[150px]"
-                  alt=""
-                />
-                <Img
-                  src={`${assetBaseUrl}/figma/frame3.png`}
-                  className="absolute right-[60px] top-2 max-w-[150px]"
-                  alt=""
-                />
-                <Img
-                  src={`${assetBaseUrl}/figma/frame2.png`}
-                  className="absolute left-[50%] translate-x-[-50%] top-2 max-w-[150px]"
-                  alt=""
-                />
-              </div> */}
-
-              {/* Layer 2: Pager BG (Middle) */}
-              {/* <Img
-                src={`${assetBaseUrl}/figma/pager-bg.png`}
-                className="absolute inset-0 w-[1080px] h-700px z-[1]"
-                alt=""
-              /> */}
-
-              {/* Layer 3: Content (Top) */}
+            <Section
+              className="h-[770px] w-full text-center text-black p-[40px] pt-[200px] mt-[-100px]"
+              style={{
+                backgroundImage: `url(${assetBaseUrl}/figma/trend-bg.png)`,
+                backgroundSize: "1080px 770px",
+                backgroundPosition: "center",
+              }}
+            >
               <Img
-                src={data.trend.stickerUrl}
+                src={`${assetBaseUrl}/figma/trend-icon.png`}
                 alt="Topic Sticker"
-                width="73"
-                height="61"
-                className="mx-auto pt-[10px] mb-[10px]"
+                width="126"
+                height="113"
+                className="mx-auto mb-[0px]"
               />
-              <Text className="text-[30px] leading-[36px] font-bold mb-[0px]">
+              <Text className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px]">
                 {data.trend.topic}
               </Text>
               <Text className="text-[18px] text-brand mt-[0px] font-bold">
                 {data.trend.statusText}
               </Text>
-              <Text className="text-[18px] mt-[10px] mb-5 font-bold">
+              <Text className="text-[18px] font-bold mb-[10px]">
                 {data.trend.rank !== null ? (
                   <>
                     You were{" "}
@@ -204,18 +185,25 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* DIAGNOSIS SECTION */}
-            <Section className="bg-bgDark py-10 px-[40px] text-white text-center">
-              <Text className="text-[30px] font-bold mb-[60px]">
+            <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-white text-center">
+              <Img
+                src={`${assetBaseUrl}/figma/diagnosis-icon.png`}
+                alt="Topic Sticker"
+                width="126"
+                height="113"
+                className="mx-auto mb-[0px]"
+              />
+              <Text className="text-[30px] font-bold mt-[0px] mb-[60px]">
                 {data.diagnosis.title}
               </Text>
 
-              <Row className="mb-5">
+              <Row className="mb-[56px]">
                 <Column className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px]">
                   <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px]">
                     {data.diagnosis.totalVideosValue}{" "}
                     {data.diagnosis.totalVideosUnit}
                   </Text>
-                  <Text className="text-[14px] text-[#ffffff] mt-[5px]">
+                  <Text className="text-[14px] text-[#ffffff] mt-[0px]">
                     Total Videos
                   </Text>
                 </Column>
@@ -225,7 +213,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     {data.diagnosis.totalTimeValue}{" "}
                     {data.diagnosis.totalTimeUnit}
                   </Text>
-                  <Text className="text-[14px] text-[#ffffff] mt-[5px]">
+                  <Text className="text-[14px] text-[#ffffff] mt-[0px]">
                     Total Time
                   </Text>
                 </Column>
@@ -254,7 +242,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 thisWeekValue={data.diagnosis.thisWeekValue}
               />
 
-              <Text className="text-[28px] text-[#fff] my-[30px] mb-[30px]">
+              <Text className="text-[20px] font-bold text-[#fff] my-[30px] mb-[30px]">
                 • New contents you got into •
               </Text>
               <Row className="mb-[30px]">
@@ -277,10 +265,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 ))}
               </Row>
 
-              <Text className="text-[28px] text-[#fff] my-[30px] mb-[30px]">
-                - Deepest rabbit hole -
+              <Text className="text-[20px] font-bold text-[#fff] my-[30px] mb-[30px]">
+                • Deepest rabbit hole •
               </Text>
-              <Section className="text-left mb-[40px]">
+              <Section className="text-left mb-[60px]">
                 <Row>
                   <Column style={{ width: "60%" }}>
                     <Text className="text-[18px] text-brand font-bold mb-[16px]">
@@ -316,66 +304,73 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
             {/* NUDGE SECTION */}
             <Section className="bg-bgNudge py-[60px] text-center text-black">
-              <Text className="text-[30px] font-bold mb-[60px]">
-                {data.weeklyNudge.title}
-              </Text>
-              <Text className="text-[18px]">{data.weeklyNudge.message}</Text>
-              <Button
-                className="w-[248px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-trendFill text-center text-white text-[18px] font-bold"
-                href="https://react.email"
-              >
-                Share Invite Link
-                <Img
-                  src={`${assetBaseUrl}/figma/share-icon.png`}
-                  alt=""
-                  width="13"
-                  height="13"
-                  className="inline-block ml-[10px]"
-                />
-              </Button>
+              <Section className="max-w-[520px] mx-auto">
+                <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px]">
+                  “Try putting your phone down before 3 AM this week!”
+                </Text>
+                <Text className="text-[18px]">{data.weeklyNudge.message}</Text>
+                <Button
+                  className="w-[248px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-trendFill text-center text-white text-[18px] font-bold"
+                  href="https://react.email"
+                >
+                  Share Invite Link
+                  <Img
+                    src={`${assetBaseUrl}/figma/share-icon.png`}
+                    alt=""
+                    width="13"
+                    height="13"
+                    className="inline-block ml-[10px]"
+                  />
+                </Button>
+              </Section>
             </Section>
 
             {/* FOOTER */}
-            <Section className="bg-bgDark py-10 px-5 text-center text-white">
-              <Img
-                src={`${assetBaseUrl}/figma/feedling-icon.png`}
-                width="120"
-                height="120"
-                className="rounded-[10px] mb-[10px] mx-auto"
-              />
-              <Text className="text-[30px] font-bold mb-[30px]">
-                Who’s Feedling?
-              </Text>
-              <Text className="text-[14px] text-[#fff] mb-5 max-w-[520px] mx-auto">
-                Feeding is an app that turns your TikTok habits into a virtual
-                pet you grow and nurture with your scrolling. We're launching
-                soon!
-              </Text>
-              <Button
-                className="w-[276px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold"
-                href="https://react.email"
-              >
-                Follow us on TikTok
+            <Section
+              className="w-full text-center pb-[160px]"
+              style={{
+                backgroundImage: `url(${assetBaseUrl}/figma/bottom-bg.png)`,
+                backgroundSize: "1080px 258px",
+                backgroundPosition: "bottom center",
+                backgroundRepeat: "no-repeat",
+              }}
+            >
+              <Section className="max-w-[520px] mx-auto py-10 px-5 text-center text-white">
                 <Img
-                  src={`${assetBaseUrl}/figma/tiktok-icon.png`}
-                  alt=""
-                  width="13"
-                  height="13"
-                  className="inline-block ml-[10px]"
+                  src={`${assetBaseUrl}/figma/feedling-icon.png`}
+                  width="120"
+                  height="120"
+                  className="rounded-[10px] mb-[10px] mx-auto"
                 />
-              </Button>
+                <Text className="text-[30px] font-bold mb-[30px]">
+                  Who’s Feedling?
+                </Text>
+                <Text className="text-[14px] leading-[20px] text-[#fff] mb-[60px] mx-auto">
+                  Feeding is an app that turns your TikTok habits into a virtual
+                  pet you grow and nurture with your scrolling. We're launching
+                  soon!
+                </Text>
+                <Button
+                  className="w-[276px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold align-middle"
+                  href="https://react.email"
+                >
+                  Follow us on TikTok
+                  <Img
+                    src={`${assetBaseUrl}/figma/tiktok-icon.png`}
+                    alt=""
+                    width="13"
+                    height="13"
+                    className="inline-block ml-[10px]"
+                  />
+                </Button>
+                <Text className="text-[14px] text-[#fff] text-center">
+                  @ 2025 Honey Badger Cooperation Labs, Inc.
+                </Text>
+              </Section>
             </Section>
-            <Text className="text-[14px] text-[#fff] text-center">@ 2025 Honey Badger Cooperation Labs, Inc.</Text>
           </Container>
         </Body>
       </Html>
     </Tailwind>
   );
 }
-
-// 保留 body 暗色模式兜底，并重置 p 标签默认 margin
-const responsiveAndDarkModeCss = `
-  @media (prefers-color-scheme: dark) {
-    .body { background-color: #000000 !important; }
-  }
-`;

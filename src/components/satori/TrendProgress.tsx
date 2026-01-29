@@ -60,7 +60,7 @@ export const TrendProgress: React.FC<TrendProgressProps> = ({
               right: 0,
               width: 45,
               height: 55,
-              transform: "translate(22px, -10px) rotate(10deg)",
+              transform: "translate(22px, -10px) rotate(15deg)",
             }}
           />
         </div>
