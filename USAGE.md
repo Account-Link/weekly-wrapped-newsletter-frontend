@@ -86,6 +86,30 @@ http://localhost:3000/api/send-test-email?email=接收者邮箱@example.com&case
 
 ---
 
+## ❓ 常见问题 (Troubleshooting)
+
+### 1. 邮件中的图片无法显示 / 谷歌代理链接 404
+**现象**：
+- 直接访问图片链接（如 `https://your-app.vercel.app/figma/cat.png`）正常。
+- 在 Gmail 中图片破裂，复制图片地址发现是 `googleusercontent.com` 开头的代理链接，访问报 404。
+- 点击直接链接跳转到了 Vercel 登录页面。
+
+**原因**：
+Vercel 默认会对 **Preview Deployments (预览部署)** 开启 "Deployment Protection"（部署保护），通常是 Vercel Authentication。
+Gmail 的图片代理服务器无法通过 Vercel 的登录验证，因此无法获取图片。
+
+**解决方案**：
+1.  **使用生产环境域名 (推荐)**：
+    确保 `.env` 中的 `EMAIL_ASSET_BASE_URL` 指向您的 **Production Domain** (生产域名，如 `https://myapp.com` 或 `https://myapp.vercel.app`)。生产环境通常默认不开启访问保护。
+    
+2.  **关闭 Vercel 保护 (仅限测试)**：
+    前往 Vercel Dashboard -> Settings -> Deployment Protection -> Vercel Authentication，将 "Standard Protection" 关闭，或者为特定分支关闭保护。
+
+3.  **配置环境变量**：
+    在 Vercel 项目设置中，添加 `EMAIL_ASSET_BASE_URL` 环境变量，值为您的生产域名。
+
+---
+
 ## 📂 项目结构 (Project Structure)
 
 ```
