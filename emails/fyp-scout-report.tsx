@@ -89,6 +89,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
       },
     },
   };
+  const [contentA, contentB, contentC] = data.newContents;
 
   return (
     <Tailwind config={tailwindConfig}>
@@ -243,24 +244,60 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               <Text className="text-[20px] font-bold text-[#fff] my-[30px] mb-[30px]">
                 • New contents you got into •
               </Text>
-              <Row className="mb-[30px]">
-                {data.newContents.map((content) => (
+              <Row className="mb-[30px] w-[520px] mx-auto" align="center">
+                {contentA ? (
                   <Column
-                    key={content.label}
-                    className="text-center w-1/3"
+                    className="text-center"
                     align="center"
+                    style={{ width: "150px" }}
                   >
                     <Img
-                      src={content.stickerUrl}
+                      src={contentA.stickerUrl}
                       width="150"
                       height="150"
                       className="rounded-full border-[1px] border-[#ffffff4d] mb-[10px] mx-auto"
                     />
                     <Text className="text-[16px] text-white font-bold">
-                      {content.label}
+                      {contentA.label}
                     </Text>
                   </Column>
-                ))}
+                ) : null}
+                <Column className="w-[35px]"></Column>
+                {contentB ? (
+                  <Column
+                    className="text-center"
+                    align="center"
+                    style={{ width: "150px" }}
+                  >
+                    <Img
+                      src={contentB.stickerUrl}
+                      width="150"
+                      height="150"
+                      className="rounded-full border-[1px] border-[#ffffff4d] mb-[10px] mx-auto"
+                    />
+                    <Text className="text-[16px] text-white font-bold">
+                      {contentB.label}
+                    </Text>
+                  </Column>
+                ) : null}
+                <Column className="w-[35px]"></Column>
+                {contentC ? (
+                  <Column
+                    className="text-center"
+                    align="center"
+                    style={{ width: "150px" }}
+                  >
+                    <Img
+                      src={contentC.stickerUrl}
+                      width="150"
+                      height="150"
+                      className="rounded-full border-[1px] border-[#ffffff4d] mb-[10px] mx-auto"
+                    />
+                    <Text className="text-[16px] text-white font-bold">
+                      {contentC.label}
+                    </Text>
+                  </Column>
+                ) : null}
               </Row>
 
               <Text className="text-[20px] font-bold text-[#fff] my-[30px] mb-[30px]">
@@ -295,11 +332,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
             {/* NUDGE SECTION */}
             <Section className="bg-bgNudge py-[60px] text-center text-black">
-              <Section className="max-w-[520px] mx-auto">
-                <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px]">
+              <Section className="max-w-[520px] mx-auto" align="center">
+                <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px] text-center">
                   “Try putting your phone down before 3 AM this week!”
                 </Text>
-                <Text className="text-[18px]">{data.weeklyNudge.message}</Text>
+                <Text className="text-[18px] text-center">
+                  {data.weeklyNudge.message}
+                </Text>
                 <EmailButton
                   href={data.weeklyNudge.linkUrl || "https://react.email"}
                   label="Share Invite Link"
@@ -335,7 +374,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   launching soon!
                 </Text>
                 <EmailButton
-                  href={data.footer.tiktokUrl || "https://tiktok.com"}
+                  href={"https://www.tiktok.com/@your.feedling"}
                   label="Follow us on TikTok"
                   iconUrl={`${assetBaseUrl}/figma/tiktok-icon.png`}
                   type="white"
