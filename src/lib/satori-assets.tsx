@@ -212,6 +212,8 @@ export async function renderStatsShareCardImage(options: {
     thisWeekValue: number;
   };
   contentLabels: string[];
+  barChartWidth?: number;
+  barChartHeight?: number;
   width?: number;
   height?: number;
 }) {
@@ -219,11 +221,12 @@ export async function renderStatsShareCardImage(options: {
   const height = options.height ?? 1000;
   const fontData = await loadFontData();
 
-  const [headerIconData, runIconData, footerDecorData, c1, c2, c3] =
+  const [headerIconData, runIconData, topBgData, bottomBgData, c1, c2, c3] =
     await Promise.all([
-      loadImageData("feedling-icon.png"), // Assumption
+      loadImageData("stats-icon.png"), // Assumption
       loadImageData("download-icon_black.png"), // Placeholder for run icon
-      loadImageData("torn-paper-bottom-grey.png"), // Assumption
+      loadImageData("stats-card-bg_top.png"),
+      loadImageData("stats-card-bg_bottom.png"),
       loadImageData("content-sticker-1.png"),
       loadImageData("content-sticker-2.png"),
       loadImageData("content-sticker-3.png"),
@@ -237,9 +240,12 @@ export async function renderStatsShareCardImage(options: {
       runIconData={runIconData}
       miles={options.miles}
       barChartData={options.barChartData}
+      barChartWidth={options.barChartWidth}
+      barChartHeight={options.barChartHeight}
       contentIcons={[c1, c2, c3]}
       contentLabels={options.contentLabels}
-      footerDecorData={footerDecorData}
+      topBgData={topBgData}
+      bottomBgData={bottomBgData}
     />,
     {
       width,

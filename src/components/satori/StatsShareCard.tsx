@@ -3,6 +3,7 @@ import { DiagnosisBarChart } from "./DiagnosisBarChart";
 
 export interface StatsShareCardProps {
   headerIconData: string;
+  topBgData: string;
   totalVideos: string;
   totalTime: string;
   runIconData: string;
@@ -13,54 +14,71 @@ export interface StatsShareCardProps {
     lastWeekValue: number;
     thisWeekValue: number;
   };
+  barChartWidth?: number;
+  barChartHeight?: number;
   contentIcons: string[]; // Array of 3 icon base64 strings
   contentLabels: string[]; // Array of 3 labels
-  footerDecorData: string;
+  bottomBgData: string;
 }
 
 export const StatsShareCard: React.FC<StatsShareCardProps> = ({
   headerIconData,
+  topBgData,
   totalVideos,
   totalTime,
   runIconData,
   miles,
   barChartData,
+  barChartWidth,
+  barChartHeight,
   contentIcons,
   contentLabels,
-  footerDecorData,
+  bottomBgData,
 }) => {
   return (
     <div
       style={{
-        width: "100%",
-        height: "100%",
+        width: 390,
+        minHeight: 693,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        backgroundColor: "#000000",
+        backgroundColor: "#313131",
         fontFamily: "Noto Sans",
         color: "#FFFFFF",
         position: "relative",
+        paddingTop: 40,
+        paddingBottom: 80,
       }}
     >
-      {/* Top Decor - Optional, mimicking the top waves if needed, or just padding */}
-      <div style={{ width: "100%", height: 20, backgroundColor: "#000" }} />
-
+      <img
+        src={topBgData}
+        alt="Top Background"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "auto",
+          objectFit: "cover",
+          zIndex: 0,
+        }}
+      />
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           width: "100%",
-          padding: 40,
           flex: 1,
+          position: "relative",
+          zIndex: 1,
         }}
       >
         {/* Header Icon */}
         <img
           src={headerIconData}
-          width={120}
-          height={120}
+          width={180}
           style={{ objectFit: "contain", marginBottom: 24 }}
           alt="Stats"
         />
@@ -68,9 +86,8 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
         {/* Title */}
         <span
           style={{
-            fontSize: 36,
+            fontSize: 24,
             fontWeight: 700,
-            marginBottom: 40,
             textAlign: "center",
           }}
         >
@@ -81,10 +98,12 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
         <div
           style={{
             display: "flex",
-            gap: 24,
-            marginBottom: 40,
+            marginTop: 20,
+            marginBottom: 20,
             width: "100%",
-            justifyContent: "center",
+            justifyContent: "space-between",
+            padding: "0 30px",
+            boxSizing: "border-box",
           }}
         >
           {/* Box 1 */}
@@ -94,16 +113,17 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              border: "1px solid #333",
+              border: "1px solid rgba(255, 255, 255, 0.30)",
               borderRadius: 24,
-              padding: "24px 32px",
-              width: 240,
+              padding: "20px 0",
+              width: 155,
+              boxSizing: "border-box",
             }}
           >
-            <span style={{ fontSize: 32, fontWeight: 700, color: "#FF5678" }}>
+            <span style={{ fontSize: 20, fontWeight: 700, color: "#FF5678" }}>
               {totalVideos}
             </span>
-            <span style={{ fontSize: 16, fontWeight: 700, marginTop: 4 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>
               Total Videos
             </span>
           </div>
@@ -115,16 +135,17 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              border: "1px solid #333",
+              border: "1px solid rgba(255, 255, 255, 0.30)",
               borderRadius: 24,
-              padding: "24px 32px",
-              width: 240,
+              padding: "20px 0",
+              width: 155,
+              boxSizing: "border-box",
             }}
           >
-            <span style={{ fontSize: 32, fontWeight: 700, color: "#FF5678" }}>
+            <span style={{ fontSize: 20, fontWeight: 700, color: "#FF5678" }}>
               {totalTime}
             </span>
-            <span style={{ fontSize: 16, fontWeight: 700, marginTop: 4 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>
               Total Time
             </span>
           </div>
@@ -136,10 +157,9 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
             display: "flex",
             alignItems: "center",
             gap: 12,
-            marginBottom: 40,
+            marginBottom: 20,
           }}
         >
-          <img src={runIconData} width={24} height={24} alt="run" />
           <div
             style={{
               display: "flex",
@@ -148,16 +168,27 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
               fontWeight: 700,
             }}
           >
-            <span>Your thumb ran</span>
-            <span style={{ color: "#FF5678", marginLeft: 6 }}>{miles}</span>
+            <span>🏃 Your thumb ran </span>
+            <span style={{ color: "#FF5678", marginLeft: 6, marginRight: 6 }}>
+              {miles + " miles"}
+            </span>
           </div>
         </div>
 
         {/* Bar Chart Section */}
         <div
-          style={{ width: 400, height: 200, display: "flex", marginBottom: 40 }}
+          style={{
+            width: barChartWidth ?? 330,
+            height: barChartHeight ?? "auto",
+            display: "flex",
+            marginBottom: 20,
+          }}
         >
-          <DiagnosisBarChart {...barChartData} />
+          <DiagnosisBarChart
+            {...barChartData}
+            width={barChartWidth}
+            height={barChartHeight}
+          />
         </div>
 
         {/* New Contents Section */}
@@ -169,7 +200,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
             width: "100%",
           }}
         >
-          <span style={{ fontSize: 20, fontWeight: 700, marginBottom: 24 }}>
+          <span style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>
             • New contents you got into •
           </span>
           <div style={{ display: "flex", gap: 32, justifyContent: "center" }}>
@@ -180,31 +211,25 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: 12,
+                  gap: 4,
                 }}
               >
                 <div
                   style={{
                     width: 100,
                     height: 100,
-                    borderRadius: "50%",
-                    border: "1px solid #333",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
                   }}
                 >
                   <img
                     src={icon}
                     style={{
-                      width: "60%",
-                      height: "60%",
+                      width: "100%",
+                      height: "100%",
                       objectFit: "contain",
                     }}
                   />
                 </div>
-                <span style={{ fontSize: 14, fontWeight: 700 }}>
+                <span style={{ fontSize: 12, fontWeight: 700 }}>
                   {contentLabels[idx]}
                 </span>
               </div>
@@ -213,20 +238,19 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
         </div>
       </div>
 
-      {/* Footer Decor */}
-      <div
+      <img
+        src={bottomBgData}
+        alt="Bottom Background"
         style={{
-          display: "flex",
+          position: "absolute",
+          bottom: 0,
+          left: 0,
           width: "100%",
-          height: 60,
-          marginTop: "auto",
+          height: "auto",
+          objectFit: "cover",
+          zIndex: 0,
         }}
-      >
-        <img
-          src={footerDecorData}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-        />
-      </div>
+      />
     </div>
   );
 };

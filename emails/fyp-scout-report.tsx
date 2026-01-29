@@ -187,7 +187,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             {/* DIAGNOSIS SECTION */}
             <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-white text-center">
               <Img
-                src={`${assetBaseUrl}/figma/diagnosis-icon.png`}
+                src={`${assetBaseUrl}/figma/stats-icon.png`}
                 alt="Topic Sticker"
                 width="126"
                 height="113"

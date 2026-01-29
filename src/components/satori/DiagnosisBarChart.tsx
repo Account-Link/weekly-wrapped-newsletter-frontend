@@ -5,6 +5,8 @@ export interface DiagnosisBarChartProps {
   thisWeekLabel: string;
   lastWeekValue: number;
   thisWeekValue: number;
+  width?: number;
+  height?: number;
 }
 
 const timeSteps = [6, 12, 24, 36, 48, 72];
@@ -30,6 +32,8 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
   thisWeekLabel,
   lastWeekValue,
   thisWeekValue,
+  width,
+  height,
 }) => {
   const maxMinutes = Math.max(lastWeekValue, thisWeekValue, 1);
   const topHours = pickTopHours(maxMinutes);
@@ -46,8 +50,8 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
   return (
     <div
       style={{
-        width: 520,
-        height: 265,
+        width: width ?? 520,
+        height: height ?? 265,
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-end",

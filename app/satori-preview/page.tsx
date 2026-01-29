@@ -75,7 +75,8 @@ export default async function SatoriPreviewPage({
       bottomBgData: `${assetBaseUrl}/figma/trend-card-bg_bottom.png`,
     },
     stats: {
-      headerIconData: `${assetBaseUrl}/figma/feedling-icon.png`,
+      headerIconData: `${assetBaseUrl}/figma/stats-icon.png`,
+      topBgData: `${assetBaseUrl}/figma/stats-card-bg_top.png`,
       totalVideos: data.diagnosis.totalVideosValue,
       totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
       runIconData: `${assetBaseUrl}/figma/download-icon_black.png`,
@@ -88,7 +89,7 @@ export default async function SatoriPreviewPage({
       },
       contentIcons,
       contentLabels,
-      footerDecorData: `${assetBaseUrl}/figma/torn-paper-bottom-grey.png`,
+      bottomBgData: `${assetBaseUrl}/figma/stats-card-bg_bottom.png`,
     },
   };
 
@@ -134,7 +135,7 @@ export default async function SatoriPreviewPage({
 
       <div style={moduleBoxStyle("#ECECEC")}>
         <h3 style={{ fontSize: 18, marginBottom: 8 }}>TrendShareCard (HTML)</h3>
-        <div style={{ width: 600, height: 1000 }}>
+        <div style={{ width: 390 }}>
           <TrendShareCard {...card.trend} />
         </div>
       </div>
@@ -143,7 +144,7 @@ export default async function SatoriPreviewPage({
         <h3 style={{ fontSize: 18, marginBottom: 8, color: "#fff" }}>
           StatsShareCard (HTML)
         </h3>
-        <div style={{ width: 600, height: 1000 }}>
+        <div style={{ width: 390 }}>
           <StatsShareCard {...card.stats} />
         </div>
       </div>

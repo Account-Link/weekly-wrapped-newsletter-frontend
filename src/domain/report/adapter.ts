@@ -5,7 +5,7 @@ import {
   getDiscoveryText,
   getMilesScrolledText,
   getNudgeCopy,
-  getTimeComparisonText
+  getTimeComparisonText,
 } from "@/domain/report/logic-map";
 import type {
   WeeklyData,
@@ -14,9 +14,12 @@ import type {
   WeeklyOpening,
   WeeklyRabbitHole,
   WeeklyTrend,
-  WeeklyNudge
+  WeeklyNudge,
 } from "@/lib/firebase-admin";
-import { calculateFeedlingState, determineNudgeType } from "@/domain/report/utils";
+import {
+  calculateFeedlingState,
+  determineNudgeType,
+} from "@/domain/report/utils";
 
 export interface AdapterOptions {
   assetBaseUrl: string;
@@ -25,7 +28,7 @@ export interface AdapterOptions {
 export function mapReportToWeeklyData(
   uid: string,
   report: WeeklyReportData,
-  options: AdapterOptions
+  options: AdapterOptions,
 ): WeeklyData {
   const assetBaseUrl = options.assetBaseUrl;
   const feedlingState = report.feedling.state || calculateFeedlingState(report);
@@ -35,18 +38,25 @@ export function mapReportToWeeklyData(
   const spreadVisual = SPREAD_VISUAL_MAP[report.trend.currentSpread];
 
   const opening: WeeklyOpening = {
-    title: FEEDLING_COPY_MAP[feedlingState].split(" a lot of ")[0].trim() || "This week you explored",
-    subtitle: FEEDLING_COPY_MAP[feedlingState].replace("This week you explored", "").trim(),
+    title:
+      FEEDLING_COPY_MAP[feedlingState].split(" a lot of ")[0].trim() ||
+      "This week you explored",
+    subtitle: FEEDLING_COPY_MAP[feedlingState]
+      .replace("This week you explored", "")
+      .trim(),
     dateRange: report.weekRange,
     decorUrl: "", // Unused in new template
-    catUrl: `${assetBaseUrl}/figma/opening-cat.png`
+    catUrl: `${assetBaseUrl}/figma/opening-cat.png`,
   };
 
   const trend: WeeklyTrend = {
     stickerUrl: `${assetBaseUrl}/figma/topic-sticker-sound.png`,
     topic: `“${report.trend.name}”`,
     statusText: "blew up this week",
-    discoveryText: getDiscoveryText(report.trend.rank, report.trend.totalDiscoverers),
+    discoveryText: getDiscoveryText(
+      report.trend.rank,
+      report.trend.totalDiscoverers,
+    ),
     rank: report.trend.rank,
     totalDiscoverers: report.trend.totalDiscoverers,
     startTag: report.trend.origin,
@@ -54,18 +64,23 @@ export function mapReportToWeeklyData(
     endTag: spreadVisual.split("→")[1]?.trim() ? "Everywhere" : "Everywhere",
     endPercent: `${report.trend.penetrationEnd}%`,
     ctaLabel: "Share My Week",
-    ctaIconUrl: "" // Unused in new template
+    ctaIconUrl: "", // Unused in new template
   };
 
   const thisWeekVal = report.stats.totalTimeMinutes;
   const lastWeekVal = report.stats.lastWeekTimeMinutes;
 
   // Split Diagnosis Logic
-  const comparisonFull = getTimeComparisonText(report.stats.totalTimeMinutes, report.stats.lastWeekTimeMinutes);
+  const comparisonFull = getTimeComparisonText(
+    report.stats.totalTimeMinutes,
+    report.stats.lastWeekTimeMinutes,
+  );
   // Attempt to extract time part (e.g. "2h 35min")
   const timeMatch = comparisonFull.match(/^(\d+h \d+min)/);
   const comparisonDiff = timeMatch ? timeMatch[0] : null;
-  const comparisonText = comparisonDiff ? comparisonFull.replace(comparisonDiff, "").trim() : comparisonFull;
+  const comparisonText = comparisonDiff
+    ? comparisonFull.replace(comparisonDiff, "").trim()
+    : comparisonFull;
 
   const milesFull = getMilesScrolledText(report.stats.milesScrolled);
   const milesComment = milesFull.split("miles")[1] || "";
@@ -74,7 +89,9 @@ export function mapReportToWeeklyData(
     title: "This week you watched",
     totalVideosValue: report.stats.totalVideos.toLocaleString(),
     totalVideosUnit: "Videos",
-    totalTimeValue: formatMinutes(report.stats.totalTimeMinutes).replace("min", "").trim(), // "19 h 14"
+    totalTimeValue: formatMinutes(report.stats.totalTimeMinutes)
+      .replace("min", "")
+      .trim(), // "19 h 14"
     totalTimeUnit: "min",
     comparisonDiff,
     comparisonText: `${comparisonText} 👍`,
@@ -83,26 +100,30 @@ export function mapReportToWeeklyData(
     thisWeekLabel: "This Week",
     lastWeekLabel: "Last Week",
     thisWeekValue: thisWeekVal,
-    lastWeekValue: lastWeekVal
+    lastWeekValue: lastWeekVal,
   };
 
-  const newContents: WeeklyNewContent[] = report.newTopics.slice(0, 3).map((label, index) => ({
-    label,
-    stickerUrl: `${assetBaseUrl}/figma/content-sticker-${index + 1}.png`
-  }));
+  const newContents: WeeklyNewContent[] = report.newTopics
+    .slice(0, 3)
+    .map((label, index) => ({
+      label,
+      stickerUrl: `${assetBaseUrl}/figma/content-sticker-${index + 1}.png`,
+    }));
 
   const rabbitHole: WeeklyRabbitHole = {
-    timeLabel: report.rabbitHole.time ? `${report.rabbitHole.day} ${report.rabbitHole.time}` : "—",
+    timeLabel: report.rabbitHole.time
+      ? `${report.rabbitHole.day} ${report.rabbitHole.time}`
+      : "—",
     description: report.rabbitHole.category
       ? `You watched ${report.rabbitHole.count ?? 0} videos of ${report.rabbitHole.category}.`
       : "You went down a rabbit hole.",
-    imageUrl: `${assetBaseUrl}/figma/cat-gif.png`
+    imageUrl: `${assetBaseUrl}/figma/cat-gif.png`,
   };
 
   const weeklyNudge: WeeklyNudge = {
     title: "👍🏻 Weekly Nudge 👍🏻",
     message: getNudgeCopy(nudgeType, report.nudge.limitTime),
-    ctaLabel: "Share My Scroll Stats"
+    ctaLabel: "Share My Scroll Stats",
   };
 
   return {
@@ -112,7 +133,7 @@ export function mapReportToWeeklyData(
     hero: {
       imageUrl: `${assetBaseUrl}/figma/opening-cat.png`,
       imageAlt: "Feedling Cat",
-      trendProgress: Math.round(report.trend.penetrationEnd)
+      trendProgress: Math.round(report.trend.penetrationEnd),
     },
     opening,
     trend,
@@ -121,11 +142,17 @@ export function mapReportToWeeklyData(
     rabbitHole,
     weeklyNudge,
     stats: [
-      { label: "Total Videos", value: report.stats.totalVideos.toLocaleString() },
-      { label: "Total Time", value: formatMinutes(report.stats.totalTimeMinutes) },
+      {
+        label: "Total Videos",
+        value: report.stats.totalVideos.toLocaleString(),
+      },
+      {
+        label: "Total Time",
+        value: formatMinutes(report.stats.totalTimeMinutes),
+      },
       { label: "Miles", value: `${report.stats.milesScrolled}` },
-      { label: "Late Night", value: `${report.stats.lateNightPercentage}%` }
-    ]
+      { label: "Late Night", value: `${report.stats.lateNightPercentage}%` },
+    ],
   };
 }
 
@@ -144,7 +171,7 @@ function mapToPercent(current: number, lastWeek: number): number {
 function buildDeltaNote(report: WeeklyReportData): string {
   const comparison = getTimeComparisonText(
     report.stats.totalTimeMinutes,
-    report.stats.lastWeekTimeMinutes
+    report.stats.lastWeekTimeMinutes,
   );
   const milesText = getMilesScrolledText(report.stats.milesScrolled);
   return `${comparison} 👍 ${milesText}`;
