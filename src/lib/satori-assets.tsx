@@ -8,21 +8,36 @@ import { DiagnosisBarChart } from "../components/satori/DiagnosisBarChart";
 import { TrendShareCard } from "../components/satori/TrendShareCard";
 import { StatsShareCard } from "../components/satori/StatsShareCard";
 
-const fontPath = path.join(
+const fontRegularPath = path.join(
   process.cwd(),
-  "public/fonts/noto-sans-v27-latin-regular.ttf"
+  "public/fonts/NotoSans-Regular.ttf",
 );
+const fontBoldPath = path.join(process.cwd(), "public/fonts/NotoSans-Bold.ttf");
 
-let cachedFont: Buffer | null = null;
+let cachedRegularFont: Buffer | null = null;
+let cachedBoldFont: Buffer | null = null;
 const cachedImages = new Map<string, string>();
 const RENDER_SCALE = 4;
-const FONT_NAME = "Helvetica";
+const FONT_NAME = "Noto Sans";
+
+function toArrayBuffer(data: Buffer): ArrayBuffer {
+  return data.buffer.slice(
+    data.byteOffset,
+    data.byteOffset + data.byteLength,
+  ) as ArrayBuffer;
+}
 
 async function loadFontData() {
-  if (!cachedFont) {
-    cachedFont = await readFile(fontPath);
+  if (!cachedRegularFont) {
+    cachedRegularFont = await readFile(fontRegularPath);
   }
-  return cachedFont;
+  if (!cachedBoldFont) {
+    cachedBoldFont = await readFile(fontBoldPath);
+  }
+  return {
+    regular: toArrayBuffer(cachedRegularFont),
+    bold: toArrayBuffer(cachedBoldFont),
+  };
 }
 
 async function loadImageData(filename: string) {
@@ -30,7 +45,10 @@ async function loadImageData(filename: string) {
     const iconPath = path.join(process.cwd(), "public/figma", filename);
     try {
       const buffer = await readFile(iconPath);
-      cachedImages.set(filename, `data:image/png;base64,${buffer.toString("base64")}`);
+      cachedImages.set(
+        filename,
+        `data:image/png;base64,${buffer.toString("base64")}`,
+      );
     } catch (e) {
       console.error(`Failed to load image: ${filename}`, e);
       return ""; // Return empty string or placeholder if missing
@@ -44,7 +62,9 @@ async function loadFireIconData() {
 }
 
 function renderSvgToPng(svg: string) {
-  const resvg = new Resvg(svg, { fitTo: { mode: "zoom", value: RENDER_SCALE } });
+  const resvg = new Resvg(svg, {
+    fitTo: { mode: "zoom", value: RENDER_SCALE },
+  });
   const pngData = resvg.render();
   return Buffer.from(pngData.asPng());
 }
@@ -72,10 +92,15 @@ export async function renderTrendProgressImage(options: {
       width,
       height,
       fonts: [
-        { name: FONT_NAME, data: fontData, weight: 400, style: "normal" },
-        { name: FONT_NAME, data: fontData, weight: 700, style: "normal" },
+        {
+          name: FONT_NAME,
+          data: fontData.regular,
+          weight: 400,
+          style: "normal",
+        },
+        { name: FONT_NAME, data: fontData.bold, weight: 700, style: "normal" },
       ],
-    }
+    },
   );
 
   return renderSvgToPng(svg);
@@ -104,10 +129,15 @@ export async function renderDiagnosisBarChartImage(options: {
       width,
       height,
       fonts: [
-        { name: FONT_NAME, data: fontData, weight: 400, style: "normal" },
-        { name: FONT_NAME, data: fontData, weight: 700, style: "normal" },
+        {
+          name: FONT_NAME,
+          data: fontData.regular,
+          weight: 400,
+          style: "normal",
+        },
+        { name: FONT_NAME, data: fontData.bold, weight: 700, style: "normal" },
       ],
-    }
+    },
   );
 
   return renderSvgToPng(svg);
@@ -128,7 +158,7 @@ export async function renderTrendShareCardImage(options: {
   const width = options.width ?? 600;
   const height = options.height ?? 1000;
   const fontData = await loadFontData();
-  
+
   const [topicIconData, fireIconData, footerDecorData] = await Promise.all([
     loadImageData("topic-sticker-sound.png"),
     loadImageData("fire.png"),
@@ -153,11 +183,16 @@ export async function renderTrendShareCardImage(options: {
       width,
       height,
       fonts: [
-        { name: FONT_NAME, data: fontData, weight: 400, style: "normal" },
-        { name: FONT_NAME, data: fontData, weight: 700, style: "normal" },
-        { name: FONT_NAME, data: fontData, weight: 900, style: "normal" },
+        {
+          name: FONT_NAME,
+          data: fontData.regular,
+          weight: 400,
+          style: "normal",
+        },
+        { name: FONT_NAME, data: fontData.bold, weight: 700, style: "normal" },
+        { name: FONT_NAME, data: fontData.bold, weight: 900, style: "normal" },
       ],
-    }
+    },
   );
 
   return renderSvgToPng(svg);
@@ -180,15 +215,16 @@ export async function renderStatsShareCardImage(options: {
   const width = options.width ?? 600;
   const height = options.height ?? 1000;
   const fontData = await loadFontData();
-  
-  const [headerIconData, runIconData, footerDecorData, c1, c2, c3] = await Promise.all([
-    loadImageData("feedling-icon.png"), // Assumption
-    loadImageData("download-icon_black.png"), // Placeholder for run icon
-    loadImageData("torn-paper-bottom-grey.png"), // Assumption
-    loadImageData("content-sticker-1.png"),
-    loadImageData("content-sticker-2.png"),
-    loadImageData("content-sticker-3.png"),
-  ]);
+
+  const [headerIconData, runIconData, footerDecorData, c1, c2, c3] =
+    await Promise.all([
+      loadImageData("feedling-icon.png"), // Assumption
+      loadImageData("download-icon_black.png"), // Placeholder for run icon
+      loadImageData("torn-paper-bottom-grey.png"), // Assumption
+      loadImageData("content-sticker-1.png"),
+      loadImageData("content-sticker-2.png"),
+      loadImageData("content-sticker-3.png"),
+    ]);
 
   const svg = await satori(
     <StatsShareCard
@@ -206,22 +242,26 @@ export async function renderStatsShareCardImage(options: {
       width,
       height,
       fonts: [
-        { name: FONT_NAME, data: fontData, weight: 400, style: "normal" },
-        { name: FONT_NAME, data: fontData, weight: 700, style: "normal" },
+        {
+          name: FONT_NAME,
+          data: fontData.regular,
+          weight: 400,
+          style: "normal",
+        },
+        { name: FONT_NAME, data: fontData.bold, weight: 700, style: "normal" },
       ],
-    }
+    },
   );
 
   return renderSvgToPng(svg);
 }
 
-export async function uploadPngToVercelBlob(
-  buffer: Buffer,
-  fileName: string
-) {
+export async function uploadPngToVercelBlob(buffer: Buffer, fileName: string) {
   // TODO: 调试模式 - 强制使用 Base64 以验证样式，后续测试上传时设为 false
   const forceBase64 = true;
-  const token = process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN;
+  const token =
+    process.env.BLOB_READ_WRITE_TOKEN ||
+    process.env.VERCEL_BLOB_READ_WRITE_TOKEN;
 
   if (!token || forceBase64) {
     return `data:image/png;base64,${buffer.toString("base64")}`;

@@ -37,7 +37,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
         flexDirection: "column",
         alignItems: "center",
         backgroundColor: "#ECECEC", // Light gray background
-        fontFamily: "Helvetica",
+        fontFamily: "Noto Sans",
         position: "relative",
         overflow: "hidden",
       }}

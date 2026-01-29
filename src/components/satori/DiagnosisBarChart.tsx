@@ -51,7 +51,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-end",
-        fontFamily: "Helvetica",
+        fontFamily: "Noto Sans",
         fontWeight: 700,
         position: "relative",
         paddingLeft: 40,
