@@ -170,6 +170,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               />
               <Button
                 className="w-[236px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-black text-center text-white text-[18px] font-bold block"
+                style={{
+                  height: "61px",
+                  lineHeight: "61px",
+                  display: "block",
+                  textAlign: "center",
+                  padding: "0",
+                }}
                 href={data.trend.shareUrl || "https://react.email"}
               >
                 {data.trend.ctaLabel}
@@ -197,7 +204,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               </Text>
 
               <Row className="mb-[56px]">
-                <Column className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px]">
+                <Column
+                  className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] text-center"
+                  align="center"
+                >
                   <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px]">
                     {data.diagnosis.totalVideosValue}{" "}
                     {data.diagnosis.totalVideosUnit}
@@ -207,7 +217,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   </Text>
                 </Column>
                 <Column className="w-[30px]"></Column>
-                <Column className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] mr-[30px]">
+                <Column
+                  className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] mr-[30px] text-center"
+                  align="center"
+                >
                   <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px]">
                     {data.diagnosis.totalTimeValue}{" "}
                     {data.diagnosis.totalTimeUnit}
@@ -288,6 +301,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
               <Button
                 className="w-[288px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold block"
+                style={{
+                  height: "61px",
+                  lineHeight: "61px",
+                  display: "block",
+                  textAlign: "center",
+                  padding: "0",
+                }}
                 href={data.diagnosis.shareUrl || "https://react.email"}
               >
                 {data.weeklyNudge.ctaLabel}
@@ -310,6 +330,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <Text className="text-[18px]">{data.weeklyNudge.message}</Text>
                 <Button
                   className="w-[248px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-trendFill text-center text-white text-[18px] font-bold block"
+                  style={{
+                    height: "61px",
+                    lineHeight: "61px",
+                    display: "block",
+                    textAlign: "center",
+                    padding: "0",
+                  }}
                   href={data.weeklyNudge.linkUrl || "https://react.email"}
                 >
                   Share Invite Link
@@ -351,6 +378,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Text>
                 <Button
                   className="w-[276px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold block"
+                  style={{
+                    height: "61px",
+                    lineHeight: "61px",
+                    display: "block",
+                    textAlign: "center",
+                    padding: "0",
+                  }}
                   href={data.footer.tiktokUrl || "https://tiktok.com"}
                 >
                   Follow us on TikTok
