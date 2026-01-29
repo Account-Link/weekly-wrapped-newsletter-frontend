@@ -38,7 +38,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
         flexDirection: "column",
         alignItems: "center",
         backgroundColor: "#000000",
-        fontFamily: "Noto Sans",
+        fontFamily: "Helvetica",
         color: "#FFFFFF",
         position: "relative",
       }}

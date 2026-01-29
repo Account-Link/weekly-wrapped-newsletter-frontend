@@ -232,8 +232,8 @@ export async function getWeeklyData(uid: string): Promise<WeeklyData> {
       milesComment: "- a half marathon.",
       thisWeekLabel: "This Week",
       lastWeekLabel: "Last Week",
-      thisWeekValue: 60,
-      lastWeekValue: 80,
+      thisWeekValue: 1154,
+      lastWeekValue: 1290,
     },
     newContents: [
       {

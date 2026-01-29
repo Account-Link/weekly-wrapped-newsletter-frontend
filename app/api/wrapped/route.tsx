@@ -40,8 +40,8 @@ export async function GET(request: Request) {
       thisWeekLabel: weeklyData.diagnosis.thisWeekLabel,
       lastWeekValue: weeklyData.diagnosis.lastWeekValue,
       thisWeekValue: weeklyData.diagnosis.thisWeekValue,
-      width: 300,
-      height: 140
+      width: 520,
+      height: 265
     });
 
     weeklyData.trend.progressImageUrl = await uploadPngToVercelBlob(
@@ -103,8 +103,8 @@ export async function POST(request: Request) {
       thisWeekLabel: weeklyData.diagnosis.thisWeekLabel,
       lastWeekValue: weeklyData.diagnosis.lastWeekValue,
       thisWeekValue: weeklyData.diagnosis.thisWeekValue,
-      width: 300,
-      height: 140
+      width: 520,
+      height: 265
     });
 
     weeklyData.trend.progressImageUrl = await uploadPngToVercelBlob(

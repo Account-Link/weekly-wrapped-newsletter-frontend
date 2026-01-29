@@ -7,7 +7,7 @@ import {
   renderTrendProgressImage,
   renderTrendShareCardImage,
   renderStatsShareCardImage,
-  uploadPngToVercelBlob
+  uploadPngToVercelBlob,
 } from "@/lib/satori-assets";
 import { TrendShareCard } from "@/components/satori/TrendShareCard";
 import { StatsShareCard } from "@/components/satori/StatsShareCard";
@@ -17,22 +17,28 @@ const assetBaseUrl =
   process.env.EMAIL_ASSET_BASE_URL || "http://localhost:3000";
 
 export default async function EmailPreviewPage({
-  searchParams
+  searchParams,
 }: {
   params?: Promise<Record<string, string | string[] | undefined>>;
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const caseKey =
-    typeof resolvedSearchParams.case === "string" ? resolvedSearchParams.case : "curious";
+    typeof resolvedSearchParams.case === "string"
+      ? resolvedSearchParams.case
+      : "curious";
   const report = mockReports[caseKey] ?? mockReports.curious;
   const data = mapReportToWeeklyData("preview-user", report, {
-    assetBaseUrl
+    assetBaseUrl,
   });
 
   const assetId = crypto.randomUUID();
-  const contentIcons = data.newContents.slice(0, 3).map((content) => content.stickerUrl);
-  const contentLabels = data.newContents.slice(0, 3).map((content) => content.label);
+  const contentIcons = data.newContents
+    .slice(0, 3)
+    .map((content) => content.stickerUrl);
+  const contentLabels = data.newContents
+    .slice(0, 3)
+    .map((content) => content.label);
   while (contentIcons.length < 3) contentIcons.push("");
   while (contentLabels.length < 3) contentLabels.push("");
   const progressPng = await renderTrendProgressImage({
@@ -40,24 +46,24 @@ export default async function EmailPreviewPage({
     startLabel: data.trend.startTag,
     endLabel: data.trend.endTag,
     width: 520,
-    height: 64
+    height: 64,
   });
   const barChartPng = await renderDiagnosisBarChartImage({
     lastWeekLabel: data.diagnosis.lastWeekLabel,
     thisWeekLabel: data.diagnosis.thisWeekLabel,
     lastWeekValue: data.diagnosis.lastWeekValue,
     thisWeekValue: data.diagnosis.thisWeekValue,
-    width: 300,
-    height: 140
+    width: 520,
+    height: 265,
   });
 
   data.trend.progressImageUrl = await uploadPngToVercelBlob(
     progressPng,
-    `preview/${caseKey}-${assetId}-progress.png`
+    `preview/${caseKey}-${assetId}-progress.png`,
   );
   data.diagnosis.barChartImageUrl = await uploadPngToVercelBlob(
     barChartPng,
-    `preview/${caseKey}-${assetId}-bars.png`
+    `preview/${caseKey}-${assetId}-bars.png`,
   );
 
   // Generate and Upload Share Cards
@@ -87,17 +93,17 @@ export default async function EmailPreviewPage({
 
   data.trend.shareUrl = await uploadPngToVercelBlob(
     trendCardPng,
-    `preview/${caseKey}-${assetId}-share-trend.png`
+    `preview/${caseKey}-${assetId}-share-trend.png`,
   );
 
   data.diagnosis.shareUrl = await uploadPngToVercelBlob(
     statsCardPng,
-    `preview/${caseKey}-${assetId}-share-stats.png`
+    `preview/${caseKey}-${assetId}-share-stats.png`,
   );
 
   // 重要逻辑：服务端渲染邮件 HTML 供本地预览
   const html = await render(<FypScoutReportEmail data={data} />, {
-    pretty: true
+    pretty: true,
   });
   return (
     <main style={{ margin: 0, padding: 16, background: "#F3F4F6" }}>
@@ -109,7 +115,7 @@ export default async function EmailPreviewPage({
           width: "100%",
           height: "100vh",
           border: "none",
-          background: "#FFFFFF"
+          background: "#FFFFFF",
         }}
       />
     </main>

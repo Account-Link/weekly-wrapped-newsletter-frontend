@@ -57,9 +57,8 @@ export function mapReportToWeeklyData(
     ctaIconUrl: "" // Unused in new template
   };
 
-  const maxTime = Math.max(report.stats.totalTimeMinutes, report.stats.lastWeekTimeMinutes);
-  const thisWeekVal = maxTime > 0 ? Math.round((report.stats.totalTimeMinutes / maxTime) * 100) : 0;
-  const lastWeekVal = maxTime > 0 ? Math.round((report.stats.lastWeekTimeMinutes / maxTime) * 100) : 0;
+  const thisWeekVal = report.stats.totalTimeMinutes;
+  const lastWeekVal = report.stats.lastWeekTimeMinutes;
 
   // Split Diagnosis Logic
   const comparisonFull = getTimeComparisonText(report.stats.totalTimeMinutes, report.stats.lastWeekTimeMinutes);

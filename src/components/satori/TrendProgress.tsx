@@ -28,7 +28,7 @@ export const TrendProgress: React.FC<TrendProgressProps> = ({
         flexDirection: "column",
         justifyContent: "center",
         gap: 8,
-        fontFamily: "Noto Sans",
+        fontFamily: "Helvetica",
         color: "#111111",
       }}
     >

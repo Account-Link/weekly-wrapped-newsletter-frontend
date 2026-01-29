@@ -16,6 +16,7 @@ const fontPath = path.join(
 let cachedFont: Buffer | null = null;
 const cachedImages = new Map<string, string>();
 const RENDER_SCALE = 4;
+const FONT_NAME = "Helvetica";
 
 async function loadFontData() {
   if (!cachedFont) {
@@ -71,8 +72,8 @@ export async function renderTrendProgressImage(options: {
       width,
       height,
       fonts: [
-        { name: "Noto Sans", data: fontData, weight: 400, style: "normal" },
-        { name: "Noto Sans", data: fontData, weight: 700, style: "normal" },
+        { name: FONT_NAME, data: fontData, weight: 400, style: "normal" },
+        { name: FONT_NAME, data: fontData, weight: 700, style: "normal" },
       ],
     }
   );
@@ -88,8 +89,8 @@ export async function renderDiagnosisBarChartImage(options: {
   width?: number;
   height?: number;
 }) {
-  const width = options.width ?? 300;
-  const height = options.height ?? 140;
+  const width = options.width ?? 520;
+  const height = options.height ?? 265;
   const fontData = await loadFontData();
 
   const svg = await satori(
@@ -103,8 +104,8 @@ export async function renderDiagnosisBarChartImage(options: {
       width,
       height,
       fonts: [
-        { name: "Noto Sans", data: fontData, weight: 400, style: "normal" },
-        { name: "Noto Sans", data: fontData, weight: 700, style: "normal" },
+        { name: FONT_NAME, data: fontData, weight: 400, style: "normal" },
+        { name: FONT_NAME, data: fontData, weight: 700, style: "normal" },
       ],
     }
   );
@@ -152,9 +153,9 @@ export async function renderTrendShareCardImage(options: {
       width,
       height,
       fonts: [
-        { name: "Noto Sans", data: fontData, weight: 400, style: "normal" },
-        { name: "Noto Sans", data: fontData, weight: 700, style: "normal" },
-        { name: "Noto Sans", data: fontData, weight: 900, style: "normal" },
+        { name: FONT_NAME, data: fontData, weight: 400, style: "normal" },
+        { name: FONT_NAME, data: fontData, weight: 700, style: "normal" },
+        { name: FONT_NAME, data: fontData, weight: 900, style: "normal" },
       ],
     }
   );
@@ -205,8 +206,8 @@ export async function renderStatsShareCardImage(options: {
       width,
       height,
       fonts: [
-        { name: "Noto Sans", data: fontData, weight: 400, style: "normal" },
-        { name: "Noto Sans", data: fontData, weight: 700, style: "normal" },
+        { name: FONT_NAME, data: fontData, weight: 400, style: "normal" },
+        { name: FONT_NAME, data: fontData, weight: 700, style: "normal" },
       ],
     }
   );
