@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { render } from "@react-email/render";
 import { FypScoutReportEmail } from "../../../emails/fyp-scout-report";
-import { adminDb, getWeeklyData } from "../../../src/lib/firebase-admin";
 import { mapReportToWeeklyData } from "../../../src/domain/report/adapter";
 import { mockReports } from "../../../src/domain/report/mock";
 import {
@@ -69,6 +68,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const { adminDb, getWeeklyData } = await import(
+      "../../../src/lib/firebase-admin"
+    );
     // 重要逻辑：权限握手，确保 Firebase Admin 已正确初始化并具备访问权限
     // - 可根据业务需要执行一次轻量级读操作或健康检查
     // - 例如：列出集合以确认连接正常（轻量动作）

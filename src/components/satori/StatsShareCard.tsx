@@ -121,7 +121,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
             }}
           >
             <span style={{ fontSize: 20, fontWeight: 700, color: "#FF5678" }}>
-              {totalVideos}
+              {totalVideos} Videos
             </span>
             <span style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>
               Total Videos
