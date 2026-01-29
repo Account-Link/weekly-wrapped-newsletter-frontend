@@ -37,7 +37,7 @@ function initAdminSingleton() {
     serviceAccount = JSON.parse(jsonText);
   } catch {
     throw new Error(
-      "FIREBASE_SERVICE_ACCOUNT_KEY must be valid JSON or Base64(JSON)"
+      "FIREBASE_SERVICE_ACCOUNT_KEY must be valid JSON or Base64(JSON)",
     );
   }
   if (!serviceAccount || typeof serviceAccount !== "object") {
@@ -51,7 +51,7 @@ function initAdminSingleton() {
   };
   if (!sa.project_id || !sa.client_email || !sa.private_key) {
     throw new Error(
-      "Service account missing required fields: project_id, client_email, private_key"
+      "Service account missing required fields: project_id, client_email, private_key",
     );
   }
   // 重要逻辑：private_key 可能包含转义的 \\n，需要替换为真实换行
@@ -142,12 +142,17 @@ export interface WeeklyNudge {
   title: string;
   message: string;
   ctaLabel: string;
+  linkUrl?: string;
+}
+
+export interface WeeklyFooter {
+  tiktokUrl: string;
 }
 
 export interface WeeklyData {
   uid: string;
   weekStart: string; // ISO date string
-  weekEnd: string;   // ISO date string
+  weekEnd: string; // ISO date string
   hero: WeeklyHero;
   opening: WeeklyOpening;
   trend: WeeklyTrend;
@@ -156,6 +161,7 @@ export interface WeeklyData {
   rabbitHole: WeeklyRabbitHole;
   weeklyNudge: WeeklyNudge;
   stats: WeeklyStat[];
+  footer: WeeklyFooter;
 }
 
 // 重要逻辑：周报数据获取（当前返回 Mock，保留真实查询注释）
@@ -198,8 +204,7 @@ export async function getWeeklyData(uid: string): Promise<WeeklyData> {
     weekStart: start.toISOString().slice(0, 10),
     weekEnd: end.toISOString().slice(0, 10),
     hero: {
-      imageUrl:
-        "https://assets.fyp-scout.example/cat-feedling.png",
+      imageUrl: "https://assets.fyp-scout.example/cat-feedling.png",
       imageAlt: "Feedling 猫咪",
       trendProgress: 72,
     },
@@ -269,5 +274,8 @@ export async function getWeeklyData(uid: string): Promise<WeeklyData> {
       { label: "帖子发布", value: "36", delta: "-3%" },
       { label: "转化率", value: "4.7%", delta: "+0.5%" },
     ],
+    footer: {
+      tiktokUrl: "https://tiktok.com/@feedling",
+    },
   };
 }

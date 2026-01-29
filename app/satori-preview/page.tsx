@@ -36,8 +36,6 @@ export default async function SatoriPreviewPage({
   const assetId = crypto.randomUUID();
   const progressPng = await renderTrendProgressImage({
     progress: data.hero.trendProgress,
-    startLabel: data.trend.startTag,
-    endLabel: data.trend.endTag,
     width: 520,
     height: 64,
   });
@@ -157,8 +155,6 @@ export default async function SatoriPreviewPage({
         <div style={{ width: 520, height: 64 }}>
           <TrendProgress
             progress={card.trend.progress}
-            startLabel={card.trend.hashtag}
-            endLabel={card.trend.globalPercent}
             fireIconData={card.trend.fireIconData}
             width={520}
           />

@@ -6,7 +6,7 @@ import { mockReports } from "../../../src/domain/report/mock";
 import {
   renderDiagnosisBarChartImage,
   renderTrendProgressImage,
-  uploadPngToVercelBlob
+  uploadPngToVercelBlob,
 } from "../../../src/lib/satori-assets";
 import crypto from "node:crypto";
 
@@ -19,20 +19,17 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const caseKey = url.searchParams.get("case") ?? "curious";
     const report = mockReports[caseKey] ?? mockReports.curious;
-    const assetBaseUrl =
-      process.env.EMAIL_ASSET_BASE_URL || url.origin;
+    const assetBaseUrl = process.env.EMAIL_ASSET_BASE_URL || url.origin;
 
     const weeklyData = mapReportToWeeklyData("preview-user", report, {
-      assetBaseUrl
+      assetBaseUrl,
     });
 
     const assetId = crypto.randomUUID();
     const progressPng = await renderTrendProgressImage({
       progress: weeklyData.hero.trendProgress,
-      startLabel: weeklyData.trend.startTag,
-      endLabel: weeklyData.trend.endTag,
       width: 520,
-      height: 64
+      height: 64,
     });
     const barChartPng = await renderDiagnosisBarChartImage({
       lastWeekLabel: weeklyData.diagnosis.lastWeekLabel,
@@ -40,37 +37,35 @@ export async function GET(request: Request) {
       lastWeekValue: weeklyData.diagnosis.lastWeekValue,
       thisWeekValue: weeklyData.diagnosis.thisWeekValue,
       width: 520,
-      height: 265
+      height: 265,
     });
 
     weeklyData.trend.progressImageUrl = await uploadPngToVercelBlob(
       progressPng,
-      `preview/${caseKey}-${assetId}-progress.png`
+      `preview/${caseKey}-${assetId}-progress.png`,
     );
     weeklyData.diagnosis.barChartImageUrl = await uploadPngToVercelBlob(
       barChartPng,
-      `preview/${caseKey}-${assetId}-bars.png`
+      `preview/${caseKey}-${assetId}-bars.png`,
     );
 
     const html = await render(<FypScoutReportEmail data={weeklyData} />, {
-      pretty: true
+      pretty: true,
     });
 
     return new NextResponse(html, {
-      headers: { "content-type": "text/html; charset=utf-8" }
+      headers: { "content-type": "text/html; charset=utf-8" },
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unknown error";
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const { adminDb, getWeeklyData } = await import(
-      "../../../src/lib/firebase-admin"
-    );
+    const { adminDb, getWeeklyData } =
+      await import("../../../src/lib/firebase-admin");
     // 重要逻辑：权限握手，确保 Firebase Admin 已正确初始化并具备访问权限
     // - 可根据业务需要执行一次轻量级读操作或健康检查
     // - 例如：列出集合以确认连接正常（轻量动作）
@@ -95,10 +90,8 @@ export async function POST(request: Request) {
     const assetId = crypto.randomUUID();
     const progressPng = await renderTrendProgressImage({
       progress: weeklyData.hero.trendProgress,
-      startLabel: weeklyData.trend.startTag,
-      endLabel: weeklyData.trend.endTag,
       width: 520,
-      height: 64
+      height: 64,
     });
     const barChartPng = await renderDiagnosisBarChartImage({
       lastWeekLabel: weeklyData.diagnosis.lastWeekLabel,
@@ -106,28 +99,27 @@ export async function POST(request: Request) {
       lastWeekValue: weeklyData.diagnosis.lastWeekValue,
       thisWeekValue: weeklyData.diagnosis.thisWeekValue,
       width: 520,
-      height: 265
+      height: 265,
     });
 
     weeklyData.trend.progressImageUrl = await uploadPngToVercelBlob(
       progressPng,
-      `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-progress.png`
+      `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-progress.png`,
     );
     weeklyData.diagnosis.barChartImageUrl = await uploadPngToVercelBlob(
       barChartPng,
-      `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-bars.png`
+      `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-bars.png`,
     );
 
     // 重要逻辑：服务端渲染 React Email 模板为 HTML，供邮件服务商发送
     const html = await render(<FypScoutReportEmail data={weeklyData} />, {
-      pretty: true
+      pretty: true,
     });
 
     // 重要逻辑：返回 HTML 与数据便于联调与回归测试
     return NextResponse.json({ html, data: weeklyData });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unknown error";
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

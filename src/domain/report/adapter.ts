@@ -124,6 +124,7 @@ export function mapReportToWeeklyData(
     title: "👍🏻 Weekly Nudge 👍🏻",
     message: getNudgeCopy(nudgeType, report.nudge.limitTime),
     ctaLabel: "Share My Scroll Stats",
+    linkUrl: "https://feedling.app/nudge-invite", // Placeholder
   };
 
   return {
@@ -153,6 +154,9 @@ export function mapReportToWeeklyData(
       { label: "Miles", value: `${report.stats.milesScrolled}` },
       { label: "Late Night", value: `${report.stats.lateNightPercentage}%` },
     ],
+    footer: {
+      tiktokUrl: "https://tiktok.com/@feedling",
+    },
   };
 }
 

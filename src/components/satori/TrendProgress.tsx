@@ -6,16 +6,12 @@ function clampPercent(value: number) {
 
 export interface TrendProgressProps {
   progress: number;
-  startLabel: string;
-  endLabel: string;
   fireIconData: string;
   width?: number | string;
 }
 
 export const TrendProgress: React.FC<TrendProgressProps> = ({
   progress,
-  startLabel,
-  endLabel,
   fireIconData,
   width,
 }) => {

@@ -59,6 +59,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
           top: 0,
           left: 0,
           width: "100%",
+          height: "auto",
           objectFit: "cover",
           zIndex: 0,
         }}
@@ -242,6 +243,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
           bottom: 0,
           left: 0,
           width: "100%",
+          height: "auto",
           objectFit: "cover",
           zIndex: 0,
         }}

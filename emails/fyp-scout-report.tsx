@@ -6,7 +6,6 @@ import {
   Head,
   Html,
   Img,
-  Link,
   Preview,
   Row,
   Section,
@@ -311,7 +310,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <Text className="text-[18px]">{data.weeklyNudge.message}</Text>
                 <Button
                   className="w-[248px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-trendFill text-center text-white text-[18px] font-bold block"
-                  href="https://react.email"
+                  href={data.weeklyNudge.linkUrl || "https://react.email"}
                 >
                   Share Invite Link
                   <Img
@@ -352,7 +351,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Text>
                 <Button
                   className="w-[276px] h-[61px] leading-[61px] mx-auto box-border rounded-[60px] bg-white text-center text-black text-[18px] font-bold block"
-                  href="https://react.email"
+                  href={data.footer.tiktokUrl || "https://tiktok.com"}
                 >
                   Follow us on TikTok
                   <Img

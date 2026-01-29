@@ -1,7 +1,7 @@
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import { put } from "@vercel/blob";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { TrendProgress } from "../components/satori/TrendProgress";
 import { DiagnosisBarChart } from "../components/satori/DiagnosisBarChart";
@@ -71,8 +71,6 @@ function renderSvgToPng(svg: string) {
 
 export async function renderTrendProgressImage(options: {
   progress: number;
-  startLabel: string;
-  endLabel: string;
   width?: number;
   height?: number;
 }) {
@@ -82,12 +80,7 @@ export async function renderTrendProgressImage(options: {
   const fireIconData = await loadImageData("fire.png");
 
   const svg = await satori(
-    <TrendProgress
-      progress={options.progress}
-      startLabel={options.startLabel}
-      endLabel={options.endLabel}
-      fireIconData={fireIconData}
-    />,
+    <TrendProgress progress={options.progress} fireIconData={fireIconData} />,
     {
       width,
       height,
@@ -283,13 +276,35 @@ export async function uploadPngToVercelBlob(buffer: Buffer, fileName: string) {
     process.env.BLOB_READ_WRITE_TOKEN ||
     process.env.VERCEL_BLOB_READ_WRITE_TOKEN;
 
-  if (!token || forceBase64) {
-    return `data:image/png;base64,${buffer.toString("base64")}`;
+  // 如果有 Token，使用 Vercel Blob
+  if (token && !forceBase64) {
+    const blob = await put(fileName, buffer, {
+      access: "public",
+      contentType: "image/png",
+      token,
+    });
+    return blob.url;
   }
-  const blob = await put(fileName, buffer, {
-    access: "public",
-    contentType: "image/png",
-    token,
-  });
-  return blob.url;
+
+  // 本地开发环境且无 Token：写入 public/temp 目录并返回本地 URL
+  if (process.env.NODE_ENV !== "production") {
+    const tempDir = path.join(process.cwd(), "public/temp");
+    await mkdir(tempDir, { recursive: true });
+
+    // 清理文件名中的路径分隔符，只保留文件名
+    const safeFileName = fileName.replace(/\//g, "-");
+    const filePath = path.join(tempDir, safeFileName);
+
+    await writeFile(filePath, buffer);
+
+    // 返回本地 URL
+    // 注意：这里假设应用运行在 localhost:3000，或者调用者会补全 base URL
+    // email-generator 中 assetBaseUrl 已经包含了域名
+    // 如果返回相对路径，需要确保调用方能正确处理
+    // 这里的 fileName 通常是 "preview/..."，我们将其扁平化了
+    return `/temp/${safeFileName}`;
+  }
+
+  // Fallback (e.g. production without token): return Base64
+  return `data:image/png;base64,${buffer.toString("base64")}`;
 }

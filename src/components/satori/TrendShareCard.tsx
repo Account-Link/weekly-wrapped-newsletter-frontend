@@ -155,8 +155,6 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
             <TrendProgress
               width={330}
               progress={progress}
-              startLabel={hashtag}
-              endLabel={"Everywhere"}
               fireIconData={fireIconData}
             />
           </div>

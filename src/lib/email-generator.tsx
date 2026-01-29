@@ -35,8 +35,6 @@ export async function generateEmailHtml(caseKey: string = "curious") {
 
   const progressPng = await renderTrendProgressImage({
     progress: data.hero.trendProgress,
-    startLabel: data.trend.startTag,
-    endLabel: data.trend.endTag,
     width: 520,
     height: 64,
   });
@@ -89,15 +87,34 @@ export async function generateEmailHtml(caseKey: string = "curious") {
     height: 980,
   });
 
-  data.trend.shareUrl = await uploadPngToVercelBlob(
+  const trendCardUrl = await uploadPngToVercelBlob(
     trendCardPng,
     `preview/${caseKey}-${assetId}-share-trend.png`,
   );
+  data.trend.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
+    trendCardUrl,
+  )}&filename=trend-card.png&type=trend_share_card`;
 
-  data.diagnosis.shareUrl = await uploadPngToVercelBlob(
+  const statsCardUrl = await uploadPngToVercelBlob(
     statsCardPng,
     `preview/${caseKey}-${assetId}-share-stats.png`,
   );
+  data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
+    statsCardUrl,
+  )}&filename=stats-card.png&type=stats_share_card`;
+
+  // Update Nudge and Footer URLs with tracking redirect
+  if (data.weeklyNudge.linkUrl) {
+    data.weeklyNudge.linkUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
+      data.weeklyNudge.linkUrl,
+    )}&type=nudge_invite`;
+  }
+
+  if (data.footer?.tiktokUrl) {
+    data.footer.tiktokUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
+      data.footer.tiktokUrl,
+    )}&type=footer_tiktok`;
+  }
 
   const html = await render(<FypScoutReportEmail data={data} />, {
     pretty: true,
