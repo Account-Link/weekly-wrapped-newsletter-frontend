@@ -61,7 +61,8 @@ export default async function SatoriPreviewPage({
 
   const card = {
     trend: {
-      topicIconData: data.trend.stickerUrl,
+      topicIconData: `${assetBaseUrl}/figma/trend-icon.png`,
+      topBgData: `${assetBaseUrl}/figma/trend-card-bg_top.png`,
       topicTitle: data.trend.topic.replace(/“|”/g, ""),
       topicSubtitle: data.trend.statusText,
       discoveryRank: data.trend.rank ?? 0,
@@ -71,7 +72,7 @@ export default async function SatoriPreviewPage({
       hashtag: data.trend.startTag,
       hashtagPercent: data.trend.startPercent,
       globalPercent: data.trend.endPercent,
-      footerDecorData: `${assetBaseUrl}/figma/footer-decors.png`,
+      bottomBgData: `${assetBaseUrl}/figma/trend-card-bg_bottom.png`,
     },
     stats: {
       headerIconData: `${assetBaseUrl}/figma/feedling-icon.png`,
@@ -117,6 +118,7 @@ export default async function SatoriPreviewPage({
             startLabel={card.trend.hashtag}
             endLabel={card.trend.globalPercent}
             fireIconData={card.trend.fireIconData}
+            width={520}
           />
         </div>
       </div>

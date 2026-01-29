@@ -159,11 +159,13 @@ export async function renderTrendShareCardImage(options: {
   const height = options.height ?? 1000;
   const fontData = await loadFontData();
 
-  const [topicIconData, fireIconData, footerDecorData] = await Promise.all([
-    loadImageData("topic-sticker-sound.png"),
-    loadImageData("fire.png"),
-    loadImageData("footer-decors.png"),
-  ]);
+  const [topicIconData, fireIconData, topBgData, bottomBgData] =
+    await Promise.all([
+      loadImageData("trend-icon.png"),
+      loadImageData("fire.png"),
+      loadImageData("trend-card-bg_top.png"),
+      loadImageData("trend-card-bg_bottom.png"),
+    ]);
 
   const svg = await satori(
     <TrendShareCard
@@ -177,7 +179,8 @@ export async function renderTrendShareCardImage(options: {
       hashtag={options.hashtag}
       hashtagPercent={options.hashtagPercent}
       globalPercent={options.globalPercent}
-      footerDecorData={footerDecorData}
+      topBgData={topBgData}
+      bottomBgData={bottomBgData}
     />,
     {
       width,

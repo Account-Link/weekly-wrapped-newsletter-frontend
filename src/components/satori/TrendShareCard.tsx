@@ -3,6 +3,7 @@ import { TrendProgress } from "./TrendProgress";
 
 export interface TrendShareCardProps {
   topicIconData: string;
+  topBgData: string;
   topicTitle: string;
   topicSubtitle: string;
   discoveryRank: number;
@@ -12,11 +13,12 @@ export interface TrendShareCardProps {
   hashtag: string;
   hashtagPercent: string;
   globalPercent: string;
-  footerDecorData: string; // Bottom colorful waves
+  bottomBgData: string; // Bottom background
 }
 
 export const TrendShareCard: React.FC<TrendShareCardProps> = ({
   topicIconData,
+  topBgData,
   topicTitle,
   topicSubtitle,
   discoveryRank,
@@ -26,24 +28,34 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
   hashtag,
   hashtagPercent,
   globalPercent,
-  footerDecorData,
+  bottomBgData,
 }) => {
   return (
     <div
       style={{
-        width: "100%",
-        height: "100%",
+        width: 390,
+        minHeight: 693,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         backgroundColor: "#ECECEC", // Light gray background
         fontFamily: "Noto Sans",
         position: "relative",
-        overflow: "hidden",
       }}
     >
-      {/* Top Torn Paper Effect - Optional/Simulated or Image */}
-      {/* Assuming pure CSS or background for now, or just flat */}
+      <img
+        src={topBgData}
+        alt="Top Background"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "auto",
+          objectFit: "cover",
+          zIndex: 0,
+        }}
+      />
 
       {/* Main Content Container */}
       <div
@@ -53,16 +65,19 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
           alignItems: "center",
           width: "100%",
           paddingTop: 80,
+          paddingBottom: 80,
           paddingLeft: 40,
           paddingRight: 40,
           flex: 1,
+          position: "relative",
+          zIndex: 1,
         }}
       >
         {/* Topic Icon */}
         <img
           src={topicIconData}
-          width={200}
-          height={200}
+          width={180}
+          height="auto"
           style={{ objectFit: "contain", marginBottom: 32 }}
           alt="Topic"
         />
@@ -78,21 +93,20 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
         >
           <span
             style={{
-              fontSize: 48,
-              fontWeight: 900,
+              fontSize: 28,
+              fontWeight: 700,
               color: "#000",
               textAlign: "center",
-              lineHeight: 1.1,
+              lineHeight: 1.3,
             }}
           >
             “{topicTitle}”
           </span>
           <span
             style={{
-              fontSize: 32,
+              fontSize: 16,
               fontWeight: 700,
-              color: "#FF5678",
-              marginTop: 8,
+              color: "#FF345D",
             }}
           >
             {topicSubtitle}
@@ -106,18 +120,24 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
             flexWrap: "wrap",
             justifyContent: "center",
             alignItems: "center",
-            fontSize: 24,
-            fontWeight: 700,
+            fontSize: 16,
+            fontWeight: "bold",
             color: "#000",
+            lineHeight: 1.3,
             marginBottom: 40,
+            width: 330,
           }}
         >
           <span>You were</span>
-          <span style={{ color: "#FF5678", margin: "0 6px" }}>
+          <span
+            style={{ color: "#FF5678", margin: "0 6px", fontWeight: "bold" }}
+          >
             #{discoveryRank}
           </span>
           <span>to discover out of</span>
-          <span style={{ color: "#FF5678", margin: "0 6px" }}>
+          <span
+            style={{ color: "#FF5678", margin: "0 6px", fontWeight: "bold" }}
+          >
             {totalDiscovery}
           </span>
           <span>people.</span>
@@ -129,67 +149,29 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
             width: "100%",
             display: "flex",
             flexDirection: "column",
+            alignItems: "center",
             gap: 8,
           }}
         >
-          {/* Custom Progress Bar with Fire */}
-          {/* We can reuse TrendProgress structure but might need slight adjustments for the card look if different */}
-          {/* Based on image, it looks similar but with labels below */}
-
-          <div
-            style={{
-              display: "flex",
-              width: "100%",
-              height: 48,
-              backgroundColor: "#D1D1D1",
-              borderRadius: 48,
-              overflow: "hidden",
-              position: "relative",
-            }}
-          >
-            <div
-              style={{
-                width: `${progress}%`,
-                height: "100%",
-                backgroundColor: "#6A00F4",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end",
-              }}
-            >
-              {/* Fire Icon positioned at the end */}
-              <div
-                style={{
-                  width: 64,
-                  height: 64,
-                  marginRight: -20,
-                  marginTop: -10,
-                  display: "flex",
-                }}
-              >
-                <img
-                  src={fireIconData}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+          <TrendProgress
+            width={330}
+            progress={progress}
+            startLabel={hashtag}
+            endLabel={"Everywhere"}
+            fireIconData={fireIconData}
+          />
 
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              width: "100%",
-              marginTop: 8,
+              width: 330,
+              marginTop: 2,
             }}
           >
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <span style={{ fontSize: 20, fontWeight: 700 }}>{hashtag}</span>
-              <span style={{ fontSize: 20, fontWeight: 400 }}>
+              <span style={{ fontSize: 16, fontWeight: 700 }}>{hashtag}</span>
+              <span style={{ fontSize: 16, fontWeight: 700 }}>
                 {hashtagPercent}
               </span>
             </div>
@@ -200,8 +182,8 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
                 alignItems: "flex-end",
               }}
             >
-              <span style={{ fontSize: 20, fontWeight: 700 }}>Everywhere</span>
-              <span style={{ fontSize: 20, fontWeight: 400 }}>
+              <span style={{ fontSize: 16, fontWeight: 700 }}>Everywhere</span>
+              <span style={{ fontSize: 16, fontWeight: 700 }}>
                 {globalPercent}
               </span>
             </div>
@@ -209,20 +191,19 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
         </div>
       </div>
 
-      {/* Footer Decor */}
-      <div
+      <img
+        src={bottomBgData}
+        alt="Bottom Background"
         style={{
-          display: "flex",
+          position: "absolute",
+          bottom: 0,
+          left: 0,
           width: "100%",
-          height: 180,
-          marginTop: "auto",
+          height: "auto",
+          objectFit: "cover",
+          zIndex: 0,
         }}
-      >
-        <img
-          src={footerDecorData}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-        />
-      </div>
+      />
     </div>
   );
 };

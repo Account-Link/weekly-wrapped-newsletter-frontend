@@ -9,6 +9,7 @@ export interface TrendProgressProps {
   startLabel: string;
   endLabel: string;
   fireIconData: string;
+  width?: number | string;
 }
 
 export const TrendProgress: React.FC<TrendProgressProps> = ({
@@ -16,13 +17,14 @@ export const TrendProgress: React.FC<TrendProgressProps> = ({
   startLabel,
   endLabel,
   fireIconData,
+  width,
 }) => {
   const safeProgress = clampPercent(progress);
 
   return (
     <div
       style={{
-        width: "100%",
+        width: width ?? "100%",
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -60,7 +62,7 @@ export const TrendProgress: React.FC<TrendProgressProps> = ({
               right: 0,
               width: 45,
               height: 55,
-              transform: "translate(22px, -10px) rotate(15deg)",
+              transform: "translate(22px, -10px)",
             }}
           />
         </div>
