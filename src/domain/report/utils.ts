@@ -1,3 +1,5 @@
+// 文件功能：周报规则与优先级计算工具，处于数据计算阶段
+// 方法概览：Feedling 状态与 Nudge 类型判定
 /**
  * utils.ts
  * 核心业务逻辑辅助函数 (Priority Logic & Helpers)
@@ -13,6 +15,7 @@ import {
 // 1. Feedling 状态优先级计算 [Source: PRD Feedling State Priority]
 // ==========================================
 // 逻辑：如果满足多个条件，返回优先级最高的那个 (Priority 1 is highest)
+// 方法功能：计算 Feedling 状态优先级
 export function calculateFeedlingState(data: WeeklyReportData): FeedlingState {
   const { trend, stats, newTopics, rabbitHole } = data;
 
@@ -62,6 +65,7 @@ export function calculateFeedlingState(data: WeeklyReportData): FeedlingState {
 // ==========================================
 // 2. Nudge 类型优先级计算 [Source: PRD Nudge Selection]
 // ==========================================
+// 方法功能：计算 Nudge 类型优先级
 export function determineNudgeType(data: WeeklyReportData): NudgeType {
   const { stats, rabbitHole } = data;
 

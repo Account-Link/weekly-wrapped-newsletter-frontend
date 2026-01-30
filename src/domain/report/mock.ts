@@ -1,5 +1,8 @@
+// 文件功能：周报接口 Mock 数据集合，处于本地调试阶段
+// 方法概览：提供不同 feedling 状态的 mock 报告
 import type { WeeklyReportApiResponse } from "@/domain/report/types";
 
+// 方法功能：mock 报告数据映射
 export const mockReports: Record<string, WeeklyReportApiResponse> = {
   curious: {
     id: 101,

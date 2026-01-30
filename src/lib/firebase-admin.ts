@@ -1,3 +1,5 @@
+// 文件功能：初始化 Firebase Admin 并定义周报数据类型与获取方法
+// 方法概览：Admin 单例初始化、类型定义、周报数据拉取与映射
 import admin from "firebase-admin";
 import type {
   WeeklyReportApiResponse,
@@ -5,6 +7,7 @@ import type {
   TrendType,
 } from "@/domain/report/types";
 
+// 方法功能：Admin 单例初始化，避免重复初始化导致报错
 // 重要逻辑：God Mode 单例初始化，防止重复初始化导致报错
 // - 当 admin.apps.length > 0 时，说明已经初始化过，直接复用现有 app
 // - 从环境变量读取服务账号 JSON，支持纯 JSON 字符串或 Base64 编码
@@ -68,20 +71,14 @@ function initAdminSingleton() {
   });
 }
 
-// 执行单例初始化
+// 方法功能：执行单例初始化，确保后续客户端可用
 initAdminSingleton();
 
-// 导出 Firestore 与 Cloud Storage 客户端
+// 方法功能：导出 Firestore 与 Cloud Storage 客户端
 export const adminDb = admin.apps.length > 0 ? admin.firestore() : null;
 export const adminStorage = admin.apps.length > 0 ? admin.storage() : null;
 
 // ===== 业务类型定义 =====
-export interface WeeklyStat {
-  label: string;
-  value: string;
-  delta?: string;
-}
-
 export interface WeeklyHero {
   imageUrl: string;
   imageAlt: string;
@@ -92,12 +89,10 @@ export interface WeeklyOpening {
   title: string;
   subtitle: string;
   dateRange: string;
-  decorUrl: string;
   catUrl: string;
 }
 
 export interface WeeklyTrend {
-  stickerUrl: string;
   topic: string;
   statusText: string;
   discoveryText: string;
@@ -109,7 +104,6 @@ export interface WeeklyTrend {
   endPercent: string;
   type?: TrendType;
   ctaLabel: string;
-  ctaIconUrl: string;
   progressImageUrl?: string;
   shareUrl?: string;
 }
@@ -167,11 +161,11 @@ export interface WeeklyData {
   newContents: WeeklyNewContent[];
   rabbitHole: WeeklyRabbitHole;
   weeklyNudge: WeeklyNudge;
-  stats: WeeklyStat[];
   footer: WeeklyFooter;
 }
 
-// 重要逻辑：周报数据获取（当前返回 Mock，保留真实查询注释）
+// 方法功能：拉取周报数据并映射为 WeeklyData
+// 重要逻辑：请求后端接口并统一映射，保证模板可直接使用
 export async function getWeeklyData(uid: string): Promise<WeeklyData> {
   const apiBaseUrl = process.env.WEEKLY_REPORT_API_BASE_URL;
   if (!apiBaseUrl) {

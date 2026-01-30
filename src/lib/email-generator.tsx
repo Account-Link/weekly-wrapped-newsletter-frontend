@@ -1,20 +1,15 @@
-import { render } from "@react-email/render";
-import { FypScoutReportEmail } from "../../emails/fyp-scout-report";
+// 文件功能：邮件生成入口封装，处于主流程调用层
+// 方法概览：数据构建、资源 key 生成、HTML 生成入口
 import {
   mapApiReportToWeeklyReportData,
   mapReportToWeeklyData,
 } from "@/domain/report/adapter";
 import { mockReports } from "@/domain/report/mock";
-import {
-  renderDiagnosisBarChartImage,
-  renderTrendProgressImage,
-  renderTrendShareCardImage,
-  renderStatsShareCardImage,
-  uploadPngToNewApi,
-  uploadToVercelBlob,
-} from "@/lib/satori-assets";
 import crypto from "node:crypto";
 import type { WeeklyData } from "@/lib/firebase-admin";
+import type { WeeklyReportApiResponse } from "@/domain/report/types";
+import { ReportPipeline } from "@/core/pipeline/report-pipeline";
+import type { AssetKeySet } from "@/core/pipeline/types";
 
 const assetBaseUrl =
   process.env.EMAIL_ASSET_BASE_URL ||
@@ -27,177 +22,97 @@ type GenerateEmailOptions = {
   useUploads?: boolean;
 };
 
-export type UploadTarget = "api" | "vercel";
+export type { UploadTarget } from "@/core/pipeline/types";
 
-type ChartAssetOptions = {
-  useUploads?: boolean;
-  uploadTarget?: UploadTarget;
-  progressKey: string;
-  barsKey: string;
-};
+// 方法功能：将 API 返回的报告映射为 WeeklyData，供渲染与资源注入
+export function buildWeeklyDataFromApiReport(
+  apiReport: WeeklyReportApiResponse,
+  options: {
+    assetBaseUrl: string;
+    trackingBaseUrl: string;
+    uidOverride?: string;
+  },
+): WeeklyData {
+  // 重要逻辑：统一处理 uid 与基础 URL，确保追踪链路一致
+  const report = mapApiReportToWeeklyReportData(apiReport);
+  const resolvedUid = options.uidOverride || apiReport.app_user_id || "preview";
+  return mapReportToWeeklyData(resolvedUid, report, {
+    assetBaseUrl: options.assetBaseUrl,
+    trackingBaseUrl: options.trackingBaseUrl,
+  });
+}
 
-type ShareAssetOptions = {
-  uploadTarget?: UploadTarget;
-  assetBaseUrl: string;
-  shareTrendKey: string;
-  shareStatsKey: string;
-};
-
+// 方法功能：使用 mock 数据生成 WeeklyData，供本地预览与调试
 export function buildWeeklyDataFromMock(
   caseKey: string,
   baseUrl: string,
   uidOverride?: string,
 ): WeeklyData {
+  // 重要逻辑：优先使用指定 caseKey，避免空数据影响渲染
   const apiReport = mockReports[caseKey] ?? mockReports.curious;
-  const report = mapApiReportToWeeklyReportData(apiReport);
-  const resolvedUid = uidOverride || apiReport.app_user_id || "preview";
-  return mapReportToWeeklyData(resolvedUid, report, {
+  return buildWeeklyDataFromApiReport(apiReport, {
     assetBaseUrl: baseUrl,
     trackingBaseUrl: baseUrl,
+    uidOverride,
   });
 }
 
-export async function attachBasicChartAssets(
-  data: WeeklyData,
-  options: ChartAssetOptions,
-) {
-  const { useUploads = true, uploadTarget = "api" } = options;
-  const progressPng = await renderTrendProgressImage({
-    progress: data.hero.trendProgress,
-    width: 520,
-    height: 64,
-  });
-
-  const barChartPng = await renderDiagnosisBarChartImage({
-    lastWeekLabel: data.diagnosis.lastWeekLabel,
-    thisWeekLabel: data.diagnosis.thisWeekLabel,
-    lastWeekValue: data.diagnosis.lastWeekValue,
-    thisWeekValue: data.diagnosis.thisWeekValue,
-    width: 520,
-    height: 265,
-  });
-
-  if (useUploads) {
-    const uploadFn =
-      uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
-    data.trend.progressImageUrl = await uploadFn(
-      progressPng,
-      options.progressKey,
-    );
-    data.diagnosis.barChartImageUrl = await uploadFn(
-      barChartPng,
-      options.barsKey,
-    );
-    return;
-  }
-
-  const toDataUrl = (buffer: Buffer) =>
-    `data:image/png;base64,${buffer.toString("base64")}`;
-  data.trend.progressImageUrl = toDataUrl(progressPng);
-  data.diagnosis.barChartImageUrl = toDataUrl(barChartPng);
+// 方法功能：生成预览场景的资源 key 集合
+export function buildPreviewAssetKeys(
+  caseKey: string,
+  assetId: string,
+): AssetKeySet {
+  // 重要逻辑：预览资源统一放在 preview 目录
+  return {
+    progressKey: `preview/${caseKey}-${assetId}-progress.png`,
+    barsKey: `preview/${caseKey}-${assetId}-bars.png`,
+    shareTrendKey: `preview/${caseKey}-${assetId}-share-trend.png`,
+    shareStatsKey: `preview/${caseKey}-${assetId}-share-stats.png`,
+  };
 }
 
-export async function attachShareAssetsAndLinks(
-  data: WeeklyData,
-  options: ShareAssetOptions,
-) {
-  const { uploadTarget = "api", assetBaseUrl } = options;
-  const uploadFn =
-    uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
-
-  const trendCardPng = await renderTrendShareCardImage({
-    topicTitle: data.trend.topic.replace(/“|”/g, ""),
-    topicSubtitle: data.trend.statusText,
-    discoveryRank: data.trend.rank ?? 0,
-    totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
-    progress: data.hero.trendProgress,
-    hashtag: data.trend.startTag,
-    hashtagPercent: data.trend.startPercent,
-    endTag: data.trend.endTag,
-    globalPercent: data.trend.endPercent,
-    width: 390,
-    height: 693,
-    trendType: data.trend.type,
-  });
-
-  const statsCardPng = await renderStatsShareCardImage({
-    totalVideos: data.diagnosis.totalVideosValue,
-    totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
-    miles: `${data.diagnosis.miles}`,
-    comparisonDiff: data.diagnosis.comparisonDiff,
-    comparisonText: data.diagnosis.comparisonText,
-    milesComment: data.diagnosis.milesComment,
-    barChartData: {
-      lastWeekLabel: data.diagnosis.lastWeekLabel,
-      thisWeekLabel: data.diagnosis.thisWeekLabel,
-      lastWeekValue: data.diagnosis.lastWeekValue,
-      thisWeekValue: data.diagnosis.thisWeekValue,
-    },
-    contents: data.newContents.slice(0, 3).map((c) => ({
-      label: c.label,
-      iconUrl: c.stickerUrl,
-    })),
-    width: 390,
-    height: 960,
-  });
-
-  const trendCardUrl = await uploadFn(trendCardPng, options.shareTrendKey);
-  const statsCardUrl = await uploadFn(statsCardPng, options.shareStatsKey);
-
-  const encodedUid = encodeURIComponent(data.uid);
-  const encodedWeekStart = encodeURIComponent(data.weekStart);
-  data.trend.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
-    trendCardUrl,
-  )}&filename=trend-card.png&type=trend_share_card&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
-  data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
-    statsCardUrl,
-  )}&filename=stats-card.png&type=stats_share_card&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
-
-  if (data.weeklyNudge.linkUrl) {
-    data.weeklyNudge.linkUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
-      data.weeklyNudge.linkUrl,
-    )}&type=nudge_invite&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
-  }
-
-  if (data.footer?.tiktokUrl) {
-    data.footer.tiktokUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
-      data.footer.tiktokUrl,
-    )}&type=footer_tiktok&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
-  }
+// 方法功能：生成线上周报资源 key 集合
+export function buildWeeklyAssetKeys(
+  uid: string,
+  weekStart: string,
+  assetId: string,
+): AssetKeySet {
+  // 重要逻辑：以 uid/周起始时间分桶，便于资源归档
+  return {
+    progressKey: `weekly/${uid}/${weekStart}-${assetId}-progress.png`,
+    barsKey: `weekly/${uid}/${weekStart}-${assetId}-bars.png`,
+    shareTrendKey: `weekly/${uid}/${weekStart}-${assetId}-share-trend.png`,
+    shareStatsKey: `weekly/${uid}/${weekStart}-${assetId}-share-stats.png`,
+  };
 }
 
-export async function renderEmailHtmlFromWeeklyData(data: WeeklyData) {
-  return render(<FypScoutReportEmail data={data} />, {
-    pretty: true,
-  });
-}
+export const attachBasicChartAssets = ReportPipeline.attachBasicChartAssets;
+export const attachShareAssetsAndLinks =
+  ReportPipeline.attachShareAssetsAndLinks;
+export const prepareWeeklyDataWithAssets =
+  ReportPipeline.prepareWeeklyDataWithAssets;
+export const renderEmailHtmlFromWeeklyData =
+  ReportPipeline.renderEmailHtmlFromWeeklyData;
 
+// 方法功能：生成邮件 HTML，供 API 与预览入口使用
 export async function generateEmailHtml(
   caseKey: string = "curious",
   options?: string | GenerateEmailOptions,
 ) {
+  // 重要逻辑：允许 options 为字符串以快速覆写 uid
   const resolvedOptions =
     typeof options === "string" ? { uidOverride: options } : (options ?? {});
   const { uidOverride, useUploads = true } = resolvedOptions;
   const data = buildWeeklyDataFromMock(caseKey, assetBaseUrl, uidOverride);
 
+  // 重要逻辑：生成唯一资源 key，避免覆盖历史资产
   const assetId = crypto.randomUUID();
-  await attachBasicChartAssets(data, {
+  const assetKeys = buildPreviewAssetKeys(caseKey, assetId);
+  const { html } = await ReportPipeline.run({
+    data,
+    assetBaseUrl,
     useUploads,
-    progressKey: `preview/${caseKey}-${assetId}-progress.png`,
-    barsKey: `preview/${caseKey}-${assetId}-bars.png`,
+    assetKeys,
   });
-
-  if (useUploads) {
-    await attachShareAssetsAndLinks(data, {
-      assetBaseUrl,
-      shareTrendKey: `preview/${caseKey}-${assetId}-share-trend.png`,
-      shareStatsKey: `preview/${caseKey}-${assetId}-share-stats.png`,
-    });
-  } else {
-    data.trend.shareUrl = undefined;
-    data.diagnosis.shareUrl = undefined;
-  }
-
-  return renderEmailHtmlFromWeeklyData(data);
+  return html;
 }

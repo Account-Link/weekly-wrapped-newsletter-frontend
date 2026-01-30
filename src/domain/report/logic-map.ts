@@ -1,3 +1,5 @@
+// 文件功能：文案映射与生成逻辑，处于数据适配与渲染准备阶段
+// 方法概览：状态文案、趋势/时长/里程文案生成
 /**
  * logic-maps.ts
  * 负责将数据状态映射为前端展示的文案 (Copy Mapping)
@@ -29,6 +31,7 @@ export const SPREAD_VISUAL_MAP: Record<TrendStatus, string> = {
 // ==========================================
 // C. 发现排名文案生成逻辑 [Source: PRD Discovery Variants]
 // ==========================================
+// 方法功能：生成发现排名文案
 export function getDiscoveryText(rank: number | null, total: number): string {
   // Case 1: 未发现 (Not Exposed)
   if (rank === null) {
@@ -50,6 +53,7 @@ export function getDiscoveryText(rank: number | null, total: number): string {
 // ==========================================
 // D. 时长对比文案生成逻辑 [Source: PRD Time Comparison Variants]
 // ==========================================
+// 方法功能：生成本周与上周时长对比文案
 export function getTimeComparisonText(
   currentMinutes: number,
   lastWeekMinutes: number
@@ -69,6 +73,7 @@ export function getTimeComparisonText(
 // ==========================================
 // E. 拇指滑动距离文案 [Source: PRD Miles Scrolled Variants]
 // ==========================================
+// 方法功能：生成拇指滑动里程文案
 export function getMilesScrolledText(miles: number): string {
   const baseText = `Your thumb ran ${miles} miles`;
 
@@ -83,6 +88,7 @@ export function getMilesScrolledText(miles: number): string {
 // F. 建议 (Nudge) 文案映射 [Source: PRD Nudge Variants]
 // ==========================================
 // 注意：部分文案需要动态参数，所以使用函数处理
+// 方法功能：生成 nudge 建议文案
 export function getNudgeCopy(type: string, limitTime: string = "3 AM"): string {
   switch (type) {
     case "late_night":

@@ -1,21 +1,22 @@
+// 文件功能：提供周报邮件 HTML 生成 API，处于主流程入口层
+// 方法概览：GET 预览生成、POST 生产生成
 import { NextResponse } from "next/server";
-import {
-  mapApiReportToWeeklyReportData,
-  mapReportToWeeklyData,
-} from "../../../src/domain/report/adapter";
 import { mockReports } from "../../../src/domain/report/mock";
 import {
-  attachBasicChartAssets,
-  attachShareAssetsAndLinks,
-  renderEmailHtmlFromWeeklyData,
+  buildPreviewAssetKeys,
+  buildWeeklyAssetKeys,
+  buildWeeklyDataFromApiReport,
   type UploadTarget,
 } from "../../../src/lib/email-generator";
 import crypto from "node:crypto";
+import { ReportPipeline } from "@/core/pipeline";
 
+// 方法功能：POST 请求体类型定义
 interface WrappedRequestBody {
   uid: string;
 }
 
+// 方法功能：GET 生成预览 HTML，支持 mock/真实数据
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
@@ -29,8 +30,7 @@ export async function GET(request: Request) {
     if (useMock) {
       const mockCase = caseKey ?? "curious";
       const apiReport = mockReports[mockCase] ?? mockReports.curious;
-      const report = mapApiReportToWeeklyReportData(apiReport);
-      weeklyData = mapReportToWeeklyData(apiReport.app_user_id, report, {
+      weeklyData = buildWeeklyDataFromApiReport(apiReport, {
         assetBaseUrl,
         trackingBaseUrl: assetBaseUrl,
       });
@@ -43,20 +43,16 @@ export async function GET(request: Request) {
       weeklyData = await getWeeklyData(uid);
     }
 
+    // 重要逻辑：每次生成使用唯一资源 key，避免覆盖
     const assetId = crypto.randomUUID();
-    await attachBasicChartAssets(weeklyData, {
-      useUploads: true,
-      uploadTarget,
-      progressKey: `preview/${caseKey ?? "real"}-${assetId}-progress.png`,
-      barsKey: `preview/${caseKey ?? "real"}-${assetId}-bars.png`,
-    });
-    await attachShareAssetsAndLinks(weeklyData, {
+    const assetKeys = buildPreviewAssetKeys(caseKey ?? "real", assetId);
+    const { html } = await ReportPipeline.run({
+      data: weeklyData,
       assetBaseUrl,
       uploadTarget,
-      shareTrendKey: `preview/${caseKey ?? "real"}-${assetId}-share-trend.png`,
-      shareStatsKey: `preview/${caseKey ?? "real"}-${assetId}-share-stats.png`,
+      useUploads: true,
+      assetKeys,
     });
-    const html = await renderEmailHtmlFromWeeklyData(weeklyData);
 
     return new NextResponse(html, {
       headers: { "content-type": "text/html; charset=utf-8" },
@@ -67,6 +63,7 @@ export async function GET(request: Request) {
   }
 }
 
+// 方法功能：POST 生成生产 HTML，返回 HTML 与数据
 export async function POST(request: Request) {
   try {
     const { adminDb, getWeeklyData } =
@@ -96,24 +93,21 @@ export async function POST(request: Request) {
     const weeklyData = await getWeeklyData(body.uid);
 
     const assetId = crypto.randomUUID();
-    await attachBasicChartAssets(weeklyData, {
-      useUploads: true,
-      uploadTarget: "api",
-      progressKey: `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-progress.png`,
-      barsKey: `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-bars.png`,
-    });
-    await attachShareAssetsAndLinks(weeklyData, {
+    const assetKeys = buildWeeklyAssetKeys(
+      body.uid,
+      weeklyData.weekStart,
+      assetId,
+    );
+    const { html, data } = await ReportPipeline.run({
+      data: weeklyData,
       assetBaseUrl,
       uploadTarget: "api",
-      shareTrendKey: `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-share-trend.png`,
-      shareStatsKey: `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-share-stats.png`,
+      useUploads: true,
+      assetKeys,
     });
 
-    // 重要逻辑：服务端渲染 React Email 模板为 HTML，供邮件服务商发送
-    const html = await renderEmailHtmlFromWeeklyData(weeklyData);
-
     // 重要逻辑：返回 HTML 与数据便于联调与回归测试
-    return NextResponse.json({ html, data: weeklyData });
+    return NextResponse.json({ html, data });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });

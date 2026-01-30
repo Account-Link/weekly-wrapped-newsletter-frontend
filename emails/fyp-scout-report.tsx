@@ -1,3 +1,5 @@
+// 文件功能：周报邮件主模板，处于 HTML 邮件渲染阶段
+// 方法概览：模板渲染、文案与数据拼装、埋点像素注入
 import React from "react";
 import {
   Body,
@@ -19,11 +21,14 @@ import { EmailButton } from "./components/EmailButton";
 import { FEEDLING_COPY_MAP } from "../src/domain/report/logic-map";
 import type { TrendType } from "../src/domain/report/types";
 
+// 方法功能：邮件模板入参定义
 interface FypScoutReportEmailProps {
   data: WeeklyData;
 }
 
+// 方法功能：渲染周报邮件模板
 export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
+  // 重要逻辑：从已有资源 URL 推导静态资源根路径
   const assetBaseUrl = data.hero.imageUrl
     ? data.hero.imageUrl.split("/figma/")[0]
     : "";
@@ -56,7 +61,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   const trendIconFile = data.trend.type
     ? trendIconByType[data.trend.type]
     : "trend-icon.png";
+  // 方法功能：将高亮关键词拆分为前中后三段
   const getHighlightParts = (text: string, target: string) => {
+    // 重要逻辑：大小写不敏感匹配，保留原始文本
     if (!target) return [text, "", ""];
     const lowerText = text.toLowerCase();
     const lowerTarget = target.toLowerCase();
@@ -66,13 +73,16 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     const end = index + target.length;
     return [text.slice(0, start), text.slice(start, end), text.slice(end)];
   };
+  // 方法功能：转义正则特殊字符
   const escapeRegExp = (value: string) =>
     value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // 方法功能：将发现文案拆分并高亮排名/总数
   const buildDiscoverySegments = (
     text: string | undefined,
     rank: number,
     total: number,
   ) => {
+    // 重要逻辑：使用正则捕获排名与总数字串并渲染强调样式
     const rankToken = `#${rank.toLocaleString()}`;
     const totalToken = total.toLocaleString();
     const regex = new RegExp(
@@ -100,6 +110,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     openingCopy,
     highlightTarget,
   );
+  // 重要逻辑：生成打开埋点像素 URL
   const trackingPixelUrl = data.trackingBaseUrl
     ? `${data.trackingBaseUrl}/api/track?event=email_open&uid=${encodeURIComponent(
         data.uid,

@@ -1,3 +1,5 @@
+// 文件功能：统计分享卡组件，供 Satori 渲染为图片
+// 方法概览：统计信息展示、柱状图与内容卡片渲染
 import React from "react";
 import { DiagnosisBarChart } from "./DiagnosisBarChart";
 
@@ -23,6 +25,7 @@ export interface StatsShareCardProps {
   bottomBgData: string;
 }
 
+// 方法功能：渲染统计分享卡内容
 export const StatsShareCard: React.FC<StatsShareCardProps> = ({
   headerIconData,
   topBgData,
@@ -181,6 +184,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
             marginBottom: 20,
           }}
         >
+          {/* 重要逻辑：使用统一柱状图组件保证对比口径一致 */}
           <DiagnosisBarChart {...barChartData} width={330} height={265} />
         </div>
 

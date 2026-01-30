@@ -1,3 +1,5 @@
+// 文件功能：趋势分享卡组件，供 Satori 渲染为图片
+// 方法概览：渲染卡片结构与进度条区块
 import React from "react";
 import { TrendProgress } from "./TrendProgress";
 
@@ -18,6 +20,7 @@ export interface TrendShareCardProps {
   bottomBgData: string; // Bottom background
 }
 
+// 方法功能：渲染趋势分享卡内容
 export const TrendShareCard: React.FC<TrendShareCardProps> = ({
   topicIconData,
   topicIconBgData,
@@ -168,6 +171,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
           }}
         >
           <div style={{ display: "flex", width: 330, height: 32 }}>
+            {/* 重要逻辑：使用统一进度条组件保证样式一致 */}
             <TrendProgress
               width={330}
               progress={progress}

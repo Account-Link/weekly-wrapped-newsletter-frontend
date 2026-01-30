@@ -1,8 +1,12 @@
+// 文件功能：邮件通用按钮组件，处于邮件内容渲染阶段
+// 方法概览：样式映射与按钮渲染
 import { Column, Img, Link, Row, Section } from "@react-email/components";
 import type { CSSProperties } from "react";
 
+// 方法功能：邮件按钮类型定义
 type EmailButtonType = "black" | "white" | "blue";
 
+// 方法功能：邮件按钮入参定义
 interface EmailButtonProps {
   href: string;
   label: string;
@@ -12,6 +16,7 @@ interface EmailButtonProps {
   type: EmailButtonType;
 }
 
+// 方法功能：按钮类型到样式的映射
 const typeStyles: Record<EmailButtonType, CSSProperties> = {
   black: {
     backgroundColor: "#000000",
@@ -27,6 +32,7 @@ const typeStyles: Record<EmailButtonType, CSSProperties> = {
   },
 };
 
+// 方法功能：渲染邮件按钮
 export function EmailButton({
   href,
   label,

@@ -1,9 +1,12 @@
+// 文件功能：分享下载页内容组件，处于分享链路落地页
+// 方法概览：解析参数、记录埋点、渲染下载入口
 "use client";
 
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { ImageDownloader } from "@/components/ImageDownloader";
 
+// 方法功能：渲染分享下载页面内容
 export default function DownloadContent() {
   const searchParams = useSearchParams();
   const url = searchParams.get("url");
@@ -13,6 +16,7 @@ export default function DownloadContent() {
   const weekStart = searchParams.get("weekStart");
 
   useEffect(() => {
+    // 重要逻辑：打开下载页即上报点击埋点
     if (!url) {
       return;
     }

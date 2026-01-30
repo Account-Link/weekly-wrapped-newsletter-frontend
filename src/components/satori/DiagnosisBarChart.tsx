@@ -1,3 +1,5 @@
+// 文件功能：诊断柱状图组件，供 Satori 渲染为图表
+// 方法概览：时间格式化、刻度选择、柱状图渲染
 import React from "react";
 
 export interface DiagnosisBarChartProps {
@@ -9,8 +11,10 @@ export interface DiagnosisBarChartProps {
   height?: number;
 }
 
+// 方法功能：预设的刻度档位
 const timeSteps = [6, 12, 24, 36, 48, 72];
 
+// 方法功能：将分钟数格式化为小时/分钟字符串
 function formatMinutes(minutes: number) {
   const totalMinutes = Math.max(0, Math.round(minutes));
   const hours = Math.floor(totalMinutes / 60);
@@ -20,6 +24,7 @@ function formatMinutes(minutes: number) {
   return `${hours}h${mins}min`;
 }
 
+// 方法功能：根据最大分钟数选择上方刻度
 function pickTopHours(maxMinutes: number) {
   const maxHours = Math.max(1, Math.ceil(maxMinutes / 60));
   return (
@@ -27,6 +32,7 @@ function pickTopHours(maxMinutes: number) {
   );
 }
 
+// 方法功能：渲染对比柱状图
 export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
   lastWeekLabel,
   thisWeekLabel,
@@ -35,6 +41,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
   width,
   height,
 }) => {
+  // 重要逻辑：计算刻度与高度比例，保证图表可读
   const maxMinutes = Math.max(lastWeekValue, thisWeekValue, 1);
   const topHours = pickTopHours(maxMinutes);
   const topMinutes = topHours * 60;

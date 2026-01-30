@@ -1,12 +1,16 @@
+// 文件功能：邮件埋点收集 API，处于分享跳转与统计回传阶段
+// 方法概览：解析参数、记录事件、返回透明像素
 import admin from "firebase-admin";
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
 
+// 方法功能：透明像素常量，用于 GET 埋点响应
 const transparentGif = Buffer.from(
   "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
   "base64",
 );
 
+// 方法功能：埋点事件结构定义
 type TrackEventPayload = {
   event: string | null;
   type?: string | null;
@@ -17,7 +21,10 @@ type TrackEventPayload = {
   metadata?: Record<string, unknown>;
 };
 
-function buildPayloadFromSearchParams(params: URLSearchParams): TrackEventPayload {
+// 方法功能：从 URL 参数构建埋点载荷
+function buildPayloadFromSearchParams(
+  params: URLSearchParams,
+): TrackEventPayload {
   return {
     event: params.get("event"),
     type: params.get("type"),
@@ -28,6 +35,7 @@ function buildPayloadFromSearchParams(params: URLSearchParams): TrackEventPayloa
   };
 }
 
+// 方法功能：写入埋点事件到 Firestore
 async function recordEvent(
   payload: TrackEventPayload,
   request: Request,
@@ -52,6 +60,7 @@ async function recordEvent(
 }
 
 export async function GET(request: Request) {
+  // 重要逻辑：GET 请求读取 query 并写入埋点
   const url = new URL(request.url);
   const payload = buildPayloadFromSearchParams(url.searchParams);
 
@@ -67,6 +76,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  // 重要逻辑：POST 请求读取 body 并写入埋点
   const body = (await request.json()) as TrackEventPayload;
 
   await recordEvent(body, request);

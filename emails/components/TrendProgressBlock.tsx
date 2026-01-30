@@ -1,5 +1,8 @@
+// 文件功能：邮件趋势进度区块组件，处于邮件内容渲染阶段
+// 方法概览：渲染进度图与标签文本
 import { Column, Img, Row, Section, Text } from "@react-email/components";
 
+// 方法功能：趋势进度区块入参定义
 export interface TrendProgressBlockProps {
   progressImageUrl?: string;
   startTag: string;
@@ -8,6 +11,7 @@ export interface TrendProgressBlockProps {
   endPercent: string;
 }
 
+// 方法功能：渲染趋势进度区块
 export function TrendProgressBlock({
   progressImageUrl,
   startTag,

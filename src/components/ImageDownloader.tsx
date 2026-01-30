@@ -1,7 +1,10 @@
+// 文件功能：点击下载图片的交互组件，处于分享下载页面
+// 方法概览：点击下载、埋点占位、按钮状态控制
 "use client";
 
 import React, { useState } from "react";
 
+// 方法功能：图片下载组件入参定义
 interface ImageDownloaderProps {
   src: string;
   fileName: string;
@@ -14,6 +17,7 @@ interface ImageDownloaderProps {
   children?: React.ReactNode; // Optional: render custom content instead of default img
 }
 
+// 方法功能：渲染图片下载组件并处理下载逻辑
 export const ImageDownloader: React.FC<ImageDownloaderProps> = ({
   src,
   fileName,
@@ -27,8 +31,10 @@ export const ImageDownloader: React.FC<ImageDownloaderProps> = ({
 }) => {
   const [isDownloading, setIsDownloading] = useState(false);
 
+  // 方法功能：触发下载并处理状态与异常
   const handleDownload = async () => {
     try {
+      // 重要逻辑：下载开始即更新状态，避免重复点击
       setIsDownloading(true);
 
       // 1. Tracking Hook (Placeholder for now)
@@ -42,6 +48,7 @@ export const ImageDownloader: React.FC<ImageDownloaderProps> = ({
 
       // 2. Download Logic
       // Fetching blob to support cross-origin and proper filename
+      // 重要逻辑：使用 blob 生成临时链接，确保跨域与命名一致
       const response = await fetch(src);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);

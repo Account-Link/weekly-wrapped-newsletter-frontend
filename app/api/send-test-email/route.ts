@@ -1,7 +1,10 @@
+// 文件功能：发送测试邮件 API，处于本地联调与验证阶段
+// 方法概览：生成邮件 HTML、选择 SMTP/Ethereal、发送并返回结果
 import { generateEmailHtml } from "@/lib/email-generator";
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 
+// 方法功能：生成 HTML 并发送测试邮件
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get("email");
@@ -13,11 +16,13 @@ export async function GET(request: Request) {
   }
 
   try {
+    // 重要逻辑：生成 HTML，确保模板与资源注入生效
     const html = await generateEmailHtml(caseKey);
 
     let transporter;
     let isEthereal = false;
 
+    // 重要逻辑：优先使用真实 SMTP，否则使用 Ethereal 测试
     if (process.env.SMTP_HOST) {
       transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
@@ -44,8 +49,10 @@ export async function GET(request: Request) {
       isEthereal = true;
     }
 
+    // 重要逻辑：无收件人时使用占位地址，配合 Ethereal 预览
     const recipient = email || "test@example.com";
 
+    // 重要逻辑：发送邮件并返回 messageId 以便追踪
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM || '"FYP Scout" <no-reply@example.com>',
       to: recipient,

@@ -1,8 +1,11 @@
+// 文件功能：分享跳转页内容组件，处于分享链路跳转入口
+// 方法概览：解析参数、记录埋点、延迟跳转
 "use client";
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+// 方法功能：渲染跳转页面并执行跳转逻辑
 export default function RedirectContent() {
   const searchParams = useSearchParams();
   const url = searchParams.get("url");
@@ -12,11 +15,13 @@ export default function RedirectContent() {
   const [status, setStatus] = useState("Redirecting...");
 
   useEffect(() => {
+    // 重要逻辑：无 URL 直接报错，避免空跳转
     if (!url) {
       setStatus("Invalid URL");
       return;
     }
 
+    // 重要逻辑：跳转前先写入埋点，保证可追踪
     fetch("/api/track", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -30,6 +35,7 @@ export default function RedirectContent() {
       }),
     }).catch(() => null);
 
+    // 重要逻辑：短暂延时让埋点完成再跳转
     const timer = setTimeout(() => {
       window.location.href = url;
     }, 500);

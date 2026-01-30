@@ -1,5 +1,8 @@
+// 文件功能：趋势进度条组件，供 Satori 渲染为图表
+// 方法概览：数值归一化与进度条渲染
 import React from "react";
 
+// 方法功能：将进度限制在 0-100 区间
 function clampPercent(value: number) {
   return Math.max(0, Math.min(100, value));
 }
@@ -10,11 +13,13 @@ export interface TrendProgressProps {
   width?: number | string;
 }
 
+// 方法功能：渲染趋势进度条与火焰图标
 export const TrendProgress: React.FC<TrendProgressProps> = ({
   progress,
   fireIconData,
   width,
 }) => {
+  // 重要逻辑：保证渲染安全值，避免样式异常
   const safeProgress = clampPercent(progress);
 
   return (

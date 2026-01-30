@@ -1,21 +1,17 @@
+// 文件功能：Satori 组件与 PNG 结果预览页面，处于开发调试入口
+// 方法概览：构建预览数据、生成资源、渲染组件与 PNG
 import { TrendShareCard } from "@/components/satori/TrendShareCard";
 import { StatsShareCard } from "@/components/satori/StatsShareCard";
 import {
-  renderDiagnosisBarChartImage,
-  renderStatsShareCardImage,
-  renderTrendProgressImage,
-  renderTrendShareCardImage,
-  uploadPngToNewApi,
-} from "@/lib/satori-assets";
+  buildPreviewAssetKeys,
+  buildWeeklyDataFromMock,
+} from "@/lib/email-generator";
 import { DiagnosisBarChart } from "@/components/satori/DiagnosisBarChart";
 import { TrendProgress } from "@/components/satori/TrendProgress";
-import { mockReports } from "@/domain/report/mock";
-import {
-  mapApiReportToWeeklyReportData,
-  mapReportToWeeklyData,
-} from "@/domain/report/adapter";
 import type { TrendType } from "@/domain/report/types";
 import crypto from "node:crypto";
+import { ReportPipeline } from "@/core/pipeline";
+import type { WeeklyNewContent } from "@/lib/firebase-admin";
 
 const assetBaseUrl =
   process.env.EMAIL_ASSET_BASE_URL ||
@@ -28,9 +24,11 @@ const trendIconByType: Record<TrendType, string> = {
   creator: "trend-icon_creator.png",
   format: "trend-icon_format.png",
 };
+// 方法功能：根据趋势类型映射图标文件名
 const getTrendIconFileName = (trendType?: TrendType) =>
   trendType ? trendIconByType[trendType] : "trend-icon.png";
 
+// 方法功能：渲染 Satori 组件与 PNG 的预览页面
 export default async function SatoriPreviewPage({
   searchParams,
 }: {
@@ -42,116 +40,60 @@ export default async function SatoriPreviewPage({
     typeof resolvedSearchParams.case === "string"
       ? resolvedSearchParams.case
       : "curious";
-  const apiReport = mockReports[caseKey] ?? mockReports.curious;
-  const report = mapApiReportToWeeklyReportData(apiReport);
-  const data = mapReportToWeeklyData(apiReport.app_user_id, report, {
-    assetBaseUrl,
-    trackingBaseUrl: assetBaseUrl,
-  });
+  // 重要逻辑：预览直接使用 mock 数据，避免依赖后端
+  const data = buildWeeklyDataFromMock(caseKey, assetBaseUrl);
 
+  // 重要逻辑：生成唯一资源 key，防止预览资源冲突
   const assetId = crypto.randomUUID();
-  const progressPng = await renderTrendProgressImage({
-    progress: data.hero.trendProgress,
-    width: 520,
-    height: 64,
+  const assetKeys = buildPreviewAssetKeys(caseKey, assetId);
+  const { data: weeklyData, assets } = await ReportPipeline.run({
+    data,
+    assetBaseUrl,
+    uploadTarget: "api",
+    useUploads: true,
+    assetKeys,
   });
-  const barChartPng = await renderDiagnosisBarChartImage({
-    lastWeekLabel: data.diagnosis.lastWeekLabel,
-    thisWeekLabel: data.diagnosis.thisWeekLabel,
-    lastWeekValue: data.diagnosis.lastWeekValue,
-    thisWeekValue: data.diagnosis.thisWeekValue,
-    width: 520,
-    height: 265,
-  });
+  const progressUrl = weeklyData.trend.progressImageUrl ?? "";
+  const barsUrl = weeklyData.diagnosis.barChartImageUrl ?? "";
+  const trendShareCardUrl = assets.trendCardUrl;
+  const statsShareCardUrl = assets.statsCardUrl;
 
-  const statsShareCardPng = await renderStatsShareCardImage({
-    totalVideos: data.diagnosis.totalVideosValue,
-    totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
-    miles: `${data.diagnosis.miles}`,
-    comparisonDiff: data.diagnosis.comparisonDiff,
-    comparisonText: data.diagnosis.comparisonText,
-    milesComment: data.diagnosis.milesComment,
-    barChartData: {
-      lastWeekLabel: data.diagnosis.lastWeekLabel,
-      thisWeekLabel: data.diagnosis.thisWeekLabel,
-      lastWeekValue: data.diagnosis.lastWeekValue,
-      thisWeekValue: data.diagnosis.thisWeekValue,
-    },
-    contents: data.newContents.map((c) => ({
-      label: c.label,
-      iconUrl: c.stickerUrl,
-    })),
-    width: 390,
-    height: 960,
-  });
-
-  const trendShareCardPng = await renderTrendShareCardImage({
-    topicTitle: data.trend.topic.replace(/“|”/g, ""),
-    topicSubtitle: data.trend.statusText,
-    discoveryRank: data.trend.rank ?? 0,
-    totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
-    progress: data.hero.trendProgress,
-    hashtag: data.trend.startTag,
-    hashtagPercent: data.trend.startPercent,
-    endTag: data.trend.endTag,
-    globalPercent: data.trend.endPercent,
-    width: 390,
-    height: 693,
-    trendType: data.trend.type,
-  });
-
-  const progressUrl = await uploadPngToNewApi(
-    progressPng,
-    `preview/${caseKey}-${assetId}-progress.png`,
-  );
-  const barsUrl = await uploadPngToNewApi(
-    barChartPng,
-    `preview/${caseKey}-${assetId}-bars.png`,
-  );
-  const statsShareCardUrl = await uploadPngToNewApi(
-    statsShareCardPng,
-    `preview/${caseKey}-${assetId}-stats-share-card.png`,
-  );
-  const trendShareCardUrl = await uploadPngToNewApi(
-    trendShareCardPng,
-    `preview/${caseKey}-${assetId}-trend-share-card.png`,
-  );
-
+  // 重要逻辑：统一拼装卡片数据，供 HTML 组件与 PNG 预览使用
   const card = {
     trend: {
       topicIconData: `${assetBaseUrl}/figma/${getTrendIconFileName(
-        data.trend.type,
+        weeklyData.trend.type,
       )}`,
       topicIconBgData: `${assetBaseUrl}/figma/trend-icon-bg.png`,
       topBgData: `${assetBaseUrl}/figma/trend-card-bg_top.png`,
-      topicTitle: data.trend.topic.replace(/“|”/g, ""),
-      topicSubtitle: data.trend.statusText,
-      discoveryRank: data.trend.rank ?? 0,
-      totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
-      progress: data.hero.trendProgress,
+      topicTitle: weeklyData.trend.topic.replace(/“|”/g, ""),
+      topicSubtitle: weeklyData.trend.statusText,
+      discoveryRank: weeklyData.trend.rank ?? 0,
+      totalDiscovery: weeklyData.trend.totalDiscoverers.toLocaleString(),
+      progress: weeklyData.hero.trendProgress,
       fireIconData: `${assetBaseUrl}/figma/fire.png`,
-      hashtag: data.trend.startTag,
-      hashtagPercent: data.trend.startPercent,
-      endTag: data.trend.endTag,
-      globalPercent: data.trend.endPercent,
+      hashtag: weeklyData.trend.startTag,
+      hashtagPercent: weeklyData.trend.startPercent,
+      endTag: weeklyData.trend.endTag,
+      globalPercent: weeklyData.trend.endPercent,
       bottomBgData: `${assetBaseUrl}/figma/trend-card-bg_bottom.png`,
     },
     stats: {
       headerIconData: `${assetBaseUrl}/figma/stats-icon.png`,
       topBgData: `${assetBaseUrl}/figma/stats-card-bg_top.png`,
-      totalVideos: data.diagnosis.totalVideosValue,
-      totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
-      miles: `${data.diagnosis.miles}`,
-      comparisonDiff: data.diagnosis.comparisonDiff,
-      comparisonText: data.diagnosis.comparisonText,
-      milesComment: data.diagnosis.milesComment,
+      totalVideos: weeklyData.diagnosis.totalVideosValue,
+      totalTime: `${weeklyData.diagnosis.totalTimeValue} ${weeklyData.diagnosis.totalTimeUnit}`,
+      miles: `${weeklyData.diagnosis.miles}`,
+      comparisonDiff: weeklyData.diagnosis.comparisonDiff,
+      comparisonText: weeklyData.diagnosis.comparisonText,
+      milesComment: weeklyData.diagnosis.milesComment,
       barChartData: {
-        lastWeekLabel: data.diagnosis.lastWeekLabel,
-        thisWeekLabel: data.diagnosis.thisWeekLabel,
-        lastWeekValue: data.diagnosis.lastWeekValue,
-        thisWeekValue: data.diagnosis.thisWeekValue,
+        lastWeekLabel: weeklyData.diagnosis.lastWeekLabel,
+        thisWeekLabel: weeklyData.diagnosis.thisWeekLabel,
+        lastWeekValue: weeklyData.diagnosis.lastWeekValue,
+        thisWeekValue: weeklyData.diagnosis.thisWeekValue,
       },
-      contents: data.newContents.map((content) => ({
+      contents: weeklyData.newContents.map((content: WeeklyNewContent) => ({
         icon: content.stickerUrl,
         label: content.label,
       })),
@@ -159,6 +101,7 @@ export default async function SatoriPreviewPage({
     },
   };
 
+  // 方法功能：生成模块容器样式
   const moduleBoxStyle = (bg: string) => ({
     background: bg,
     border: "1px solid #E5E7EB",
