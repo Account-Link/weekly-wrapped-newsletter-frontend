@@ -77,6 +77,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
           flex: 1,
           position: "relative",
           zIndex: 1,
+          textAlign: "center",
         }}
       >
         {/* Header Icon */}

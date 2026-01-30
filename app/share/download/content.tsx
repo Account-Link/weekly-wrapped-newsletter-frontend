@@ -45,7 +45,7 @@ export default function DownloadContent() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      <div className="bg-white p-6 rounded-xl shadow-lg max-w-lg w-full text-center">
+      <div className="bg-white p-6 rounded-xl shadow-lg max-w-[600px] w-full text-center">
         <h1 className="text-2xl font-bold mb-4 text-gray-800">
           Your Wrapped is Ready!
         </h1>
@@ -53,13 +53,14 @@ export default function DownloadContent() {
           Click the image below to download and share it with your friends.
         </p>
 
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-6 w-full">
           <ImageDownloader
             src={url}
             fileName={filename}
             trackingEventName="share_card_download"
             trackingData={{ type }}
             width="100%"
+            style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}
           />
         </div>
 

@@ -106,6 +106,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
             flexDirection: "column",
             alignItems: "center",
             marginBottom: 40,
+            textAlign: "center",
           }}
         >
           <span
@@ -124,6 +125,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
               fontSize: 16,
               fontWeight: 700,
               color: "#FF345D",
+              textAlign: "center",
             }}
           >
             {topicSubtitle}
@@ -143,6 +145,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
             lineHeight: 1.3,
             marginBottom: 40,
             width: 330,
+            textAlign: "center",
           }}
         >
           <span>You were</span>
@@ -185,9 +188,17 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
               justifyContent: "space-between",
               width: 330,
               marginTop: 2,
+              textAlign: "center",
             }}
           >
-            <div style={{ display: "flex", flexDirection: "column" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                width: "50%",
+              }}
+            >
               <span style={{ fontSize: 16, fontWeight: 700 }}>{hashtag}</span>
               <span style={{ fontSize: 16, fontWeight: 700 }}>
                 {hashtagPercent}
@@ -197,7 +208,8 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
               style={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "flex-end",
+                alignItems: "center",
+                width: "50%",
               }}
             >
               <span style={{ fontSize: 16, fontWeight: 700 }}>{endTag}</span>

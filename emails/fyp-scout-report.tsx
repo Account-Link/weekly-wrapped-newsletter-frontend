@@ -15,8 +15,6 @@ import {
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
 import type { WeeklyData } from "../src/lib/firebase-admin";
-import { TrendProgressBlock } from "./components/TrendProgressBlock";
-import { DiagnosisBarChartBlock } from "./components/DiagnosisBarChartBlock";
 import { EmailButton } from "./components/EmailButton";
 import { FEEDLING_COPY_MAP } from "../src/domain/report/logic-map";
 import type { TrendType } from "../src/domain/report/types";
@@ -181,7 +179,26 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
       },
     },
   };
-  const [contentA, contentB, contentC] = data.newContents;
+  type NewContentItem = WeeklyData["newContents"][number];
+  const newContents = data.newContents.slice(0, 3);
+  const contentCount = newContents.length;
+  const renderNewContent = (content: NewContentItem) => (
+    <Column
+      className="text-center mobile-content-item"
+      align="center"
+      style={{ width: "150px" }}
+    >
+      <Img
+        src={content.stickerUrl}
+        width="150"
+        height="150"
+        className="rounded-full border-[1px] border-[#ffffff4d] mb-[10px] mx-auto mobile-content-img"
+      />
+      <Text className="text-[16px] text-white font-bold mobile-text-12">
+        {content.label}
+      </Text>
+    </Column>
+  );
 
   return (
     <Tailwind config={tailwindConfig}>
@@ -336,13 +353,42 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     )
                   : data.trend.discoveryText}
               </Text>
-              <TrendProgressBlock
-                progressImageUrl={data.trend.progressImageUrl}
-                startTag={data.trend.startTag}
-                startPercent={data.trend.startPercent}
-                endTag={data.trend.endTag}
-                endPercent={data.trend.endPercent}
-              />
+              <Section align="center">
+                {data.trend.progressImageUrl ? (
+                  <Section
+                    className="w-full mx-auto text-center"
+                    align="center"
+                  >
+                    <Img
+                      src={data.trend.progressImageUrl}
+                      alt="Trend progress"
+                      width="566px"
+                      height="auto"
+                      className="mobile-img-376"
+                      style={{ margin: "0 auto", display: "inline-block" }}
+                    />
+                  </Section>
+                ) : null}
+              </Section>
+              <Section
+                className=" w-[520px] text-[16px] text-black font-bold mobile-width-330"
+                align="center"
+              >
+                <Row>
+                  <Column className="w-[50%]" align="left">
+                    <Text className="mt-[0px] leading-[14px] mb-[0px]">
+                      {data.trend.startTag}
+                    </Text>
+                    <Text className="mt-[0px]">{data.trend.startPercent}</Text>
+                  </Column>
+                  <Column className="w-[50%]" align="right">
+                    <Text className="mt-[0px] leading-[14px] mb-[0px]">
+                      {data.trend.endTag}
+                    </Text>
+                    <Text className="mt-[0px]">{data.trend.endPercent}</Text>
+                  </Column>
+                </Row>
+              </Section>
               <EmailButton
                 href={data.trend.shareUrl || "https://react.email"}
                 label={data.trend.ctaLabel}
@@ -409,75 +455,50 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </span>
               </Text>
 
-              <DiagnosisBarChartBlock
-                barChartImageUrl={data.diagnosis.barChartImageUrl}
-                lastWeekLabel={data.diagnosis.lastWeekLabel}
-                thisWeekLabel={data.diagnosis.thisWeekLabel}
-                lastWeekValue={data.diagnosis.lastWeekValue}
-                thisWeekValue={data.diagnosis.thisWeekValue}
-              />
+              <Section className="mx-auto mb-10 align-bottom">
+                {data.diagnosis.barChartImageUrl ? (
+                  <Img
+                    src={data.diagnosis.barChartImageUrl}
+                    alt="Weekly comparison"
+                    width="520"
+                    className="block mx-auto mobile-img-330"
+                  />
+                ) : null}
+              </Section>
 
               <Text className="text-[20px] font-bold text-[#fff] leading-none mt-[40px] mb-[60px] mobile-text-16">
                 • New contents you got into •
               </Text>
-              <Row
-                className="mb-[30px] w-[520px] mx-auto mobile-width-330"
-                align="center"
-              >
-                {contentA ? (
-                  <Column
-                    className="text-center mobile-content-item"
-                    align="center"
-                    style={{ width: "150px" }}
-                  >
-                    <Img
-                      src={contentA.stickerUrl}
-                      width="150"
-                      height="150"
-                      className="rounded-full border-[1px] border-[#ffffff4d] mb-[10px] mx-auto mobile-content-img"
-                    />
-                    <Text className="text-[16px] text-white font-bold mobile-text-12">
-                      {contentA.label}
-                    </Text>
-                  </Column>
-                ) : null}
-                <Column className="w-[35px] mobile-gap-12"></Column>
-                {contentB ? (
-                  <Column
-                    className="text-center mobile-content-item"
-                    align="center"
-                    style={{ width: "150px" }}
-                  >
-                    <Img
-                      src={contentB.stickerUrl}
-                      width="150"
-                      height="150"
-                      className="rounded-full border-[1px] border-[#ffffff4d] mb-[10px] mx-auto mobile-content-img"
-                    />
-                    <Text className="text-[16px] text-white font-bold mobile-text-12">
-                      {contentB.label}
-                    </Text>
-                  </Column>
-                ) : null}
-                <Column className="w-[35px] mobile-gap-12"></Column>
-                {contentC ? (
-                  <Column
-                    className="text-center mobile-content-item"
-                    align="center"
-                    style={{ width: "150px" }}
-                  >
-                    <Img
-                      src={contentC.stickerUrl}
-                      width="150"
-                      height="150"
-                      className="rounded-full border-[1px] border-[#ffffff4d] mb-[10px] mx-auto mobile-content-img"
-                    />
-                    <Text className="text-[16px] text-white font-bold mobile-text-12">
-                      {contentC.label}
-                    </Text>
-                  </Column>
-                ) : null}
-              </Row>
+              {contentCount > 0 ? (
+                <Row
+                  className="mb-[30px] w-[520px] mx-auto mobile-width-330"
+                  align="center"
+                >
+                  {contentCount === 1 ? (
+                    <>
+                      <Column className="w-[185px] mobile-gap-12"></Column>
+                      {renderNewContent(newContents[0])}
+                      <Column className="w-[185px] mobile-gap-12"></Column>
+                    </>
+                  ) : null}
+                  {contentCount === 2 ? (
+                    <>
+                      {renderNewContent(newContents[0])}
+                      <Column className="w-[220px] mobile-gap-12"></Column>
+                      {renderNewContent(newContents[1])}
+                    </>
+                  ) : null}
+                  {contentCount === 3 ? (
+                    <>
+                      {renderNewContent(newContents[0])}
+                      <Column className="w-[35px] mobile-gap-12"></Column>
+                      {renderNewContent(newContents[1])}
+                      <Column className="w-[35px] mobile-gap-12"></Column>
+                      {renderNewContent(newContents[2])}
+                    </>
+                  ) : null}
+                </Row>
+              ) : null}
 
               <Text className="text-[20px] font-bold text-[#fff] my-[30px] mb-[30px] mobile-text-16">
                 • Deepest rabbit hole •

@@ -41,6 +41,7 @@ export async function GET(request: Request) {
       }
       const { getWeeklyData } = await import("../../../src/lib/firebase-admin");
       weeklyData = await getWeeklyData(uid);
+      console.log("weeklyData", weeklyData);
     }
 
     // 重要逻辑：每次生成使用唯一资源 key，避免覆盖
