@@ -15,6 +15,8 @@ import type { WeeklyData } from "../src/lib/firebase-admin";
 import { TrendProgressBlock } from "./components/TrendProgressBlock";
 import { DiagnosisBarChartBlock } from "./components/DiagnosisBarChartBlock";
 import { EmailButton } from "./components/EmailButton";
+import { FEEDLING_COPY_MAP } from "../src/domain/report/logic-map";
+import type { TrendType } from "../src/domain/report/types";
 
 interface FypScoutReportEmailProps {
   data: WeeklyData;
@@ -24,6 +26,79 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   const assetBaseUrl = data.hero.imageUrl
     ? data.hero.imageUrl.split("/figma/")[0]
     : "";
+  const openingCopyByState: Record<WeeklyData["feedlingState"], string> =
+    FEEDLING_COPY_MAP;
+  const catByState: Record<WeeklyData["feedlingState"], string> = {
+    curious: "cat_curious.png",
+    excited: "cat_excited.png",
+    cozy: "cat_cozy.png",
+    sleepy: "cat_sleepy.png",
+    dizzy: "cat_dizzy.png",
+  };
+  const openingCopy =
+    openingCopyByState[data.feedlingState] ||
+    "This week you explored a lot of new corners in TikTok.";
+  const highlightByState: Record<WeeklyData["feedlingState"], string> = {
+    curious: "new corners",
+    excited: "trend instincts",
+    cozy: "balanced week",
+    sleepy: "late nights",
+    dizzy: "little chaotic",
+  };
+  const highlightTarget = highlightByState[data.feedlingState] || "";
+  const trendIconByType: Record<TrendType, string> = {
+    sound: "trend-icon_sound.png",
+    hashtag: "trend-icon_hashtag.png",
+    creator: "trend-icon_creator.png",
+    format: "trend-icon_format.png",
+  };
+  const trendIconFile = data.trend.type
+    ? trendIconByType[data.trend.type]
+    : "trend-icon.png";
+  const getHighlightParts = (text: string, target: string) => {
+    if (!target) return [text, "", ""];
+    const lowerText = text.toLowerCase();
+    const lowerTarget = target.toLowerCase();
+    const index = lowerText.indexOf(lowerTarget);
+    if (index === -1) return [text, "", ""];
+    const start = index;
+    const end = index + target.length;
+    return [text.slice(0, start), text.slice(start, end), text.slice(end)];
+  };
+  const escapeRegExp = (value: string) =>
+    value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const buildDiscoverySegments = (
+    text: string | undefined,
+    rank: number,
+    total: number,
+  ) => {
+    const rankToken = `#${rank.toLocaleString()}`;
+    const totalToken = total.toLocaleString();
+    const regex = new RegExp(
+      `(${escapeRegExp(rankToken)}|${escapeRegExp(totalToken)})`,
+      "g",
+    );
+    return (text ?? "")
+      .split(regex)
+      .filter(Boolean)
+      .map((part, index) => {
+        if (part === rankToken || part === totalToken) {
+          return (
+            <span
+              key={`discovery-${index}`}
+              className="text-brand text-[24px] font-bold mobile-text-16"
+            >
+              {part}
+            </span>
+          );
+        }
+        return part;
+      });
+  };
+  const [openingPrefix, openingHighlight, openingSuffix] = getHighlightParts(
+    openingCopy,
+    highlightTarget,
+  );
   const trackingPixelUrl = data.trackingBaseUrl
     ? `${data.trackingBaseUrl}/api/track?event=email_open&uid=${encodeURIComponent(
         data.uid,
@@ -115,6 +190,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     width: 330px !important;
     height: auto !important;
   }
+  .mobile-img-376 {
+    width: 376px !important;
+    height: auto !important;
+  }
   .mobile-text-28 {
     font-size: 28px !important;
     line-height: 36px !important;
@@ -185,18 +264,20 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             {/* OPENING SECTION */}
             <Section className="bg-bgDark pt-[30px] px-5 text-center text-white">
               <Img
-                src={`${assetBaseUrl}/figma/cat_main.png`}
+                src={`${assetBaseUrl}/figma/${
+                  catByState[data.feedlingState] || "cat_curious.png"
+                }`}
                 alt="Opening Cat"
                 width="520"
                 height="200"
                 className="mx-auto mb-[38px] mobile-img-330"
               />
-              <Text className="text-[30px] font-bold leading-[40px] mb-[0px] mobile-text-24">
-                This week you explored
-              </Text>
-              <Text className="text-[30px] font-bold leading-[40px] mt-[0px] mobile-text-24">
-                a lot of <span className="text-brand">New Corners</span> in
-                TikTok.
+              <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile-text-24 mobile-max-330">
+                {openingPrefix}
+                {openingHighlight ? (
+                  <span className="text-brand">{openingHighlight}</span>
+                ) : null}
+                {openingSuffix}
               </Text>
               <Text className="text-[18px] text-white mb-10 mobile-text-16">
                 {data.opening.dateRange}
@@ -212,13 +293,22 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 backgroundPosition: "center",
               }}
             >
-              <Img
-                src={`${assetBaseUrl}/figma/trend-icon.png`}
-                alt="Topic Sticker"
-                width="126"
-                height="113"
-                className="mx-auto mb-[0px]"
-              />
+              <Section
+                className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
+                style={{
+                  backgroundImage: `url(${assetBaseUrl}/figma/trend-icon-bg.png)`,
+                  backgroundSize: "cover",
+                }}
+                align="center"
+              >
+                <Img
+                  src={`${assetBaseUrl}/figma/${trendIconFile}`}
+                  alt="Topic Sticker"
+                  width="73"
+                  height="60"
+                  className="mx-auto align-middle"
+                />
+              </Section>
               <Text className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28">
                 {data.trend.topic}
               </Text>
@@ -226,21 +316,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 {data.trend.statusText}
               </Text>
               <Text className="text-[18px] font-bold mb-[10px] mobile-text-16">
-                {data.trend.rank !== null ? (
-                  <>
-                    You were{" "}
-                    <span className="text-brand text-[24px] font-bold mobile-text-16">
-                      #{data.trend.rank.toLocaleString()}
-                    </span>{" "}
-                    to discover out of{" "}
-                    <span className="text-brand text-[24px] font-bold mobile-text-16">
-                      {data.trend.totalDiscoverers.toLocaleString()}
-                    </span>{" "}
-                    people.
-                  </>
-                ) : (
-                  data.trend.discoveryText
-                )}
+                {data.trend.rank !== null
+                  ? buildDiscoverySegments(
+                      data.trend.discoveryText,
+                      data.trend.rank,
+                      data.trend.totalDiscoverers,
+                    )
+                  : data.trend.discoveryText}
               </Text>
               <TrendProgressBlock
                 progressImageUrl={data.trend.progressImageUrl}
@@ -423,14 +505,14 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 align="center"
               >
                 <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px] text-center mobile-text-24">
-                  “Try putting your phone down before 3 AM this week!”
+                  {data.weeklyNudge.title}
                 </Text>
                 <Text className="text-[18px] text-center mobile-text-16">
                   {data.weeklyNudge.message}
                 </Text>
                 <EmailButton
                   href={data.weeklyNudge.linkUrl || "https://react.email"}
-                  label="Share Invite Link"
+                  label={data.weeklyNudge.ctaLabel}
                   iconUrl={`${assetBaseUrl}/figma/share-icon.png`}
                   type="blue"
                 />

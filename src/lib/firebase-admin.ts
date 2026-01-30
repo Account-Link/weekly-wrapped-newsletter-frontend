@@ -1,4 +1,9 @@
 import admin from "firebase-admin";
+import type {
+  WeeklyReportApiResponse,
+  FeedlingState,
+  TrendType,
+} from "@/domain/report/types";
 
 // 重要逻辑：God Mode 单例初始化，防止重复初始化导致报错
 // - 当 admin.apps.length > 0 时，说明已经初始化过，直接复用现有 app
@@ -7,10 +12,9 @@ function initAdminSingleton() {
   const alreadyInitialized = admin.apps.length > 0;
   if (alreadyInitialized) return;
 
-  // 重要逻辑：本地业务开发可通过环境变量跳过 Firebase 初始化
-  if (process.env.FIREBASE_ADMIN_SKIP_INIT === "true") {
-    return;
-  }
+  // 重要逻辑：默认关闭 Firebase Admin，只有显式启用时才初始化
+  const adminEnabled = process.env.FIREBASE_ADMIN_ENABLED === "true";
+  if (!adminEnabled) return;
 
   const raw = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
   if (!raw) {
@@ -103,6 +107,7 @@ export interface WeeklyTrend {
   startPercent: string;
   endTag: string;
   endPercent: string;
+  type?: TrendType;
   ctaLabel: string;
   ctaIconUrl: string;
   progressImageUrl?: string;
@@ -154,6 +159,7 @@ export interface WeeklyData {
   weekStart: string; // ISO date string
   weekEnd: string; // ISO date string
   trackingBaseUrl: string;
+  feedlingState: FeedlingState;
   hero: WeeklyHero;
   opening: WeeklyOpening;
   trend: WeeklyTrend;
@@ -167,117 +173,35 @@ export interface WeeklyData {
 
 // 重要逻辑：周报数据获取（当前返回 Mock，保留真实查询注释）
 export async function getWeeklyData(uid: string): Promise<WeeklyData> {
-  // 真实实现示例（注释说明）：
-  // - Firestore 结构示例：
-  //   collections:
-  //     users/{uid}/reports/{yyyy-mm-dd}
-  // - 查询最近一周文档并聚合需要的指标
-  //
-  // const reportRef = adminDb
-  //   .collection("users")
-  //   .doc(uid)
-  //   .collection("reports")
-  //   .orderBy("date", "desc")
-  //   .limit(1);
-  // const snapshot = await reportRef.get();
-  // if (!snapshot.empty) {
-  //   const doc = snapshot.docs[0].data();
-  //   // 映射为 WeeklyData 返回
-  // }
+  const apiBaseUrl = process.env.WEEKLY_REPORT_API_BASE_URL;
+  if (!apiBaseUrl) {
+    throw new Error("Missing WEEKLY_REPORT_API_BASE_URL in environment");
+  }
 
-  // Mock 数据：符合 PRD 的字段结构
-  const now = new Date();
-  const end = new Date(now);
-  const start = new Date(now);
-  start.setDate(end.getDate() - 7);
-  const dateRange = `${start.toISOString().slice(0, 10)} - ${end
-    .toISOString()
-    .slice(0, 10)}`;
-  // 重要逻辑：本地预览需使用完整 URL，生产可替换为 CDN
+  const apiKey = process.env.WEEKLY_REPORT_API_KEY;
+  const headers: HeadersInit = apiKey ? { "x-api-key": apiKey } : {};
+  const url = new URL(
+    `weekly-report/${encodeURIComponent(uid)}`,
+    apiBaseUrl,
+  ).toString();
+  const response = await fetch(url, { method: "GET", headers });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Weekly report request failed: ${response.status} ${text}`);
+  }
+  const apiReport = (await response.json()) as WeeklyReportApiResponse;
+
+  const { mapApiReportToWeeklyReportData, mapReportToWeeklyData } =
+    await import("@/domain/report/adapter");
+  console.log("API Report:", apiReport);
+  const report = mapApiReportToWeeklyReportData(apiReport);
   const assetBaseUrl =
     process.env.EMAIL_ASSET_BASE_URL ||
     (process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000");
-
-  return {
-    uid,
-    weekStart: start.toISOString().slice(0, 10),
-    weekEnd: end.toISOString().slice(0, 10),
+  return mapReportToWeeklyData(apiReport.app_user_id || uid, report, {
+    assetBaseUrl,
     trackingBaseUrl: assetBaseUrl,
-    hero: {
-      imageUrl: "https://assets.fyp-scout.example/cat-feedling.png",
-      imageAlt: "Feedling 猫咪",
-      trendProgress: 72,
-    },
-    opening: {
-      title: "This week you explored",
-      subtitle: "a lot of New Corners in TikTok.",
-      dateRange,
-      decorUrl: "",
-      catUrl: `${assetBaseUrl}/figma/cat-gif.png`,
-    },
-    trend: {
-      stickerUrl: `${assetBaseUrl}/figma/topic-sticker-sound.png`,
-      topic: "“Leave Em Alone”",
-      statusText: "blew up this week",
-      discoveryText: "You're one of the first 1,000 people to see this trend.",
-      rank: 47,
-      totalDiscoverers: 2847,
-      startTag: "NYC",
-      startPercent: "10%",
-      endTag: "Everywhere",
-      endPercent: "100%",
-      ctaLabel: "Share My Week",
-      ctaIconUrl: "",
-    },
-    diagnosis: {
-      title: "This week you watched",
-      totalVideosValue: "9,222",
-      totalVideosUnit: "Videos",
-      totalTimeValue: "19 h 14",
-      totalTimeUnit: "min",
-      comparisonDiff: "2h 35min",
-      comparisonText: "less than last week 👍",
-      miles: 18,
-      milesComment: "- a half marathon.",
-      thisWeekLabel: "This Week",
-      lastWeekLabel: "Last Week",
-      thisWeekValue: 1154,
-      lastWeekValue: 1290,
-    },
-    newContents: [
-      {
-        label: "Hongkong Vlog",
-        stickerUrl: `${assetBaseUrl}/figma/content-sticker-1.svg`,
-      },
-      {
-        label: "Pottery DIY",
-        stickerUrl: `${assetBaseUrl}/figma/content-sticker-2.svg`,
-      },
-      {
-        label: "Jazz Covers",
-        stickerUrl: `${assetBaseUrl}/figma/content-sticker-3.svg`,
-      },
-    ],
-    rabbitHole: {
-      timeLabel: "Wed 3:09 AM",
-      description: "You watched 156 videos of comedy.",
-      imageUrl: `${assetBaseUrl}/figma/cat-gif.svg`,
-    },
-    weeklyNudge: {
-      title: "👍🏻 Weekly Nudge 👍🏻",
-      message: "“Try putting your phone down before 3 AM this week!”",
-      ctaLabel: "Share My Scroll Stats",
-    },
-    stats: [
-      { label: "新增关注", value: "1,284", delta: "+12%" },
-      { label: "内容互动", value: "8,532", delta: "+8%" },
-      { label: "帖子发布", value: "36", delta: "-3%" },
-      { label: "转化率", value: "4.7%", delta: "+0.5%" },
-    ],
-    footer: {
-      tiktokUrl: "https://tiktok.com/@feedling",
-    },
-  };
+  });
 }

@@ -28,6 +28,7 @@ export const TrendProgress: React.FC<TrendProgressProps> = ({
         gap: 8,
         fontFamily: "Noto Sans",
         color: "#111111",
+        overflow: "visible",
       }}
     >
       <div
@@ -37,6 +38,7 @@ export const TrendProgress: React.FC<TrendProgressProps> = ({
           backgroundColor: "#D1D1D1",
           borderRadius: 32,
           display: "flex",
+          overflow: "visible",
         }}
       >
         <div
@@ -47,6 +49,7 @@ export const TrendProgress: React.FC<TrendProgressProps> = ({
             borderRadius: 32,
             position: "relative",
             display: "flex",
+            overflow: "visible",
           }}
         >
           <img

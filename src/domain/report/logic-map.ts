@@ -54,35 +54,16 @@ export function getTimeComparisonText(
   currentMinutes: number,
   lastWeekMinutes: number
 ): string {
-  // 重要逻辑：避免除 0
-  if (lastWeekMinutes <= 0) {
-    return "No baseline from last week";
-  }
   const diff = currentMinutes - lastWeekMinutes;
-  const percentage = (diff / lastWeekMinutes) * 100;
-
-  // 辅助函数：将分钟转换为 "Xh Xmin" 格式
   const formatTime = (mins: number) => {
     const h = Math.floor(Math.abs(mins) / 60);
     const m = Math.floor(Math.abs(mins) % 60);
     return `${h}h ${m}min`;
   };
-
-  // 逻辑判断
-  if (percentage < -5) {
-    return `${formatTime(diff)} less than last week`; // 下降超过 5%
+  if (diff >= 0) {
+    return `${formatTime(diff)} more than last week`;
   }
-  if (percentage >= -5 && percentage < -2) {
-    return "Slightly less than last week"; // 下降 2-5%
-  }
-  if (percentage >= -2 && percentage <= 2) {
-    return "About the same as last week"; // 波动 2% 以内
-  }
-  if (percentage > 2 && percentage <= 5) {
-    return "A bit more than last week"; // 上升 2-5%
-  }
-
-  return `${formatTime(diff)} more than last week`; // 上升超过 5% (默认为 >5%)
+  return `${formatTime(diff)} less than last week`;
 }
 
 // ==========================================

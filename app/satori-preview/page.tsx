@@ -5,12 +5,16 @@ import {
   renderStatsShareCardImage,
   renderTrendProgressImage,
   renderTrendShareCardImage,
-  uploadPngToVercelBlob,
+  uploadPngToNewApi,
 } from "@/lib/satori-assets";
 import { DiagnosisBarChart } from "@/components/satori/DiagnosisBarChart";
 import { TrendProgress } from "@/components/satori/TrendProgress";
 import { mockReports } from "@/domain/report/mock";
-import { mapReportToWeeklyData } from "@/domain/report/adapter";
+import {
+  mapApiReportToWeeklyReportData,
+  mapReportToWeeklyData,
+} from "@/domain/report/adapter";
+import type { TrendType } from "@/domain/report/types";
 import crypto from "node:crypto";
 
 const assetBaseUrl =
@@ -18,6 +22,14 @@ const assetBaseUrl =
   (process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000");
+const trendIconByType: Record<TrendType, string> = {
+  sound: "trend-icon_sound.png",
+  hashtag: "trend-icon_hashtag.png",
+  creator: "trend-icon_creator.png",
+  format: "trend-icon_format.png",
+};
+const getTrendIconFileName = (trendType?: TrendType) =>
+  trendType ? trendIconByType[trendType] : "trend-icon.png";
 
 export default async function SatoriPreviewPage({
   searchParams,
@@ -30,8 +42,9 @@ export default async function SatoriPreviewPage({
     typeof resolvedSearchParams.case === "string"
       ? resolvedSearchParams.case
       : "curious";
-  const report = mockReports[caseKey] ?? mockReports.curious;
-  const data = mapReportToWeeklyData("preview-user", report, {
+  const apiReport = mockReports[caseKey] ?? mockReports.curious;
+  const report = mapApiReportToWeeklyReportData(apiReport);
+  const data = mapReportToWeeklyData(apiReport.app_user_id, report, {
     assetBaseUrl,
     trackingBaseUrl: assetBaseUrl,
   });
@@ -77,21 +90,22 @@ export default async function SatoriPreviewPage({
     globalPercent: data.trend.endPercent,
     width: 390,
     height: 693,
+    trendType: data.trend.type,
   });
 
-  const progressUrl = await uploadPngToVercelBlob(
+  const progressUrl = await uploadPngToNewApi(
     progressPng,
     `preview/${caseKey}-${assetId}-progress.png`,
   );
-  const barsUrl = await uploadPngToVercelBlob(
+  const barsUrl = await uploadPngToNewApi(
     barChartPng,
     `preview/${caseKey}-${assetId}-bars.png`,
   );
-  const statsShareCardUrl = await uploadPngToVercelBlob(
+  const statsShareCardUrl = await uploadPngToNewApi(
     statsShareCardPng,
     `preview/${caseKey}-${assetId}-stats-share-card.png`,
   );
-  const trendShareCardUrl = await uploadPngToVercelBlob(
+  const trendShareCardUrl = await uploadPngToNewApi(
     trendShareCardPng,
     `preview/${caseKey}-${assetId}-trend-share-card.png`,
   );
@@ -103,7 +117,9 @@ export default async function SatoriPreviewPage({
 
   const card = {
     trend: {
-      topicIconData: `${assetBaseUrl}/figma/trend-icon.png`,
+      topicIconData: `${assetBaseUrl}/figma/${getTrendIconFileName(
+        data.trend.type,
+      )}`,
       topBgData: `${assetBaseUrl}/figma/trend-card-bg_top.png`,
       topicTitle: data.trend.topic.replace(/“|”/g, ""),
       topicSubtitle: data.trend.statusText,
@@ -197,7 +213,7 @@ export default async function SatoriPreviewPage({
             <img
               src={progressUrl}
               style={{
-                width: 520,
+                width: 566,
                 height: 64,
                 border: "1px solid #E5E7EB",
                 borderRadius: 8,

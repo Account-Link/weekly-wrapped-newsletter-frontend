@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
 import { render } from "@react-email/render";
 import { FypScoutReportEmail } from "../../../emails/fyp-scout-report";
-import { mapReportToWeeklyData } from "../../../src/domain/report/adapter";
+import {
+  mapApiReportToWeeklyReportData,
+  mapReportToWeeklyData,
+} from "../../../src/domain/report/adapter";
 import { mockReports } from "../../../src/domain/report/mock";
 import {
   renderDiagnosisBarChartImage,
   renderTrendProgressImage,
-  uploadPngToVercelBlob,
+  uploadPngToNewApi,
+  uploadToVercelBlob,
 } from "../../../src/lib/satori-assets";
 import crypto from "node:crypto";
 
@@ -17,14 +21,28 @@ interface WrappedRequestBody {
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const caseKey = url.searchParams.get("case") ?? "curious";
-    const report = mockReports[caseKey] ?? mockReports.curious;
+    const uploadTarget = url.searchParams.get("upload") ?? "api"; // 'api' | 'vercel'
+    const mockParam = url.searchParams.get("mock");
+    const caseKey = url.searchParams.get("case");
+    const useMock = mockParam === "true" || Boolean(caseKey);
     const assetBaseUrl = process.env.EMAIL_ASSET_BASE_URL || url.origin;
-
-    const weeklyData = mapReportToWeeklyData("preview-user", report, {
-      assetBaseUrl,
-      trackingBaseUrl: assetBaseUrl,
-    });
+    let weeklyData;
+    if (useMock) {
+      const mockCase = caseKey ?? "curious";
+      const apiReport = mockReports[mockCase] ?? mockReports.curious;
+      const report = mapApiReportToWeeklyReportData(apiReport);
+      weeklyData = mapReportToWeeklyData(apiReport.app_user_id, report, {
+        assetBaseUrl,
+        trackingBaseUrl: assetBaseUrl,
+      });
+    } else {
+      const uid = url.searchParams.get("uid");
+      if (!uid) {
+        return NextResponse.json({ error: "Missing uid" }, { status: 400 });
+      }
+      const { getWeeklyData } = await import("../../../src/lib/firebase-admin");
+      weeklyData = await getWeeklyData(uid);
+    }
 
     const assetId = crypto.randomUUID();
     const progressPng = await renderTrendProgressImage({
@@ -41,13 +59,16 @@ export async function GET(request: Request) {
       height: 265,
     });
 
-    weeklyData.trend.progressImageUrl = await uploadPngToVercelBlob(
+    const uploadFn =
+      uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
+
+    weeklyData.trend.progressImageUrl = await uploadFn(
       progressPng,
-      `preview/${caseKey}-${assetId}-progress.png`,
+      `preview/${caseKey ?? "real"}-${assetId}-progress.png`,
     );
-    weeklyData.diagnosis.barChartImageUrl = await uploadPngToVercelBlob(
+    weeklyData.diagnosis.barChartImageUrl = await uploadFn(
       barChartPng,
-      `preview/${caseKey}-${assetId}-bars.png`,
+      `preview/${caseKey ?? "real"}-${assetId}-bars.png`,
     );
 
     const html = await render(<FypScoutReportEmail data={weeklyData} />, {
@@ -70,7 +91,8 @@ export async function POST(request: Request) {
     // 重要逻辑：权限握手，确保 Firebase Admin 已正确初始化并具备访问权限
     // - 可根据业务需要执行一次轻量级读操作或健康检查
     // - 例如：列出集合以确认连接正常（轻量动作）
-    if (process.env.SKIP_ADMIN_CHECK === "true" || !adminDb) {
+    const shouldCheckAdmin = process.env.FIREBASE_ADMIN_CHECK === "true";
+    if (!shouldCheckAdmin || !adminDb) {
       // 重要逻辑：本地业务开发跳过权限握手
     } else {
       await adminDb.listCollections();
@@ -103,11 +125,11 @@ export async function POST(request: Request) {
       height: 265,
     });
 
-    weeklyData.trend.progressImageUrl = await uploadPngToVercelBlob(
+    weeklyData.trend.progressImageUrl = await uploadPngToNewApi(
       progressPng,
       `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-progress.png`,
     );
-    weeklyData.diagnosis.barChartImageUrl = await uploadPngToVercelBlob(
+    weeklyData.diagnosis.barChartImageUrl = await uploadPngToNewApi(
       barChartPng,
       `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-bars.png`,
     );

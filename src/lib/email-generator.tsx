@@ -1,13 +1,16 @@
 import { render } from "@react-email/render";
 import { FypScoutReportEmail } from "../../emails/fyp-scout-report";
-import { mapReportToWeeklyData } from "@/domain/report/adapter";
+import {
+  mapApiReportToWeeklyReportData,
+  mapReportToWeeklyData,
+} from "@/domain/report/adapter";
 import { mockReports } from "@/domain/report/mock";
 import {
   renderDiagnosisBarChartImage,
   renderTrendProgressImage,
   renderTrendShareCardImage,
   renderStatsShareCardImage,
-  uploadPngToVercelBlob,
+  uploadPngToNewApi,
 } from "@/lib/satori-assets";
 import crypto from "node:crypto";
 
@@ -17,9 +20,22 @@ const assetBaseUrl =
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000");
 
-export async function generateEmailHtml(caseKey: string = "curious") {
-  const report = mockReports[caseKey] ?? mockReports.curious;
-  const data = mapReportToWeeklyData("preview-user", report, {
+type GenerateEmailOptions = {
+  uidOverride?: string;
+  useUploads?: boolean;
+};
+
+export async function generateEmailHtml(
+  caseKey: string = "curious",
+  options?: string | GenerateEmailOptions,
+) {
+  const resolvedOptions =
+    typeof options === "string" ? { uidOverride: options } : (options ?? {});
+  const { uidOverride, useUploads = true } = resolvedOptions;
+  const apiReport = mockReports[caseKey] ?? mockReports.curious;
+  const report = mapApiReportToWeeklyReportData(apiReport);
+  const resolvedUid = uidOverride || apiReport.app_user_id || "preview";
+  const data = mapReportToWeeklyData(resolvedUid, report, {
     assetBaseUrl,
     trackingBaseUrl: assetBaseUrl,
   });
@@ -49,74 +65,82 @@ export async function generateEmailHtml(caseKey: string = "curious") {
     height: 265,
   });
 
-  data.trend.progressImageUrl = await uploadPngToVercelBlob(
-    progressPng,
-    `preview/${caseKey}-${assetId}-progress.png`,
-  );
+  if (useUploads) {
+    data.trend.progressImageUrl = await uploadPngToNewApi(
+      progressPng,
+      `preview/${caseKey}-${assetId}-progress.png`,
+    );
 
-  data.diagnosis.barChartImageUrl = await uploadPngToVercelBlob(
-    barChartPng,
-    `preview/${caseKey}-${assetId}-bars.png`,
-  );
+    data.diagnosis.barChartImageUrl = await uploadPngToNewApi(
+      barChartPng,
+      `preview/${caseKey}-${assetId}-bars.png`,
+    );
 
-  // Generate and Upload Share Cards
-  const trendCardPng = await renderTrendShareCardImage({
-    topicTitle: data.trend.topic.replace(/“|”/g, ""), // Remove quotes if added by adapter
-    topicSubtitle: data.trend.statusText,
-    discoveryRank: data.trend.rank ?? 0,
-    totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
-    progress: data.hero.trendProgress,
-    hashtag: data.trend.startTag,
-    hashtagPercent: data.trend.startPercent,
-    globalPercent: data.trend.endPercent,
-    width: 390,
-    height: 693,
-  });
+    const trendCardPng = await renderTrendShareCardImage({
+      topicTitle: data.trend.topic.replace(/“|”/g, ""),
+      topicSubtitle: data.trend.statusText,
+      discoveryRank: data.trend.rank ?? 0,
+      totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
+      progress: data.hero.trendProgress,
+      hashtag: data.trend.startTag,
+      hashtagPercent: data.trend.startPercent,
+      globalPercent: data.trend.endPercent,
+      width: 390,
+      height: 693,
+      trendType: data.trend.type,
+    });
 
-  const statsCardPng = await renderStatsShareCardImage({
-    totalVideos: data.diagnosis.totalVideosValue,
-    totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
-    miles: `${data.diagnosis.miles}`,
-    barChartData: {
-      lastWeekLabel: data.diagnosis.lastWeekLabel,
-      thisWeekLabel: data.diagnosis.thisWeekLabel,
-      lastWeekValue: data.diagnosis.lastWeekValue,
-      thisWeekValue: data.diagnosis.thisWeekValue,
-    },
-    contentLabels,
-    width: 390,
-    height: 980,
-  });
+    const statsCardPng = await renderStatsShareCardImage({
+      totalVideos: data.diagnosis.totalVideosValue,
+      totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
+      miles: `${data.diagnosis.miles}`,
+      barChartData: {
+        lastWeekLabel: data.diagnosis.lastWeekLabel,
+        thisWeekLabel: data.diagnosis.thisWeekLabel,
+        lastWeekValue: data.diagnosis.lastWeekValue,
+        thisWeekValue: data.diagnosis.thisWeekValue,
+      },
+      contentLabels,
+      width: 390,
+      height: 980,
+    });
 
-  const trendCardUrl = await uploadPngToVercelBlob(
-    trendCardPng,
-    `preview/${caseKey}-${assetId}-share-trend.png`,
-  );
-  const encodedUid = encodeURIComponent(data.uid);
-  const encodedWeekStart = encodeURIComponent(data.weekStart);
-  data.trend.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
-    trendCardUrl,
-  )}&filename=trend-card.png&type=trend_share_card&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
+    const trendCardUrl = await uploadPngToNewApi(
+      trendCardPng,
+      `preview/${caseKey}-${assetId}-share-trend.png`,
+    );
+    const encodedUid = encodeURIComponent(data.uid);
+    const encodedWeekStart = encodeURIComponent(data.weekStart);
+    data.trend.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
+      trendCardUrl,
+    )}&filename=trend-card.png&type=trend_share_card&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
 
-  const statsCardUrl = await uploadPngToVercelBlob(
-    statsCardPng,
-    `preview/${caseKey}-${assetId}-share-stats.png`,
-  );
-  data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
-    statsCardUrl,
-  )}&filename=stats-card.png&type=stats_share_card&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
+    const statsCardUrl = await uploadPngToNewApi(
+      statsCardPng,
+      `preview/${caseKey}-${assetId}-share-stats.png`,
+    );
+    data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
+      statsCardUrl,
+    )}&filename=stats-card.png&type=stats_share_card&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
 
-  // Update Nudge and Footer URLs with tracking redirect
-  if (data.weeklyNudge.linkUrl) {
-    data.weeklyNudge.linkUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
-      data.weeklyNudge.linkUrl,
-    )}&type=nudge_invite&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
-  }
+    if (data.weeklyNudge.linkUrl) {
+      data.weeklyNudge.linkUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
+        data.weeklyNudge.linkUrl,
+      )}&type=nudge_invite&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
+    }
 
-  if (data.footer?.tiktokUrl) {
-    data.footer.tiktokUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
-      data.footer.tiktokUrl,
-    )}&type=footer_tiktok&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
+    if (data.footer?.tiktokUrl) {
+      data.footer.tiktokUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
+        data.footer.tiktokUrl,
+      )}&type=footer_tiktok&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
+    }
+  } else {
+    const toDataUrl = (buffer: Buffer) =>
+      `data:image/png;base64,${buffer.toString("base64")}`;
+    data.trend.progressImageUrl = toDataUrl(progressPng);
+    data.diagnosis.barChartImageUrl = toDataUrl(barChartPng);
+    data.trend.shareUrl = undefined;
+    data.diagnosis.shareUrl = undefined;
   }
 
   const html = await render(<FypScoutReportEmail data={data} />, {

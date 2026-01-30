@@ -1,4 +1,8 @@
-import type { WeeklyReportData } from "@/domain/report/types";
+import type {
+  WeeklyReportApiResponse,
+  WeeklyReportData,
+  TrendStatus,
+} from "@/domain/report/types";
 import {
   FEEDLING_COPY_MAP,
   SPREAD_VISUAL_MAP,
@@ -26,6 +30,101 @@ export interface AdapterOptions {
   trackingBaseUrl: string;
 }
 
+function formatWeekRange(
+  periodStart?: string | null,
+  periodEnd?: string | null,
+) {
+  const startDate = periodStart ? new Date(periodStart) : null;
+  const endDate = periodEnd ? new Date(periodEnd) : null;
+  const isValidDate = (date: Date | null) =>
+    Boolean(date && !Number.isNaN(date.getTime()));
+  const formatDate = (date: Date, includeYear: boolean) =>
+    date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: includeYear ? "numeric" : undefined,
+    });
+  if (isValidDate(startDate) && isValidDate(endDate)) {
+    const includeStartYear =
+      startDate!.getFullYear() !== endDate!.getFullYear();
+    return `${formatDate(startDate!, includeStartYear)} - ${formatDate(
+      endDate!,
+      true,
+    )}`;
+  }
+  if (isValidDate(startDate)) {
+    return formatDate(startDate!, true);
+  }
+  return "—";
+}
+
+function normalizeTrendStatus(value?: string | null): TrendStatus {
+  if (
+    value === "spreading" ||
+    value === "going_mainstream" ||
+    value === "almost_everywhere" ||
+    value === "everywhere"
+  ) {
+    return value;
+  }
+  return "spreading";
+}
+
+export function mapApiReportToWeeklyReportData(
+  report: WeeklyReportApiResponse,
+): WeeklyReportData {
+  // 重要逻辑：统一后端原始字段的格式与缺省值，保证模板渲染不缺关键字段
+  return {
+    weekRange: formatWeekRange(report.period_start, report.period_end),
+    periodStart: report.period_start ?? undefined,
+    periodEnd: report.period_end ?? undefined,
+    user: {
+      name: report.app_user_id || "Guest",
+    },
+    feedling: {
+      state: report.feeding_state ?? "curious",
+    },
+    trend: {
+      name: report.trend_name ?? "Unknown",
+      rank: report.discovery_rank ?? null,
+      totalDiscoverers: report.total_discoverers ?? 0,
+      origin: report.origin_niche_text ?? "",
+      currentSpread: normalizeTrendStatus(report.spread_end_text),
+      penetrationStart: report.reach_start ?? 0,
+      penetrationEnd: report.reach_end ?? 0,
+      type: report.trend_type ?? undefined,
+      currentReach: report.current_reach ?? undefined,
+    },
+    stats: {
+      totalVideos: report.total_videos ?? 0,
+      totalTimeMinutes: report.total_time ?? 0,
+      lastWeekTimeMinutes: report.pre_total_time ?? 0,
+      lateNightPercentage: 0,
+      milesScrolled: report.miles_scrolled ?? 0,
+    },
+    newTopics:
+      report.topics?.map((item) => ({
+        topic: item.topic,
+        picUrl: item.pic_url,
+      })) ?? [],
+    timezone: report.timezone ?? undefined,
+    rabbitHole: {
+      hasRabbitHole:
+        Boolean(report.rabbit_hole_datetime) ||
+        (report.rabbit_hole_count ?? 0) > 0,
+      datetime: report.rabbit_hole_datetime ?? undefined,
+      day: report.rabbit_hole_date ?? undefined,
+      time: report.rabbit_hole_time ?? undefined,
+      count: report.rabbit_hole_count ?? undefined,
+      category: report.rabbit_hole_category ?? undefined,
+    },
+    nudge: {
+      type: "default",
+      text: report.nudge_text ?? undefined,
+    },
+  };
+}
+
 export function mapReportToWeeklyData(
   uid: string,
   report: WeeklyReportData,
@@ -36,15 +135,17 @@ export function mapReportToWeeklyData(
   const nudgeType = report.nudge.type || determineNudgeType(report);
 
   // 重要逻辑：根据趋势阶段生成扩散文案
-  const spreadVisual = SPREAD_VISUAL_MAP[report.trend.currentSpread];
+  const spreadVisual =
+    SPREAD_VISUAL_MAP[report.trend.currentSpread] ??
+    SPREAD_VISUAL_MAP.spreading;
 
+  // 重要逻辑：开场文案根据 feedlingState 拆分为 title/subtitle，便于高亮关键短语
+  const openingCopy =
+    FEEDLING_COPY_MAP[feedlingState] ?? FEEDLING_COPY_MAP.curious;
   const opening: WeeklyOpening = {
     title:
-      FEEDLING_COPY_MAP[feedlingState].split(" a lot of ")[0].trim() ||
-      "This week you explored",
-    subtitle: FEEDLING_COPY_MAP[feedlingState]
-      .replace("This week you explored", "")
-      .trim(),
+      openingCopy.split(" a lot of ")[0].trim() || "This week you explored",
+    subtitle: openingCopy.replace("This week you explored", "").trim(),
     dateRange: report.weekRange,
     decorUrl: "", // Unused in new template
     catUrl: `${assetBaseUrl}/figma/opening-cat.png`,
@@ -64,6 +165,7 @@ export function mapReportToWeeklyData(
     startPercent: `${report.trend.penetrationStart}%`,
     endTag: spreadVisual.split("→")[1]?.trim() ? "Everywhere" : "Everywhere",
     endPercent: `${report.trend.penetrationEnd}%`,
+    type: report.trend.type,
     ctaLabel: "Share My Week",
     ctaIconUrl: "", // Unused in new template
   };
@@ -71,7 +173,7 @@ export function mapReportToWeeklyData(
   const thisWeekVal = report.stats.totalTimeMinutes;
   const lastWeekVal = report.stats.lastWeekTimeMinutes;
 
-  // Split Diagnosis Logic
+  // 重要逻辑：诊断文案拆分为差值与描述，方便模板高亮对比数据
   const comparisonFull = getTimeComparisonText(
     report.stats.totalTimeMinutes,
     report.stats.lastWeekTimeMinutes,
@@ -106,9 +208,11 @@ export function mapReportToWeeklyData(
 
   const newContents: WeeklyNewContent[] = report.newTopics
     .slice(0, 3)
-    .map((label, index) => ({
-      label,
-      stickerUrl: `${assetBaseUrl}/figma/content-sticker-${index + 1}.png`,
+    .map((topicItem, index) => ({
+      label: topicItem.topic,
+      stickerUrl:
+        topicItem.picUrl ||
+        `${assetBaseUrl}/figma/content-sticker-${index + 1}.png`,
     }));
 
   const rabbitHole: WeeklyRabbitHole = {
@@ -122,9 +226,9 @@ export function mapReportToWeeklyData(
   };
 
   const weeklyNudge: WeeklyNudge = {
-    title: "👍🏻 Weekly Nudge 👍🏻",
-    message: getNudgeCopy(nudgeType, report.nudge.limitTime),
-    ctaLabel: "Share My Scroll Stats",
+    title: report.nudge.text || "👍🏻 Weekly Nudge 👍🏻",
+    message: "Invite 1 friend to unlock next week",
+    ctaLabel: "Share your invite link",
     linkUrl: "https://feedling.app/nudge-invite", // Placeholder
   };
 
@@ -133,10 +237,15 @@ export function mapReportToWeeklyData(
     weekStart: report.weekRange.split(" - ")[0],
     weekEnd: report.weekRange.split(" - ")[1] || report.weekRange,
     trackingBaseUrl: options.trackingBaseUrl,
+    feedlingState,
     hero: {
       imageUrl: `${assetBaseUrl}/figma/opening-cat.png`,
       imageAlt: "Feedling Cat",
-      trendProgress: Math.round(report.trend.penetrationEnd),
+      trendProgress: calculateTrendProgress(
+        report.trend.penetrationStart,
+        report.trend.penetrationEnd,
+        report.trend.currentReach,
+      ),
     },
     opening,
     trend,
@@ -166,6 +275,18 @@ function formatMinutes(minutes: number): string {
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
   return `${h} h ${m} min`;
+}
+
+function calculateTrendProgress(
+  start: number,
+  end: number,
+  current?: number,
+): number {
+  if (current === undefined || current === null) return 0;
+  const range = end - start;
+  if (range <= 0) return 0;
+  const raw = ((current - start) / range) * 100;
+  return Math.max(0, Math.min(100, Math.round(raw)));
 }
 
 function mapToPercent(current: number, lastWeek: number): number {

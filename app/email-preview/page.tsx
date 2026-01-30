@@ -11,8 +11,15 @@ export default async function EmailPreviewPage({
     typeof resolvedSearchParams.case === "string"
       ? resolvedSearchParams.case
       : "curious";
+  const uid =
+    typeof resolvedSearchParams.uid === "string"
+      ? resolvedSearchParams.uid
+      : undefined;
 
-  const html = await generateEmailHtml(caseKey);
+  const html = await generateEmailHtml(caseKey, {
+    uidOverride: uid,
+    useUploads: false,
+  });
 
   return (
     <main style={{ margin: 0, padding: 16, background: "#F3F4F6" }}>

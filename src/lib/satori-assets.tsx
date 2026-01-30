@@ -1,12 +1,13 @@
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import { put } from "@vercel/blob";
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { TrendProgress } from "../components/satori/TrendProgress";
 import { DiagnosisBarChart } from "../components/satori/DiagnosisBarChart";
 import { TrendShareCard } from "../components/satori/TrendShareCard";
 import { StatsShareCard } from "../components/satori/StatsShareCard";
+import type { TrendType } from "@/domain/report/types";
 
 const fontRegularPath = path.join(
   process.cwd(),
@@ -61,6 +62,14 @@ async function loadFireIconData() {
   return loadImageData("fire.png");
 }
 
+function getTrendIconFileName(trendType?: TrendType) {
+  if (trendType === "sound") return "trend-icon_sound.png";
+  if (trendType === "hashtag") return "trend-icon_hashtag.png";
+  if (trendType === "creator") return "trend-icon_creator.png";
+  if (trendType === "format") return "trend-icon_format.png";
+  return "trend-icon.png";
+}
+
 function renderSvgToPng(svg: string) {
   const resvg = new Resvg(svg, {
     fitTo: { mode: "zoom", value: RENDER_SCALE },
@@ -74,13 +83,32 @@ export async function renderTrendProgressImage(options: {
   width?: number;
   height?: number;
 }) {
-  const width = options.width ?? 520;
-  const height = options.height ?? 64;
+  const baseWidth = options.width ?? 520;
+  const baseHeight = options.height ?? 64;
+  const horizontalPadding = 23;
+  const width = baseWidth + horizontalPadding * 2;
+  const height = baseHeight;
   const fontData = await loadFontData();
   const fireIconData = await loadImageData("fire.png");
 
   const svg = await satori(
-    <TrendProgress progress={options.progress} fireIconData={fireIconData} />,
+    <div
+      style={{
+        width,
+        height,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div style={{ width: baseWidth, height: baseHeight, display: "flex" }}>
+        <TrendProgress
+          progress={options.progress}
+          fireIconData={fireIconData}
+          width={baseWidth}
+        />
+      </div>
+    </div>,
     {
       width,
       height,
@@ -147,6 +175,7 @@ export async function renderTrendShareCardImage(options: {
   globalPercent: string;
   width?: number;
   height?: number;
+  trendType?: TrendType;
   topicIconData?: string;
   topBgData?: string;
   bottomBgData?: string;
@@ -161,7 +190,7 @@ export async function renderTrendShareCardImage(options: {
     defaultTopBgData,
     defaultBottomBgData,
   ] = await Promise.all([
-    loadImageData("trend-icon.png"),
+    loadImageData(getTrendIconFileName(options.trendType)),
     loadImageData("fire.png"),
     loadImageData("trend-card-bg_top.png"),
     loadImageData("trend-card-bg_bottom.png"),
@@ -269,42 +298,40 @@ export async function renderStatsShareCardImage(options: {
   return renderSvgToPng(svg);
 }
 
-export async function uploadPngToVercelBlob(buffer: Buffer, fileName: string) {
-  // TODO: 调试模式 - 强制使用 Base64 以验证样式，后续测试上传时设为 false
-  const forceBase64 = false;
-  const token =
-    process.env.BLOB_READ_WRITE_TOKEN ||
-    process.env.VERCEL_BLOB_READ_WRITE_TOKEN;
+export async function uploadPngToNewApi(buffer: Buffer, fileName: string) {
+  console.log("Uploading file:", fileName);
+  const uploadBaseUrl =
+    process.env.UPLOAD_API_BASE_URL || "https://tee.feedling.app:8080";
+  const formData = new FormData();
+  const file = new Blob([new Uint8Array(buffer)], { type: "image/png" });
+  formData.append("file", file, fileName);
 
-  // 如果有 Token，使用 Vercel Blob
-  if (token && !forceBase64) {
-    const blob = await put(fileName, buffer, {
-      access: "public",
-      contentType: "image/png",
-      token,
-    });
-    return blob.url;
+  const response = await fetch(`${uploadBaseUrl}/upload`, {
+    method: "POST",
+    body: formData,
+  });
+  console.log("Upload request:", `${uploadBaseUrl}/upload`);
+  console.log("Upload response:", response);
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    const detail = errorText ? ` ${errorText}` : "";
+    throw new Error(`Upload failed: ${response.status}${detail}`);
   }
 
-  // 本地开发环境且无 Token：写入 public/temp 目录并返回本地 URL
-  if (process.env.NODE_ENV !== "production") {
-    const tempDir = path.join(process.cwd(), "public/temp");
-    await mkdir(tempDir, { recursive: true });
-
-    // 清理文件名中的路径分隔符，只保留文件名
-    const safeFileName = fileName.replace(/\//g, "-");
-    const filePath = path.join(tempDir, safeFileName);
-
-    await writeFile(filePath, buffer);
-
-    // 返回本地 URL
-    // 注意：这里假设应用运行在 localhost:3000，或者调用者会补全 base URL
-    // email-generator 中 assetBaseUrl 已经包含了域名
-    // 如果返回相对路径，需要确保调用方能正确处理
-    // 这里的 fileName 通常是 "preview/..."，我们将其扁平化了
-    return `/temp/${safeFileName}`;
+  const result = (await response.json()) as { url?: string };
+  if (!result?.url) {
+    throw new Error("Upload failed: missing url");
   }
 
-  // Fallback (e.g. production without token): return Base64
-  return `data:image/png;base64,${buffer.toString("base64")}`;
+  return result.url;
+}
+
+export async function uploadToVercelBlob(buffer: Buffer, fileName: string) {
+  // 确保文件名包含路径结构，避免根目录混乱
+  const blob = await put(fileName, buffer, {
+    access: "public",
+    // 如果需要，可以从环境变量读取 token，默认会自动读取 BLOB_READ_WRITE_TOKEN
+    token: process.env.BLOB_READ_WRITE_TOKEN,
+  });
+  return blob.url;
 }

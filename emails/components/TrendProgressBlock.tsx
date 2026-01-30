@@ -23,9 +23,9 @@ export function TrendProgressBlock({
             <Img
               src={progressImageUrl}
               alt="Trend progress"
-              width="520px"
+              width="566px"
               height="auto"
-              className="mobile-img-330"
+              className="mobile-img-376"
               style={{ margin: "0 auto", display: "inline-block" }}
             />
           </Section>

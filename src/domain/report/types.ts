@@ -22,6 +22,8 @@ export type TrendStatus =
   | "almost_everywhere" // 几乎随处可见
   | "everywhere"; // 无处不在
 
+export type TrendType = "sound" | "hashtag" | "creator" | "format";
+
 // 用户发现趋势的时机分类 [Source: PRD - Discovery Variants]
 export type DiscoveryType =
   | "early" // 前 40% (Early Discoverer)
@@ -40,10 +42,65 @@ export type NudgeType =
 // 2. 数据接口定义 (Interfaces)
 // ==========================================
 
+export type TopicTag =
+  | "Travel"
+  | "Crafts"
+  | "Music"
+  | "Food"
+  | "Fitness"
+  | "Pets"
+  | "Gaming"
+  | "Fashion";
+
+export interface WeeklyReportApiTopicItem {
+  topic: TopicTag;
+  pic_url: string;
+}
+
+export interface WeeklyReportApiResponse {
+  id: number;
+  app_user_id: string;
+  email_content?: string | null;
+  period_start?: string | null;
+  period_end?: string | null;
+  created_at: string;
+  updated_at: string;
+  send_status: "pending" | "sent" | "failed";
+  feeding_state?: FeedlingState | null;
+  trend_name?: string | null;
+  trend_type?: TrendType | null;
+  discovery_rank?: number | null;
+  total_discoverers?: number | null;
+  origin_niche_text?: string | null;
+  spread_end_text?: string | null;
+  reach_start?: number | null;
+  reach_end?: number | null;
+  current_reach?: number | null;
+  total_videos?: number | null;
+  total_time?: number | null;
+  pre_total_time?: number | null;
+  miles_scrolled?: number | null;
+  topics?: WeeklyReportApiTopicItem[] | null;
+  timezone?: string | null;
+  rabbit_hole_datetime?: string | null;
+  rabbit_hole_date?: string | null;
+  rabbit_hole_time?: string | null;
+  rabbit_hole_count?: number | null;
+  rabbit_hole_category?: string | null;
+  nudge_text?: string | null;
+}
+
+export interface WeeklyReportTopicItem {
+  topic: TopicTag;
+  picUrl?: string;
+}
+
 // 核心输入：周报完整数据对象
 export interface WeeklyReportData {
   // 基础信息
   weekRange: string; // e.g., "Jan 18 - Jan 24"
+  periodStart?: string;
+  periodEnd?: string;
   user: {
     name: string;
     avatarUrl?: string;
@@ -61,6 +118,8 @@ export interface WeeklyReportData {
     currentSpread: TrendStatus; // 当前扩散阶段
     penetrationStart: number; // 起始渗透率 e.g. 0.2
     penetrationEnd: number; // 结束渗透率 e.g. 12
+    type?: TrendType;
+    currentReach?: number;
   };
 
   // 模块 2: 统计数据 [Source: PRD Screen 2]
@@ -76,11 +135,13 @@ export interface WeeklyReportData {
   };
 
   // 新发现的话题 (最多 3 个) [Source: PRD New Contents]
-  newTopics: string[];
+  newTopics: WeeklyReportTopicItem[];
+  timezone?: string;
 
   // 兔子洞数据 (可选) [Source: PRD Rabbit Hole]
   rabbitHole: {
     hasRabbitHole: boolean;
+    datetime?: string;
     day?: string; // e.g. "Wednesday"
     time?: string; // e.g. "3:09 AM"
     count?: number; // 连续观看数量
@@ -91,5 +152,6 @@ export interface WeeklyReportData {
   nudge: {
     type: NudgeType;
     limitTime?: string; // 例如 "3 AM"（仅当 type 为 "late_night" 时有效）
+    text?: string;
   };
 }
