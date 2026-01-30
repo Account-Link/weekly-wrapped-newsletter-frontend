@@ -5,7 +5,6 @@ import type {
 } from "@/domain/report/types";
 import {
   FEEDLING_COPY_MAP,
-  SPREAD_VISUAL_MAP,
   getDiscoveryText,
   getMilesScrolledText,
   getNudgeCopy,
@@ -94,6 +93,7 @@ export function mapApiReportToWeeklyReportData(
       penetrationEnd: report.reach_end ?? 0,
       type: report.trend_type ?? undefined,
       currentReach: report.current_reach ?? undefined,
+      endText: report.spread_end_text ?? undefined,
     },
     stats: {
       totalVideos: report.total_videos ?? 0,
@@ -134,11 +134,6 @@ export function mapReportToWeeklyData(
   const feedlingState = report.feedling.state || calculateFeedlingState(report);
   const nudgeType = report.nudge.type || determineNudgeType(report);
 
-  // 重要逻辑：根据趋势阶段生成扩散文案
-  const spreadVisual =
-    SPREAD_VISUAL_MAP[report.trend.currentSpread] ??
-    SPREAD_VISUAL_MAP.spreading;
-
   // 重要逻辑：开场文案根据 feedlingState 拆分为 title/subtitle，便于高亮关键短语
   const openingCopy =
     FEEDLING_COPY_MAP[feedlingState] ?? FEEDLING_COPY_MAP.curious;
@@ -163,7 +158,7 @@ export function mapReportToWeeklyData(
     totalDiscoverers: report.trend.totalDiscoverers,
     startTag: report.trend.origin,
     startPercent: `${report.trend.penetrationStart}%`,
-    endTag: spreadVisual.split("→")[1]?.trim() ? "Everywhere" : "Everywhere",
+    endTag: report.trend.endText || "Everywhere",
     endPercent: `${report.trend.penetrationEnd}%`,
     type: report.trend.type,
     ctaLabel: "Share My Week",

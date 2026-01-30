@@ -3,6 +3,7 @@ import { TrendProgress } from "./TrendProgress";
 
 export interface TrendShareCardProps {
   topicIconData: string;
+  topicIconBgData: string;
   topBgData: string;
   topicTitle: string;
   topicSubtitle: string;
@@ -12,12 +13,14 @@ export interface TrendShareCardProps {
   fireIconData: string;
   hashtag: string;
   hashtagPercent: string;
+  endTag: string;
   globalPercent: string;
   bottomBgData: string; // Bottom background
 }
 
 export const TrendShareCard: React.FC<TrendShareCardProps> = ({
   topicIconData,
+  topicIconBgData,
   topBgData,
   topicTitle,
   topicSubtitle,
@@ -27,6 +30,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
   fireIconData,
   hashtag,
   hashtagPercent,
+  endTag,
   globalPercent,
   bottomBgData,
 }) => {
@@ -72,13 +76,25 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
           zIndex: 1,
         }}
       >
-        {/* Topic Icon */}
-        <img
-          src={topicIconData}
-          width={180}
-          style={{ objectFit: "contain", marginBottom: 32 }}
-          alt="Topic"
-        />
+        <div
+          style={{
+            width: 180,
+            height: 160,
+            backgroundImage: `url(${topicIconBgData})`,
+            backgroundSize: "100% 100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 32,
+          }}
+        >
+          <img
+            src={topicIconData}
+            width={120}
+            style={{ objectFit: "contain" }}
+            alt="Topic"
+          />
+        </div>
 
         {/* Title */}
         <div
@@ -180,7 +196,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
                 alignItems: "flex-end",
               }}
             >
-              <span style={{ fontSize: 16, fontWeight: 700 }}>Everywhere</span>
+              <span style={{ fontSize: 16, fontWeight: 700 }}>{endTag}</span>
               <span style={{ fontSize: 16, fontWeight: 700 }}>
                 {globalPercent}
               </span>

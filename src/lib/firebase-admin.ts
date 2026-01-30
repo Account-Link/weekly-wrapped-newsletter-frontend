@@ -193,7 +193,6 @@ export async function getWeeklyData(uid: string): Promise<WeeklyData> {
 
   const { mapApiReportToWeeklyReportData, mapReportToWeeklyData } =
     await import("@/domain/report/adapter");
-  console.log("API Report:", apiReport);
   const report = mapApiReportToWeeklyReportData(apiReport);
   const assetBaseUrl =
     process.env.EMAIL_ASSET_BASE_URL ||

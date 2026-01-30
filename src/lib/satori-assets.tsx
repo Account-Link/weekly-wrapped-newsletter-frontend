@@ -58,8 +58,22 @@ async function loadImageData(filename: string) {
   return cachedImages.get(filename)!;
 }
 
-async function loadFireIconData() {
-  return loadImageData("fire.png");
+async function fetchImageData(url: string): Promise<string> {
+  if (!url) return "";
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      console.error(`Failed to fetch image: ${url}`);
+      return "";
+    }
+    const arrayBuffer = await res.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const contentType = res.headers.get("content-type") || "image/png";
+    return `data:${contentType};base64,${buffer.toString("base64")}`;
+  } catch (e) {
+    console.error(`Error fetching image ${url}`, e);
+    return "";
+  }
 }
 
 function getTrendIconFileName(trendType?: TrendType) {
@@ -172,11 +186,13 @@ export async function renderTrendShareCardImage(options: {
   progress: number;
   hashtag: string;
   hashtagPercent: string;
+  endTag: string;
   globalPercent: string;
   width?: number;
   height?: number;
   trendType?: TrendType;
   topicIconData?: string;
+  topicIconBgData?: string;
   topBgData?: string;
   bottomBgData?: string;
 }) {
@@ -186,23 +202,27 @@ export async function renderTrendShareCardImage(options: {
 
   const [
     defaultTopicIconData,
+    defaultTopicIconBgData,
     fireIconData,
     defaultTopBgData,
     defaultBottomBgData,
   ] = await Promise.all([
     loadImageData(getTrendIconFileName(options.trendType)),
+    loadImageData("trend-icon-bg.png"),
     loadImageData("fire.png"),
     loadImageData("trend-card-bg_top.png"),
     loadImageData("trend-card-bg_bottom.png"),
   ]);
 
   const topicIconData = options.topicIconData ?? defaultTopicIconData;
+  const topicIconBgData = options.topicIconBgData ?? defaultTopicIconBgData;
   const topBgData = options.topBgData ?? defaultTopBgData;
   const bottomBgData = options.bottomBgData ?? defaultBottomBgData;
 
   const svg = await satori(
     <TrendShareCard
       topicIconData={topicIconData}
+      topicIconBgData={topicIconBgData}
       topicTitle={options.topicTitle}
       topicSubtitle={options.topicSubtitle}
       discoveryRank={options.discoveryRank}
@@ -211,6 +231,7 @@ export async function renderTrendShareCardImage(options: {
       fireIconData={fireIconData}
       hashtag={options.hashtag}
       hashtagPercent={options.hashtagPercent}
+      endTag={options.endTag}
       globalPercent={options.globalPercent}
       topBgData={topBgData}
       bottomBgData={bottomBgData}
@@ -238,45 +259,50 @@ export async function renderStatsShareCardImage(options: {
   totalVideos: string;
   totalTime: string;
   miles: string;
+  comparisonDiff?: string | null;
+  comparisonText: string;
+  milesComment?: string;
   barChartData: {
     lastWeekLabel: string;
     thisWeekLabel: string;
     lastWeekValue: number;
     thisWeekValue: number;
   };
-  contentLabels: string[];
-  barChartWidth?: number;
-  barChartHeight?: number;
   width?: number;
   height?: number;
+  contents: {
+    label: string;
+    iconUrl: string;
+  }[];
 }) {
   const width = options.width ?? 600;
   const height = options.height ?? 1000;
   const fontData = await loadFontData();
 
-  const [headerIconData, runIconData, topBgData, bottomBgData, c1, c2, c3] =
-    await Promise.all([
-      loadImageData("stats-icon.png"), // Assumption
-      loadImageData("download-icon_black.png"), // Placeholder for run icon
-      loadImageData("stats-card-bg_top.png"),
-      loadImageData("stats-card-bg_bottom.png"),
-      loadImageData("content-sticker-1.png"),
-      loadImageData("content-sticker-2.png"),
-      loadImageData("content-sticker-3.png"),
-    ]);
+  const [headerIconData, topBgData, bottomBgData] = await Promise.all([
+    loadImageData("stats-icon.png"),
+    loadImageData("stats-card-bg_top.png"),
+    loadImageData("stats-card-bg_bottom.png"),
+  ]);
+
+  const contents = await Promise.all(
+    options.contents.slice(0, 3).map(async (c) => ({
+      label: c.label,
+      icon: await fetchImageData(c.iconUrl),
+    })),
+  );
 
   const svg = await satori(
     <StatsShareCard
       headerIconData={headerIconData}
       totalVideos={options.totalVideos}
       totalTime={options.totalTime}
-      runIconData={runIconData}
       miles={options.miles}
+      comparisonDiff={options.comparisonDiff}
+      comparisonText={options.comparisonText}
+      milesComment={options.milesComment}
       barChartData={options.barChartData}
-      barChartWidth={options.barChartWidth}
-      barChartHeight={options.barChartHeight}
-      contentIcons={[c1, c2, c3]}
-      contentLabels={options.contentLabels}
+      contents={contents}
       topBgData={topBgData}
       bottomBgData={bottomBgData}
     />,

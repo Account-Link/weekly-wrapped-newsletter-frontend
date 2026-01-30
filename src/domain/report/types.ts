@@ -120,6 +120,7 @@ export interface WeeklyReportData {
     penetrationEnd: number; // 结束渗透率 e.g. 12
     type?: TrendType;
     currentReach?: number;
+    endText?: string;
   };
 
   // 模块 2: 统计数据 [Source: PRD Screen 2]

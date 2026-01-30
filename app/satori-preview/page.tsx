@@ -68,15 +68,21 @@ export default async function SatoriPreviewPage({
     totalVideos: data.diagnosis.totalVideosValue,
     totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
     miles: `${data.diagnosis.miles}`,
+    comparisonDiff: data.diagnosis.comparisonDiff,
+    comparisonText: data.diagnosis.comparisonText,
+    milesComment: data.diagnosis.milesComment,
     barChartData: {
       lastWeekLabel: data.diagnosis.lastWeekLabel,
       thisWeekLabel: data.diagnosis.thisWeekLabel,
       lastWeekValue: data.diagnosis.lastWeekValue,
       thisWeekValue: data.diagnosis.thisWeekValue,
     },
-    contentLabels: data.newContents.slice(0, 3).map((c) => c.label),
+    contents: data.newContents.map((c) => ({
+      label: c.label,
+      iconUrl: c.stickerUrl,
+    })),
     width: 390,
-    height: 980,
+    height: 960,
   });
 
   const trendShareCardPng = await renderTrendShareCardImage({
@@ -87,6 +93,7 @@ export default async function SatoriPreviewPage({
     progress: data.hero.trendProgress,
     hashtag: data.trend.startTag,
     hashtagPercent: data.trend.startPercent,
+    endTag: data.trend.endTag,
     globalPercent: data.trend.endPercent,
     width: 390,
     height: 693,
@@ -110,16 +117,12 @@ export default async function SatoriPreviewPage({
     `preview/${caseKey}-${assetId}-trend-share-card.png`,
   );
 
-  const contentIcons = data.newContents.slice(0, 3).map((c) => c.stickerUrl);
-  const contentLabels = data.newContents.slice(0, 3).map((c) => c.label);
-  while (contentIcons.length < 3) contentIcons.push("");
-  while (contentLabels.length < 3) contentLabels.push("");
-
   const card = {
     trend: {
       topicIconData: `${assetBaseUrl}/figma/${getTrendIconFileName(
         data.trend.type,
       )}`,
+      topicIconBgData: `${assetBaseUrl}/figma/trend-icon-bg.png`,
       topBgData: `${assetBaseUrl}/figma/trend-card-bg_top.png`,
       topicTitle: data.trend.topic.replace(/“|”/g, ""),
       topicSubtitle: data.trend.statusText,
@@ -129,6 +132,7 @@ export default async function SatoriPreviewPage({
       fireIconData: `${assetBaseUrl}/figma/fire.png`,
       hashtag: data.trend.startTag,
       hashtagPercent: data.trend.startPercent,
+      endTag: data.trend.endTag,
       globalPercent: data.trend.endPercent,
       bottomBgData: `${assetBaseUrl}/figma/trend-card-bg_bottom.png`,
     },
@@ -137,16 +141,20 @@ export default async function SatoriPreviewPage({
       topBgData: `${assetBaseUrl}/figma/stats-card-bg_top.png`,
       totalVideos: data.diagnosis.totalVideosValue,
       totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
-      runIconData: `${assetBaseUrl}/figma/download-icon_black.png`,
       miles: `${data.diagnosis.miles}`,
+      comparisonDiff: data.diagnosis.comparisonDiff,
+      comparisonText: data.diagnosis.comparisonText,
+      milesComment: data.diagnosis.milesComment,
       barChartData: {
         lastWeekLabel: data.diagnosis.lastWeekLabel,
         thisWeekLabel: data.diagnosis.thisWeekLabel,
         lastWeekValue: data.diagnosis.lastWeekValue,
         thisWeekValue: data.diagnosis.thisWeekValue,
       },
-      contentIcons,
-      contentLabels,
+      contents: data.newContents.map((content) => ({
+        icon: content.stickerUrl,
+        label: content.label,
+      })),
       bottomBgData: `${assetBaseUrl}/figma/stats-card-bg_bottom.png`,
     },
   };

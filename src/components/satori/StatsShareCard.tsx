@@ -6,18 +6,20 @@ export interface StatsShareCardProps {
   topBgData: string;
   totalVideos: string;
   totalTime: string;
-  runIconData: string;
   miles: string;
+  comparisonDiff?: string | null;
+  comparisonText: string;
+  milesComment?: string;
   barChartData: {
     lastWeekLabel: string;
     thisWeekLabel: string;
     lastWeekValue: number;
     thisWeekValue: number;
   };
-  barChartWidth?: number;
-  barChartHeight?: number;
-  contentIcons: string[]; // Array of 3 icon base64 strings
-  contentLabels: string[]; // Array of 3 labels
+  contents: {
+    icon: string;
+    label: string;
+  }[];
   bottomBgData: string;
 }
 
@@ -26,20 +28,19 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
   topBgData,
   totalVideos,
   totalTime,
-  runIconData,
   miles,
+  comparisonDiff,
+  comparisonText,
+  milesComment,
   barChartData,
-  barChartWidth,
-  barChartHeight,
-  contentIcons,
-  contentLabels,
+  contents,
   bottomBgData,
 }) => {
   return (
     <div
       style={{
         width: 390,
-        height: 980,
+        height: 960,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -49,6 +50,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
         position: "relative",
         paddingTop: 40,
         paddingBottom: 80,
+        boxSizing: "border-box",
       }}
     >
       <img
@@ -59,7 +61,6 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
           top: 0,
           left: 0,
           width: "100%",
-          height: "auto",
           objectFit: "cover",
           zIndex: 0,
         }}
@@ -79,20 +80,22 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
         <img
           src={headerIconData}
           width={180}
-          style={{ objectFit: "contain", marginBottom: 24 }}
+          style={{ objectFit: "contain", marginBottom: 0 }}
           alt="Stats"
         />
 
         {/* Title */}
-        <span
+        <div
           style={{
             fontSize: 24,
+            height: 24,
             fontWeight: 700,
             textAlign: "center",
+            lineHeight: 1,
           }}
         >
           This week you watched
-        </span>
+        </div>
 
         {/* Stats Grid */}
         <div
@@ -151,28 +154,22 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
           </div>
         </div>
 
-        {/* Run Stats */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 12,
+            justifyContent: "center",
+            fontSize: 18,
+            fontWeight: 700,
+            textAlign: "center",
+            lineHeight: "32px",
             marginBottom: 20,
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              fontSize: 24,
-              fontWeight: 700,
-            }}
-          >
-            <span>Your thumb ran </span>
-            <span style={{ color: "#FF5678", marginLeft: 6, marginRight: 6 }}>
-              {miles + " miles"}
-            </span>
-          </div>
+          <span>Your thumb ran</span>
+          <span style={{ fontSize: 20, color: "#FF5678", marginLeft: 4 }}>
+            {miles} miles
+          </span>
         </div>
 
         {/* Bar Chart Section */}
@@ -199,8 +196,14 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
           <span style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>
             • New contents you got into •
           </span>
-          <div style={{ display: "flex", gap: 32, justifyContent: "center" }}>
-            {contentIcons.map((icon, idx) => (
+          <div
+            style={{
+              display: "flex",
+              width: "330px",
+              justifyContent: "space-between",
+            }}
+          >
+            {contents.map((content, idx) => (
               <div
                 key={idx}
                 style={{
@@ -215,19 +218,25 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
                     width: 100,
                     height: 100,
                     display: "flex",
+                    borderRadius: "9999px",
+                    border: "1px solid rgba(255,255,255,0.3)",
+                    overflow: "hidden",
                   }}
                 >
-                  <img
-                    src={icon}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                    }}
-                  />
+                  {content.icon ? (
+                    <img
+                      src={content.icon}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                      }}
+                      alt={content.label}
+                    />
+                  ) : null}
                 </div>
                 <span style={{ fontSize: 12, fontWeight: 700 }}>
-                  {contentLabels[idx]}
+                  {content.label}
                 </span>
               </div>
             ))}
@@ -243,7 +252,6 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
           bottom: 0,
           left: 0,
           width: "100%",
-          height: "auto",
           objectFit: "cover",
           zIndex: 0,
         }}

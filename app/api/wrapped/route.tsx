@@ -1,17 +1,15 @@
 import { NextResponse } from "next/server";
-import { render } from "@react-email/render";
-import { FypScoutReportEmail } from "../../../emails/fyp-scout-report";
 import {
   mapApiReportToWeeklyReportData,
   mapReportToWeeklyData,
 } from "../../../src/domain/report/adapter";
 import { mockReports } from "../../../src/domain/report/mock";
 import {
-  renderDiagnosisBarChartImage,
-  renderTrendProgressImage,
-  uploadPngToNewApi,
-  uploadToVercelBlob,
-} from "../../../src/lib/satori-assets";
+  attachBasicChartAssets,
+  attachShareAssetsAndLinks,
+  renderEmailHtmlFromWeeklyData,
+  type UploadTarget,
+} from "../../../src/lib/email-generator";
 import crypto from "node:crypto";
 
 interface WrappedRequestBody {
@@ -21,7 +19,8 @@ interface WrappedRequestBody {
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const uploadTarget = url.searchParams.get("upload") ?? "api"; // 'api' | 'vercel'
+    const uploadTarget = (url.searchParams.get("upload") ??
+      "api") as UploadTarget;
     const mockParam = url.searchParams.get("mock");
     const caseKey = url.searchParams.get("case");
     const useMock = mockParam === "true" || Boolean(caseKey);
@@ -45,35 +44,19 @@ export async function GET(request: Request) {
     }
 
     const assetId = crypto.randomUUID();
-    const progressPng = await renderTrendProgressImage({
-      progress: weeklyData.hero.trendProgress,
-      width: 520,
-      height: 64,
+    await attachBasicChartAssets(weeklyData, {
+      useUploads: true,
+      uploadTarget,
+      progressKey: `preview/${caseKey ?? "real"}-${assetId}-progress.png`,
+      barsKey: `preview/${caseKey ?? "real"}-${assetId}-bars.png`,
     });
-    const barChartPng = await renderDiagnosisBarChartImage({
-      lastWeekLabel: weeklyData.diagnosis.lastWeekLabel,
-      thisWeekLabel: weeklyData.diagnosis.thisWeekLabel,
-      lastWeekValue: weeklyData.diagnosis.lastWeekValue,
-      thisWeekValue: weeklyData.diagnosis.thisWeekValue,
-      width: 520,
-      height: 265,
+    await attachShareAssetsAndLinks(weeklyData, {
+      assetBaseUrl,
+      uploadTarget,
+      shareTrendKey: `preview/${caseKey ?? "real"}-${assetId}-share-trend.png`,
+      shareStatsKey: `preview/${caseKey ?? "real"}-${assetId}-share-stats.png`,
     });
-
-    const uploadFn =
-      uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
-
-    weeklyData.trend.progressImageUrl = await uploadFn(
-      progressPng,
-      `preview/${caseKey ?? "real"}-${assetId}-progress.png`,
-    );
-    weeklyData.diagnosis.barChartImageUrl = await uploadFn(
-      barChartPng,
-      `preview/${caseKey ?? "real"}-${assetId}-bars.png`,
-    );
-
-    const html = await render(<FypScoutReportEmail data={weeklyData} />, {
-      pretty: true,
-    });
+    const html = await renderEmailHtmlFromWeeklyData(weeklyData);
 
     return new NextResponse(html, {
       headers: { "content-type": "text/html; charset=utf-8" },
@@ -108,36 +91,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing uid" }, { status: 400 });
     }
 
+    const assetBaseUrl =
+      process.env.EMAIL_ASSET_BASE_URL || new URL(request.url).origin;
     const weeklyData = await getWeeklyData(body.uid);
 
     const assetId = crypto.randomUUID();
-    const progressPng = await renderTrendProgressImage({
-      progress: weeklyData.hero.trendProgress,
-      width: 520,
-      height: 64,
+    await attachBasicChartAssets(weeklyData, {
+      useUploads: true,
+      uploadTarget: "api",
+      progressKey: `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-progress.png`,
+      barsKey: `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-bars.png`,
     });
-    const barChartPng = await renderDiagnosisBarChartImage({
-      lastWeekLabel: weeklyData.diagnosis.lastWeekLabel,
-      thisWeekLabel: weeklyData.diagnosis.thisWeekLabel,
-      lastWeekValue: weeklyData.diagnosis.lastWeekValue,
-      thisWeekValue: weeklyData.diagnosis.thisWeekValue,
-      width: 520,
-      height: 265,
+    await attachShareAssetsAndLinks(weeklyData, {
+      assetBaseUrl,
+      uploadTarget: "api",
+      shareTrendKey: `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-share-trend.png`,
+      shareStatsKey: `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-share-stats.png`,
     });
-
-    weeklyData.trend.progressImageUrl = await uploadPngToNewApi(
-      progressPng,
-      `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-progress.png`,
-    );
-    weeklyData.diagnosis.barChartImageUrl = await uploadPngToNewApi(
-      barChartPng,
-      `weekly/${body.uid}/${weeklyData.weekStart}-${assetId}-bars.png`,
-    );
 
     // 重要逻辑：服务端渲染 React Email 模板为 HTML，供邮件服务商发送
-    const html = await render(<FypScoutReportEmail data={weeklyData} />, {
-      pretty: true,
-    });
+    const html = await renderEmailHtmlFromWeeklyData(weeklyData);
 
     // 重要逻辑：返回 HTML 与数据便于联调与回归测试
     return NextResponse.json({ html, data: weeklyData });
