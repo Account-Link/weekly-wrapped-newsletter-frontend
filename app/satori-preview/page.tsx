@@ -50,7 +50,7 @@ export default async function SatoriPreviewPage({
     data,
     assetBaseUrl,
     uploadTarget: "api",
-    useUploads: true,
+    useUploads: false,
     assetKeys,
   });
   const progressUrl = weeklyData.trend.progressImageUrl ?? "";

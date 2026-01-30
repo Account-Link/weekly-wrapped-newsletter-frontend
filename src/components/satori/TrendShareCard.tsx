@@ -188,14 +188,12 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
               justifyContent: "space-between",
               width: 330,
               marginTop: 2,
-              textAlign: "center",
             }}
           >
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center",
                 width: "50%",
               }}
             >
@@ -208,8 +206,8 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
               style={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center",
                 width: "50%",
+                alignItems: "flex-end",
               }}
             >
               <span style={{ fontSize: 16, fontWeight: 700 }}>{endTag}</span>

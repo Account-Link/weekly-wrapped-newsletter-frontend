@@ -37,23 +37,21 @@ export default function DownloadContent() {
 
   if (!url) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <p className="text-red-500">Error: No image URL provided.</p>
+      <div className="download-page download-page--error">
+        <p className="download-error-text">Error: No image URL provided.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      <div className="bg-white p-6 rounded-xl shadow-lg max-w-[600px] w-full text-center">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">
-          Your Wrapped is Ready!
-        </h1>
-        <p className="text-gray-600 mb-6">
+    <div className="download-page">
+      <div className="download-card">
+        <h1 className="download-title">Your Wrapped is Ready!</h1>
+        <p className="download-subtitle">
           Click the image below to download and share it with your friends.
         </p>
 
-        <div className="flex justify-center mb-6 w-full">
+        <div className="download-image">
           <ImageDownloader
             src={url}
             fileName={filename}
@@ -64,11 +62,68 @@ export default function DownloadContent() {
           />
         </div>
 
-        <p className="text-sm text-gray-400 mt-4">
+        <p className="download-hint">
           If download doesn&apos;t start, long press (mobile) or right click to
           save.
         </p>
       </div>
+      <style jsx>{`
+        .download-page {
+          min-height: 100vh;
+          background: #f3f4f6;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 16px;
+        }
+
+        .download-page--error {
+          align-items: center;
+          justify-content: center;
+        }
+
+        .download-card {
+          background: #ffffff;
+          padding: 24px;
+          border-radius: 12px;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          max-width: 600px;
+          width: 100%;
+          text-align: center;
+        }
+
+        .download-title {
+          font-size: 24px;
+          font-weight: 700;
+          margin-bottom: 16px;
+          color: #1f2937;
+          text-align: center;
+        }
+
+        .download-subtitle {
+          color: #4b5563;
+          margin-bottom: 24px;
+          text-align: center;
+        }
+
+        .download-image {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 24px;
+          width: 100%;
+        }
+
+        .download-hint {
+          font-size: 14px;
+          color: #9ca3af;
+          margin-top: 16px;
+        }
+
+        .download-error-text {
+          color: #ef4444;
+        }
+      `}</style>
     </div>
   );
 }

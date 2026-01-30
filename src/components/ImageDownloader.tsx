@@ -34,11 +34,8 @@ export const ImageDownloader: React.FC<ImageDownloaderProps> = ({
   // 方法功能：触发下载并处理状态与异常
   const handleDownload = async () => {
     try {
-      // 重要逻辑：下载开始即更新状态，避免重复点击
       setIsDownloading(true);
 
-      // 1. Tracking Hook (Placeholder for now)
-      // In real implementation, call firebase/analytics logEvent here
       console.log(`[Tracking] Event: ${trackingEventName}`, {
         fileName,
         src,
@@ -46,22 +43,20 @@ export const ImageDownloader: React.FC<ImageDownloaderProps> = ({
         timestamp: new Date().toISOString(),
       });
 
-      // 2. Download Logic
-      // Fetching blob to support cross-origin and proper filename
-      // 重要逻辑：使用 blob 生成临时链接，确保跨域与命名一致
-      const response = await fetch(src);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-
       const link = document.createElement("a");
-      link.href = url;
+      if (src.startsWith("data:")) {
+        link.href = src;
+      } else {
+        const apiUrl = `/api/download?url=${encodeURIComponent(
+          src,
+        )}&filename=${encodeURIComponent(fileName)}`;
+        link.href = apiUrl;
+      }
       link.download = fileName;
       document.body.appendChild(link);
       link.click();
 
-      // Cleanup
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Download failed:", error);
       alert("Download failed. Please try again or right-click to save.");
@@ -127,6 +122,7 @@ export const ImageDownloader: React.FC<ImageDownloaderProps> = ({
           alignItems: "center",
           gap: 6,
           opacity: isDownloading ? 0.7 : 1,
+          margin: "0 auto",
         }}
       >
         <span style={{ fontSize: 16 }}>⬇</span>

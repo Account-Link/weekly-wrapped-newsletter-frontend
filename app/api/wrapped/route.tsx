@@ -8,12 +8,14 @@ import {
   buildWeeklyDataFromApiReport,
   type UploadTarget,
 } from "../../../src/lib/email-generator";
+import type { WeeklyReportApiResponse } from "../../../src/domain/report/types";
 import crypto from "node:crypto";
 import { ReportPipeline } from "@/core/pipeline";
 
 // 方法功能：POST 请求体类型定义
 interface WrappedRequestBody {
-  uid: string;
+  uid?: string;
+  params?: WeeklyReportApiResponse;
 }
 
 // 方法功能：GET 生成预览 HTML，支持 mock/真实数据
@@ -67,35 +69,36 @@ export async function GET(request: Request) {
 // 方法功能：POST 生成生产 HTML，返回 HTML 与数据
 export async function POST(request: Request) {
   try {
-    const { adminDb, getWeeklyData } =
-      await import("../../../src/lib/firebase-admin");
-    // 重要逻辑：权限握手，确保 Firebase Admin 已正确初始化并具备访问权限
-    // - 可根据业务需要执行一次轻量级读操作或健康检查
-    // - 例如：列出集合以确认连接正常（轻量动作）
-    const shouldCheckAdmin = process.env.FIREBASE_ADMIN_CHECK === "true";
-    if (!shouldCheckAdmin || !adminDb) {
-      // 重要逻辑：本地业务开发跳过权限握手
-    } else {
-      await adminDb.listCollections();
-    }
-
-    // 重要逻辑：后端请求校验说明
-    // - 可在此处校验 API_KEY 或签名头，确保请求来自可信后端
-    // - 示例：const apiKey = request.headers.get("x-api-key")
-    //         if (apiKey !== process.env.INTERNAL_API_KEY) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
     const body = (await request.json()) as WrappedRequestBody;
-    if (!body?.uid) {
-      return NextResponse.json({ error: "Missing uid" }, { status: 400 });
-    }
-
+    const enableUidFetch = process.env.WRAPPED_UID_FETCH_ENABLED === "true";
     const assetBaseUrl =
       process.env.EMAIL_ASSET_BASE_URL || new URL(request.url).origin;
-    const weeklyData = await getWeeklyData(body.uid);
+    let weeklyData;
+    if (body?.params) {
+      weeklyData = buildWeeklyDataFromApiReport(body.params, {
+        assetBaseUrl,
+        trackingBaseUrl: assetBaseUrl,
+        uidOverride: body.uid,
+      });
+    } else if (enableUidFetch) {
+      if (!body?.uid) {
+        return NextResponse.json({ error: "Missing uid" }, { status: 400 });
+      }
+      const { adminDb, getWeeklyData } =
+        await import("../../../src/lib/firebase-admin");
+      const shouldCheckAdmin = process.env.FIREBASE_ADMIN_CHECK === "true";
+      if (!shouldCheckAdmin || !adminDb) {
+      } else {
+        await adminDb.listCollections();
+      }
+      weeklyData = await getWeeklyData(body.uid);
+    } else {
+      return NextResponse.json({ error: "Missing params" }, { status: 400 });
+    }
 
     const assetId = crypto.randomUUID();
     const assetKeys = buildWeeklyAssetKeys(
-      body.uid,
+      weeklyData.uid,
       weeklyData.weekStart,
       assetId,
     );

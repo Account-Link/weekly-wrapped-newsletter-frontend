@@ -18,6 +18,49 @@ import type {
   ShareAssetOptions,
 } from "./types";
 
+const bufferToDataUrl = (buffer: Buffer) =>
+  `data:image/png;base64,${buffer.toString("base64")}`;
+
+async function renderShareCardPngs(data: WeeklyData) {
+  const trendCardPng = await renderTrendShareCardImage({
+    topicTitle: data.trend.topic.replace(/“|”/g, ""),
+    topicSubtitle: data.trend.statusText,
+    discoveryRank: data.trend.rank ?? 0,
+    totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
+    progress: data.hero.trendProgress,
+    hashtag: data.trend.startTag,
+    hashtagPercent: data.trend.startPercent,
+    endTag: data.trend.endTag,
+    globalPercent: data.trend.endPercent,
+    width: 390,
+    height: 693,
+    trendType: data.trend.type,
+  });
+
+  const statsCardPng = await renderStatsShareCardImage({
+    totalVideos: data.diagnosis.totalVideosValue,
+    totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
+    miles: `${data.diagnosis.miles}`,
+    comparisonDiff: data.diagnosis.comparisonDiff,
+    comparisonText: data.diagnosis.comparisonText,
+    milesComment: data.diagnosis.milesComment,
+    barChartData: {
+      lastWeekLabel: data.diagnosis.lastWeekLabel,
+      thisWeekLabel: data.diagnosis.thisWeekLabel,
+      lastWeekValue: data.diagnosis.lastWeekValue,
+      thisWeekValue: data.diagnosis.thisWeekValue,
+    },
+    contents: data.newContents.slice(0, 3).map((content) => ({
+      label: content.label,
+      iconUrl: content.stickerUrl,
+    })),
+    width: 390,
+    height: 960,
+  });
+
+  return { trendCardPng, statsCardPng };
+}
+
 // 方法功能：生成基础图表并回填到 WeeklyData，属于 Assets 生成阶段
 async function attachBasicChartAssets(
   data: WeeklyData,
@@ -59,10 +102,8 @@ async function attachBasicChartAssets(
 
   // 重要逻辑：本地预览场景使用 Data URL，避免依赖远程上传
   // 方法功能：将 Buffer 转成 PNG Data URL 以便模板直接渲染
-  const toDataUrl = (buffer: Buffer) =>
-    `data:image/png;base64,${buffer.toString("base64")}`;
-  data.trend.progressImageUrl = toDataUrl(progressPng);
-  data.diagnosis.barChartImageUrl = toDataUrl(barChartPng);
+  data.trend.progressImageUrl = bufferToDataUrl(progressPng);
+  data.diagnosis.barChartImageUrl = bufferToDataUrl(barChartPng);
 }
 
 // 方法功能：生成分享图并注入分享链接，属于 Assets 生成与 Link 注入阶段
@@ -76,42 +117,7 @@ async function attachShareAssetsAndLinks(
     uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
 
   // 重要逻辑：趋势分享图用于社交传播卡片
-  const trendCardPng = await renderTrendShareCardImage({
-    topicTitle: data.trend.topic.replace(/“|”/g, ""),
-    topicSubtitle: data.trend.statusText,
-    discoveryRank: data.trend.rank ?? 0,
-    totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
-    progress: data.hero.trendProgress,
-    hashtag: data.trend.startTag,
-    hashtagPercent: data.trend.startPercent,
-    endTag: data.trend.endTag,
-    globalPercent: data.trend.endPercent,
-    width: 390,
-    height: 693,
-    trendType: data.trend.type,
-  });
-
-  // 重要逻辑：统计分享图用于展示用户观看行为摘要
-  const statsCardPng = await renderStatsShareCardImage({
-    totalVideos: data.diagnosis.totalVideosValue,
-    totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
-    miles: `${data.diagnosis.miles}`,
-    comparisonDiff: data.diagnosis.comparisonDiff,
-    comparisonText: data.diagnosis.comparisonText,
-    milesComment: data.diagnosis.milesComment,
-    barChartData: {
-      lastWeekLabel: data.diagnosis.lastWeekLabel,
-      thisWeekLabel: data.diagnosis.thisWeekLabel,
-      lastWeekValue: data.diagnosis.lastWeekValue,
-      thisWeekValue: data.diagnosis.thisWeekValue,
-    },
-    contents: data.newContents.slice(0, 3).map((content) => ({
-      label: content.label,
-      iconUrl: content.stickerUrl,
-    })),
-    width: 390,
-    height: 960,
-  });
+  const { trendCardPng, statsCardPng } = await renderShareCardPngs(data);
 
   // 重要逻辑：上传分享图并获取对外 URL
   const trendCardUrl = await uploadFn(trendCardPng, options.shareTrendKey);
@@ -171,7 +177,11 @@ async function prepareWeeklyDataWithAssets(
   // 重要逻辑：预览路径不注入分享链接，避免误触外部跳转
   data.trend.shareUrl = undefined;
   data.diagnosis.shareUrl = undefined;
-  return { trendCardUrl: "", statsCardUrl: "" };
+  const { trendCardPng, statsCardPng } = await renderShareCardPngs(data);
+  return {
+    trendCardUrl: bufferToDataUrl(trendCardPng),
+    statsCardUrl: bufferToDataUrl(statsCardPng),
+  };
 }
 
 // 方法功能：将 WeeklyData 渲染为邮件 HTML，属于 HTML 输出阶段
