@@ -183,14 +183,16 @@ function buildDiagnosis(report: WeeklyReportData): WeeklyDiagnosis {
   const milesFull = getMilesScrolledText(report.stats.milesScrolled);
   const milesComment = milesFull.split("miles")[1] || "";
 
+  const { totalTimeValue, totalTimeUnit } = formatTotalTimeDisplay(
+    report.stats.totalTimeMinutes,
+  );
+
   return {
     title: "This week you watched",
     totalVideosValue: report.stats.totalVideos.toLocaleString(),
     totalVideosUnit: "Videos",
-    totalTimeValue: formatMinutes(report.stats.totalTimeMinutes)
-      .replace("min", "")
-      .trim(),
-    totalTimeUnit: "min",
+    totalTimeValue,
+    totalTimeUnit,
     comparisonDiff,
     comparisonText: `${comparisonText} 👍`,
     miles: report.stats.milesScrolled,
@@ -284,10 +286,14 @@ export function mapReportToWeeklyData(
 }
 
 // 方法功能：将分钟格式化为小时分钟字符串
-function formatMinutes(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return `${h} h ${m} min`;
+function formatTotalTimeDisplay(totalMinutes: number) {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (minutes === 0) {
+    // 重要逻辑：分钟为 0 时将小时作为单位，保持数值与单位留空格
+    return { totalTimeValue: `${hours}`, totalTimeUnit: "h" };
+  }
+  return { totalTimeValue: `${hours} h ${minutes}`, totalTimeUnit: "min" };
 }
 
 // 方法功能：计算趋势进度百分比

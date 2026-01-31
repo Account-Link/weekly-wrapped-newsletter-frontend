@@ -32,13 +32,39 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     : "";
   const openingCopyByState: Record<WeeklyData["feedlingState"], string> =
     FEEDLING_COPY_MAP;
-  const catByState: Record<WeeklyData["feedlingState"], string> = {
-    curious: "cat_curious.png",
-    excited: "cat_excited.png",
-    cozy: "cat_cozy.png",
-    sleepy: "cat_sleepy.png",
-    dizzy: "cat_dizzy.png",
+  const catBgByState: Record<WeeklyData["feedlingState"], string> = {
+    curious: "cat-bg_curious.png",
+    excited: "cat-bg_excited.png",
+    cozy: "cat-bg_cozy.png",
+    sleepy: "cat-bg_sleepy.png",
+    dizzy: "cat-bg_dizzy.png",
   };
+  const catIconByState: Record<WeeklyData["feedlingState"], string> = {
+    curious: "cat_curious.gif",
+    excited: "cat_excited.gif",
+    cozy: "cat_cozy.gif",
+    sleepy: "cat_sleepy.gif",
+    dizzy: "cat_dizzy.gif",
+  };
+  const catIconLeftByState: Record<
+    WeeklyData["feedlingState"],
+    number | string
+  > = {
+    curious: 136,
+    cozy: 232,
+    excited: 55,
+    sleepy: 89,
+    dizzy: 198,
+  };
+  const catIconLeft = catIconLeftByState[data.feedlingState];
+  const catIconSizeByState: Record<WeeklyData["feedlingState"], number> = {
+    curious: 249,
+    sleepy: 240,
+    excited: 223,
+    cozy: 223,
+    dizzy: 223,
+  };
+  const catIconSize = catIconSizeByState[data.feedlingState];
   const openingCopy =
     openingCopyByState[data.feedlingState] ||
     "This week you explored a lot of new corners in TikTok.";
@@ -300,15 +326,40 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           >
             {/* OPENING SECTION */}
             <Section className="bg-bgDark pt-[30px] px-5 text-center text-[#fffffe]">
-              <Img
-                src={`${assetBaseUrl}/figma/${
-                  catByState[data.feedlingState] || "cat_curious.png"
-                }`}
-                alt="Opening Cat"
-                width="520"
-                height="200"
-                className="mx-auto mb-[38px] mobile-img-330"
-              />
+              <Section
+                align="center"
+                className="mx-auto mb-[38px] mobile-width-330"
+                style={{
+                  position: "relative",
+                  width: "520px",
+                  height: "200px",
+                }}
+              >
+                <Img
+                  src={`${assetBaseUrl}/figma/${
+                    catBgByState[data.feedlingState] || "cat-bg_curious.png"
+                  }`}
+                  alt="Opening Cat Background"
+                  width="520"
+                  height="200"
+                  className="mobile-img-330"
+                  style={{ display: "block" }}
+                />
+                <Img
+                  src={`${assetBaseUrl}/figma/${
+                    catIconByState[data.feedlingState] || "cat_curious.gif"
+                  }`}
+                  alt="Opening Cat Icon"
+                  width={catIconSize}
+                  height={catIconSize}
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: catIconLeft,
+                    transform: "translateY(-50%)",
+                  }}
+                />
+              </Section>
               <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile-text-24 mobile-max-330">
                 {openingPrefix}
                 {openingHighlight ? (
