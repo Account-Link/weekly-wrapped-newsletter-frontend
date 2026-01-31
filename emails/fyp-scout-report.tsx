@@ -440,15 +440,15 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               >
                 <Row>
                   <Column className="w-[50%]" align="left">
-                    <Text className="mt-[0px] leading-[14px] mb-[0px]">
+                    {/* <Text className="mt-[0px] leading-[14px] mb-[0px]">
                       {data.trend.startTag}
-                    </Text>
+                    </Text> */}
                     <Text className="mt-[0px]">{data.trend.startPercent}</Text>
                   </Column>
                   <Column className="w-[50%]" align="right">
-                    <Text className="mt-[0px] leading-[14px] mb-[0px]">
+                    {/* <Text className="mt-[0px] leading-[14px] mb-[0px]">
                       {data.trend.endTag}
-                    </Text>
+                    </Text> */}
                     <Text className="mt-[0px]">{data.trend.endPercent}</Text>
                   </Column>
                 </Row>

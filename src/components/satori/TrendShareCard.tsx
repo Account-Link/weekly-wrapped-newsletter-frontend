@@ -187,7 +187,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
               display: "flex",
               justifyContent: "space-between",
               width: 330,
-              marginTop: 2,
+              marginTop: 0,
             }}
           >
             <div
@@ -197,7 +197,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
                 width: "50%",
               }}
             >
-              <span style={{ fontSize: 16, fontWeight: 700 }}>{hashtag}</span>
+              {/* <span style={{ fontSize: 16, fontWeight: 700 }}>{hashtag}</span> */}
               <span style={{ fontSize: 16, fontWeight: 700 }}>
                 {hashtagPercent}
               </span>
@@ -210,7 +210,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
                 alignItems: "flex-end",
               }}
             >
-              <span style={{ fontSize: 16, fontWeight: 700 }}>{endTag}</span>
+              {/* <span style={{ fontSize: 16, fontWeight: 700 }}>{endTag}</span> */}
               <span style={{ fontSize: 16, fontWeight: 700 }}>
                 {globalPercent}
               </span>
