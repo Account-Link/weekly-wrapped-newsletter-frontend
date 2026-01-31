@@ -35,7 +35,7 @@ export default async function EmailPreviewPage({
           width: "100%",
           height: "100vh",
           border: "none",
-          background: "#FFFFFF",
+          background: "#FFFFFE",
         }}
       />
     </main>

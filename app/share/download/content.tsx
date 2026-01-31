@@ -84,7 +84,7 @@ export default function DownloadContent() {
         }
 
         .download-card {
-          background: #ffffff;
+          background: #fffffe;
           padding: 24px;
           border-radius: 12px;
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);

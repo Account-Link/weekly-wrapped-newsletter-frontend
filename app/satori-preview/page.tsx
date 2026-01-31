@@ -120,7 +120,7 @@ export default async function SatoriPreviewPage({
         gap: 24,
       }}
     >
-      <div style={moduleBoxStyle("#fff")}>
+      <div style={moduleBoxStyle("#fffffe")}>
         <h3 style={{ fontSize: 18, marginBottom: 8 }}>TrendProgress (HTML)</h3>
         <div style={{ width: 520, height: 64 }}>
           <TrendProgress
@@ -131,7 +131,7 @@ export default async function SatoriPreviewPage({
         </div>
       </div>
 
-      <div style={moduleBoxStyle("#000")}>
+      <div style={moduleBoxStyle("#000001")}>
         <h3 style={{ fontSize: 18, marginBottom: 8 }}>
           DiagnosisBarChart (HTML)
         </h3>
@@ -147,8 +147,8 @@ export default async function SatoriPreviewPage({
         </div>
       </div>
 
-      <div style={moduleBoxStyle("#000")}>
-        <h3 style={{ fontSize: 18, marginBottom: 8, color: "#fff" }}>
+      <div style={moduleBoxStyle("#000001")}>
+        <h3 style={{ fontSize: 18, marginBottom: 8, color: "#fffffe" }}>
           StatsShareCard (HTML)
         </h3>
         <div style={{ width: 390 }}>
@@ -156,7 +156,7 @@ export default async function SatoriPreviewPage({
         </div>
       </div>
 
-      <div style={{ gridColumn: "1 / -1", ...moduleBoxStyle("#fff") }}>
+      <div style={{ gridColumn: "1 / -1", ...moduleBoxStyle("#fffffe") }}>
         <h3 style={{ fontSize: 18, marginBottom: 8 }}>Generated PNGs</h3>
         <div>
           <div>

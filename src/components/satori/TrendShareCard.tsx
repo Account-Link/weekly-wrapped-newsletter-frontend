@@ -113,7 +113,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
             style={{
               fontSize: 28,
               fontWeight: 700,
-              color: "#000",
+              color: "#000001",
               textAlign: "center",
               lineHeight: 1.3,
             }}
@@ -141,7 +141,7 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
             alignItems: "center",
             fontSize: 16,
             fontWeight: "bold",
-            color: "#000",
+            color: "#000001",
             lineHeight: 1.3,
             marginBottom: 40,
             width: 330,

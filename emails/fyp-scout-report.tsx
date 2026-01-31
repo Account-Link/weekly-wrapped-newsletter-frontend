@@ -169,7 +169,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
       },
       extend: {
         colors: {
-          brand: "#FF345D",
+          black: "#000001",
+          white: "#fffffe",
+          brand: "#FF5678",
           bgDark: "#313131",
           bgNudge: "#E4E4E4",
           trendFill: "#6A00F4",
@@ -192,9 +194,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
         src={content.stickerUrl}
         width="150"
         height="150"
-        className="rounded-full border-[1px] border-[#ffffff4d] mb-[10px] mx-auto mobile-content-img"
+        className="rounded-full border-[1px] border-[#fffffe4d] mb-[10px] mx-auto mobile-content-img"
       />
-      <Text className="text-[16px] text-white font-bold mobile-text-12">
+      <Text className="text-[16px] text-[#fffffe] font-bold mobile-text-12">
         {content.label}
       </Text>
     </Column>
@@ -289,9 +291,15 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               style={{ display: "none" }}
             />
           ) : null}
-          <Container className="w-full max-w-[1080px] mx-auto bg-bgDark">
+          <Container
+            className="w-full max-w-[1080px] mx-auto bg-bgDark"
+            style={{
+              backgroundColor: "#313131",
+              backgroundImage: "linear-gradient(#313131, #313131)",
+            }}
+          >
             {/* OPENING SECTION */}
-            <Section className="bg-bgDark pt-[30px] px-5 text-center text-white">
+            <Section className="bg-bgDark pt-[30px] px-5 text-center text-[#fffffe]">
               <Img
                 src={`${assetBaseUrl}/figma/${
                   catByState[data.feedlingState] || "cat_curious.png"
@@ -304,18 +312,23 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile-text-24 mobile-max-330">
                 {openingPrefix}
                 {openingHighlight ? (
-                  <span className="text-brand">{openingHighlight}</span>
+                  <span
+                    className="text-brand"
+                    style={{ marginLeft: 4, marginRight: 4 }}
+                  >
+                    {openingHighlight}
+                  </span>
                 ) : null}
                 {openingSuffix}
               </Text>
-              <Text className="text-[18px] text-white mb-10 mobile-text-16">
+              <Text className="text-[18px] text-[#fffffe] mb-10 mobile-text-16">
                 {data.opening.dateRange}
               </Text>
             </Section>
 
             {/* TREND SECTION */}
             <Section
-              className="h-[770px] w-full text-center text-black p-[40px] pt-[200px] mt-[-100px]"
+              className="h-[770px] w-full text-center text-[#000001] p-[40px] pt-[200px] mt-[-100px]"
               style={{
                 backgroundImage: `url(${assetBaseUrl}/figma/trend-bg.png)`,
                 backgroundSize: "1080px 770px",
@@ -371,7 +384,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 ) : null}
               </Section>
               <Section
-                className=" w-[520px] text-[16px] text-black font-bold mobile-width-330"
+                className=" w-[520px] text-[16px] text-[#000001] font-bold mobile-width-330"
                 align="center"
               >
                 <Row>
@@ -393,12 +406,12 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 href={data.trend.shareUrl || "https://react.email"}
                 label={data.trend.ctaLabel}
                 iconUrl={`${assetBaseUrl}/figma/download-icon.png`}
-                type="black"
+                type="dark"
               />
             </Section>
 
             {/* DIAGNOSIS SECTION */}
-            <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-white text-center mobile-max-330 mobile-px-20">
+            <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-[#fffffe] text-center mobile-max-330 mobile-px-20">
               <Img
                 src={`${assetBaseUrl}/figma/stats-icon.png`}
                 alt="Topic Sticker"
@@ -412,27 +425,27 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
               <Row className="mb-[56px] mobile-mb-40">
                 <Column
-                  className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] text-center mobile-stat-box"
+                  className="border border-[#fffffe4d] rounded-[30px] w-[245px] h-[104px] text-center mobile-stat-box"
                   align="center"
                 >
                   <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20">
                     {data.diagnosis.totalVideosValue}{" "}
                     {data.diagnosis.totalVideosUnit}
                   </Text>
-                  <Text className="text-[14px] text-[#ffffff] mt-[0px] mobile-text-12">
+                  <Text className="text-[14px] text-[#fffffe] mt-[0px] mobile-text-12">
                     Total Videos
                   </Text>
                 </Column>
                 <Column className="w-[30px] mobile-gap-20"></Column>
                 <Column
-                  className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] mr-[30px] text-center mobile-stat-box"
+                  className="border border-[#fffffe4d] rounded-[30px] w-[245px] h-[104px] mr-[30px] text-center mobile-stat-box"
                   align="center"
                 >
                   <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20">
                     {data.diagnosis.totalTimeValue}{" "}
                     {data.diagnosis.totalTimeUnit}
                   </Text>
-                  <Text className="text-[14px] text-[#ffffff] mt-[0px] mobile-text-12">
+                  <Text className="text-[14px] text-[#fffffe] mt-[0px] mobile-text-12">
                     Total Time
                   </Text>
                 </Column>
@@ -466,7 +479,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 ) : null}
               </Section>
 
-              <Text className="text-[20px] font-bold text-[#fff] leading-none mt-[40px] mb-[60px] mobile-text-16">
+              <Text className="text-[20px] font-bold text-[#fffffe] leading-none mt-[40px] mb-[60px] mobile-text-16">
                 • New contents you got into •
               </Text>
               {contentCount > 0 ? (
@@ -500,7 +513,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Row>
               ) : null}
 
-              <Text className="text-[20px] font-bold text-[#fff] my-[30px] mb-[30px] mobile-text-16">
+              <Text className="text-[20px] font-bold text-[#fffffe] my-[30px] mb-[30px] mobile-text-16">
                 • Deepest rabbit hole •
               </Text>
               <Section className="text-left mb-[60px]">
@@ -509,7 +522,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     <Text className="text-[18px] text-brand font-bold mb-[16px] mobile-text-16">
                       {data.rabbitHole.timeLabel}
                     </Text>
-                    <Text className="text-[30px] font-bold text-white leading-[40px] mobile-text-24">
+                    <Text className="text-[30px] font-bold text-[#fffffe] leading-[40px] mobile-text-24">
                       {data.rabbitHole.description}
                     </Text>
                   </Column>
@@ -527,12 +540,12 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 href={data.diagnosis.shareUrl || "https://react.email"}
                 label={data.weeklyNudge.ctaLabel}
                 iconUrl={`${assetBaseUrl}/figma/download-icon_black.png`}
-                type="white"
+                type="bright"
               />
             </Section>
 
             {/* NUDGE SECTION */}
-            <Section className="bg-bgNudge py-[60px] text-center text-black">
+            <Section className="bg-bgNudge py-[60px] text-center text-[#000001]">
               <Section
                 className="max-w-[520px] mx-auto mobile-max-330"
                 align="center"
@@ -562,7 +575,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 backgroundRepeat: "no-repeat",
               }}
             >
-              <Section className="max-w-[520px] mx-auto py-10 px-5 text-center text-white mobile-max-330">
+              <Section className="max-w-[520px] mx-auto py-10 px-5 text-center text-[#fffffe] mobile-max-330">
                 <Img
                   src={`${assetBaseUrl}/figma/feedling-icon.png`}
                   width="120"
@@ -572,7 +585,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <Text className="text-[30px] font-bold mb-[30px] mobile-text-24">
                   Who’s Feedling?
                 </Text>
-                <Text className="text-[14px] leading-[20px] text-[#fff] mb-[60px] mx-auto mobile-text-12">
+                <Text className="text-[14px] leading-[20px] text-[#fffffe] mb-[60px] mx-auto mobile-text-12">
                   Feeding is an app that turns your TikTok habits into a virtual
                   pet you grow and nurture with your scrolling. We&apos;re
                   launching soon!
@@ -581,9 +594,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   href={"https://www.tiktok.com/@your.feedling"}
                   label="Follow us on TikTok"
                   iconUrl={`${assetBaseUrl}/figma/tiktok-icon.png`}
-                  type="white"
+                  type="dark"
                 />
-                <Text className="text-[14px] text-[#fff] text-center mobile-text-12">
+                <Text className="text-[14px] text-[#fffffe] text-center mobile-text-12">
                   @ 2025 Honey Badger Cooperation Labs, Inc.
                 </Text>
               </Section>

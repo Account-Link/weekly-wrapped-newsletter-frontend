@@ -52,7 +52,10 @@ export default function RedirectContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center"
+      style={{ background: "#fffffe" }}
+    >
       <div className="animate-pulse flex flex-col items-center">
         <div className="h-8 w-8 bg-gray-200 rounded-full mb-4"></div>
         <p className="text-gray-500">{status}</p>

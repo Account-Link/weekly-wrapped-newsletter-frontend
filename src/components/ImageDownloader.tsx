@@ -111,8 +111,8 @@ export const ImageDownloader: React.FC<ImageDownloaderProps> = ({
         disabled={isDownloading}
         style={{
           padding: "6px 12px",
-          backgroundColor: "#000",
-          color: "#fff",
+          backgroundColor: "#000001",
+          color: "#fffffe",
           border: "none",
           borderRadius: 6,
           fontSize: 14,

@@ -4,7 +4,7 @@ import { Column, Img, Link, Row, Section } from "@react-email/components";
 import type { CSSProperties } from "react";
 
 // 方法功能：邮件按钮类型定义
-type EmailButtonType = "black" | "white" | "blue";
+type EmailButtonType = "dark" | "bright" | "blue";
 
 // 方法功能：邮件按钮入参定义
 interface EmailButtonProps {
@@ -18,17 +18,21 @@ interface EmailButtonProps {
 
 // 方法功能：按钮类型到样式的映射
 const typeStyles: Record<EmailButtonType, CSSProperties> = {
-  black: {
-    backgroundColor: "#000000",
-    color: "#FFFFFF",
+  dark: {
+    backgroundColor: "#000001",
+    backgroundImage: "linear-gradient(#000001, #000001)",
+    color: "#FFFFFE",
+    border: "1px solid #000001",
   },
-  white: {
-    backgroundColor: "#FFFFFF",
-    color: "#000000",
+  bright: {
+    backgroundColor: "#FFFFFE",
+    color: "#000001",
+    border: "1px solid #000001",
   },
   blue: {
     backgroundColor: "#6A00F4",
-    color: "#FFFFFF",
+    color: "#FFFFFE",
+    border: "1px solid #6A00F4",
   },
 };
 

@@ -92,7 +92,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             right: 0,
             width: "100%",
             height: 1,
-            borderTop: "1px dashed rgba(255,255,255,0.3)",
+            borderTop: "1px dashed rgba(255,255,254,0.3)",
           }}
         />
         <div
@@ -103,7 +103,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             right: 0,
             width: "100%",
             height: 1,
-            borderTop: "1px dashed rgba(255,255,255,0.3)",
+            borderTop: "1px dashed rgba(255,255,254,0.3)",
           }}
         />
         <div
@@ -114,7 +114,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             right: 0,
             width: "100%",
             height: 1,
-            borderTop: "1px solid rgba(255,255,255,0.2)",
+            borderTop: "1px solid rgba(255,255,254,0.2)",
           }}
         />
       </div>
@@ -128,7 +128,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          color: "rgba(255,255,255,0.3)",
+          color: "rgba(255,255,254,0.3)",
           fontSize: 14,
           fontWeight: 700,
           textAlign: "right",
@@ -194,7 +194,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             style={{
               fontSize: 16,
               fontWeight: 700,
-              color: "rgba(255,255,255,0.6)",
+              color: "rgba(255,255,254,0.6)",
               marginBottom: 8,
             }}
           >
@@ -226,7 +226,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             style={{
               fontSize: 16,
               fontWeight: 700,
-              color: "#FFFFFF",
+              color: "#FFFFFE",
               marginBottom: 8,
             }}
           >
@@ -264,7 +264,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             textAlign: "center",
             fontSize: 16,
             fontWeight: 700,
-            color: "rgba(255,255,255,0.2)",
+            color: "rgba(255,255,254,0.2)",
           }}
         >
           {lastWeekLabel.toLowerCase()}
@@ -275,7 +275,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             textAlign: "center",
             fontSize: 16,
             fontWeight: 700,
-            color: "#FFFFFF",
+            color: "#FFFFFE",
           }}
         >
           {thisWeekLabel.toLowerCase()}
