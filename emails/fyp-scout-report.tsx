@@ -12,6 +12,7 @@ import {
   Row,
   Section,
   Text,
+  Link,
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
 import type { WeeklyData } from "../src/lib/firebase-admin";
@@ -647,8 +648,20 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   iconUrl={`${assetBaseUrl}/figma/tiktok-icon.png`}
                   type="dark"
                 />
-                <Text className="text-[14px] text-[#fffffe] text-center mobile-text-12">
-                  @ 2025 Honey Badger Cooperation Labs, Inc.
+                <Section className="text-white/70 text-center text-[14px] leading-[20px] mt-[30px]">
+                  <Link className="text-white/70 mr-[4px]" href="">
+                    Unsubscribe
+                  </Link>
+                  ·
+                  <Link className="text-white/70 ml-[4px]" href="">
+                    Privacy Policy
+                  </Link>
+                </Section>
+
+                <Text className="text-white/70 text-[14px] text-center mobile-text-12 leading-[20px] mt-[30px]">
+                  @ Honey Badger Cooperation Labs, Inc.
+                  <br />
+                  123 Main St, San Francisco, CA 94102
                 </Text>
               </Section>
             </Section>
