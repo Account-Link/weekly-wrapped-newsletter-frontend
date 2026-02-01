@@ -277,8 +277,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
       <Html>
         <Head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <meta name="color-scheme" content="light dark" />
-          <meta name="supported-color-schemes" content="light dark" />
+          <meta name="color-scheme" content="light" />
+          <meta name="supported-color-schemes" content="light" />
           <style>{`
 @media screen and (max-width: 480px) {
   .mobile-max-330 {
@@ -353,7 +353,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
         </Head>
         <Preview>FYP Scout Weekly Newsletter</Preview>
         <Body
-          className="m-0 w-full font-sans body"
+          className="m-0 w-full body"
           style={{ margin: 0, padding: 0, width: "100%" }}
         >
           {trackingPixelUrl ? (
