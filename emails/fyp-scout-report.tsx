@@ -276,6 +276,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     <Tailwind config={tailwindConfig}>
       <Html>
         <Head>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta name="color-scheme" content="light dark" />
           <meta name="supported-color-schemes" content="light dark" />
           <style>{`
@@ -351,7 +352,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           `}</style>
         </Head>
         <Preview>FYP Scout Weekly Newsletter</Preview>
-        <Body className="m-0 w-full font-sans body">
+        <Body
+          className="m-0 w-full font-sans body"
+          style={{ margin: 0, padding: 0, width: "100%" }}
+        >
           {trackingPixelUrl ? (
             <Img
               src={trackingPixelUrl}
@@ -364,6 +368,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           <Container
             className="w-full max-w-[1080px] mx-auto bg-bgDark"
             style={{
+              width: "100%",
+              maxWidth: "1080px",
               backgroundColor: "#313131",
               backgroundImage: "linear-gradient(#313131, #313131)",
             }}
@@ -374,35 +380,37 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 align="center"
                 className="mx-auto mb-[38px] mobile-width-330"
                 style={{
-                  position: "relative",
                   width: "520px",
                   height: "200px",
+                  backgroundImage: `url(${assetBaseUrl}/figma/${
+                    catBgByState[data.feedlingState] || "cat-bg_curious.png"
+                  })`,
+                  backgroundSize: "520px 200px",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
                 }}
               >
-                <Img
-                  src={`${assetBaseUrl}/figma/${
-                    catBgByState[data.feedlingState] || "cat-bg_curious.png"
-                  }`}
-                  alt="Opening Cat Background"
-                  width="520"
-                  height="200"
-                  className="mobile-img-330"
-                  style={{ display: "block" }}
-                />
-                <Img
-                  src={`${assetBaseUrl}/figma/${
-                    catIconByState[data.feedlingState] || "cat_curious.gif"
-                  }`}
-                  alt="Opening Cat Icon"
-                  width={catIconSize}
-                  height={catIconSize}
-                  style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: catIconLeft,
-                    transform: "translateY(-50%)",
-                  }}
-                />
+                <Row>
+                  <Column
+                    style={{
+                      height: "200px",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    <Img
+                      src={`${assetBaseUrl}/figma/${
+                        catIconByState[data.feedlingState] || "cat_curious.gif"
+                      }`}
+                      alt="Opening Cat Icon"
+                      width={catIconSize}
+                      height={catIconSize}
+                      style={{
+                        display: "block",
+                        marginLeft: catIconLeft,
+                      }}
+                    />
+                  </Column>
+                </Row>
               </Section>
               <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile-text-24 mobile-max-330">
                 {openingPrefix}
@@ -694,9 +702,12 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <Section className="text-white/70 text-center text-[14px] leading-[20px] mt-[30px]">
                   <Link
                     className="text-white/70 mr-[4px]"
-                    href={unsubscribeTrackingUrl || `${assetBaseUrl}/unsubscribe?state=confirm&uid=${encodeURIComponent(
-                      data.uid,
-                    )}`}
+                    href={
+                      unsubscribeTrackingUrl ||
+                      `${assetBaseUrl}/unsubscribe?state=confirm&uid=${encodeURIComponent(
+                        data.uid,
+                      )}`
+                    }
                   >
                     Unsubscribe
                   </Link>
