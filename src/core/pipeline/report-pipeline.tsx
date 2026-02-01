@@ -128,10 +128,10 @@ async function attachShareAssetsAndLinks(
   const encodedWeekStart = encodeURIComponent(data.weekStart);
   data.trend.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
     trendCardUrl,
-  )}&filename=trend-card.png&type=trend_share_card&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
+  )}&filename=trend-card.png&type=trend_share_card&uid=${encodedUid}&weekStart=${encodedWeekStart}&theme=dark`;
   data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
     statsCardUrl,
-  )}&filename=stats-card.png&type=stats_share_card&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
+  )}&filename=stats-card.png&type=stats_share_card&uid=${encodedUid}&weekStart=${encodedWeekStart}&theme=light`;
 
   if (data.weeklyNudge.linkUrl) {
     // 重要逻辑：行动按钮添加埋点跳转，统一落到 redirect 追踪入口

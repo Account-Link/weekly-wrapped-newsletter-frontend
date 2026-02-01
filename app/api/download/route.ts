@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server.js";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -17,7 +17,10 @@ export async function GET(request: Request) {
   }
 
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    return NextResponse.json({ error: "Unsupported url protocol" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Unsupported url protocol" },
+      { status: 400 },
+    );
   }
 
   const upstream = await fetch(parsed.toString());

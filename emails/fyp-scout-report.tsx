@@ -19,6 +19,7 @@ import type { WeeklyData } from "../src/lib/firebase-admin";
 import { EmailButton } from "./components/EmailButton";
 import { FEEDLING_COPY_MAP } from "../src/domain/report/logic-map";
 import type { TrendType } from "../src/domain/report/types";
+import { getClickTrackingUrl, getOpenPixelUrl } from "../src/lib/tracking";
 
 // 方法功能：邮件模板入参定义
 interface FypScoutReportEmailProps {
@@ -135,11 +136,53 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     openingCopy,
     highlightTarget,
   );
+  // 重要逻辑：使用 weekStart 作为 emailId，保证同一封邮件的去重一致
+  const emailId = data.weekStart;
   // 重要逻辑：生成打开埋点像素 URL
-  const trackingPixelUrl = data.trackingBaseUrl
-    ? `${data.trackingBaseUrl}/api/track?event=email_open&uid=${encodeURIComponent(
+  const trackingPixelUrl = getOpenPixelUrl(
+    data.uid,
+    emailId,
+    data.trackingBaseUrl,
+  );
+  // 重要逻辑：构建点击追踪 URL，避免邮件内直连造成丢失统计
+  const trendShareTrackingUrl =
+    data.trend.shareUrl && data.trackingBaseUrl
+      ? getClickTrackingUrl(
+          data.uid,
+          emailId,
+          "share_week",
+          data.trend.shareUrl,
+          data.trackingBaseUrl,
+        )
+      : data.trend.shareUrl || "";
+  const statsShareTrackingUrl =
+    data.diagnosis.shareUrl && data.trackingBaseUrl
+      ? getClickTrackingUrl(
+          data.uid,
+          emailId,
+          "share_stats",
+          data.diagnosis.shareUrl,
+          data.trackingBaseUrl,
+        )
+      : data.diagnosis.shareUrl || "";
+  const inviteTrackingUrl =
+    data.weeklyNudge.linkUrl && data.trackingBaseUrl
+      ? getClickTrackingUrl(
+          data.uid,
+          emailId,
+          "invite_click",
+          data.weeklyNudge.linkUrl,
+          data.trackingBaseUrl,
+        )
+      : data.weeklyNudge.linkUrl || "";
+  const unsubscribeTrackingUrl = data.trackingBaseUrl
+    ? getClickTrackingUrl(
         data.uid,
-      )}&weekStart=${encodeURIComponent(data.weekStart)}&source=email`
+        emailId,
+        "unsubscribe",
+        undefined,
+        data.trackingBaseUrl,
+      )
     : "";
   const tailwindConfig = {
     theme: {
@@ -455,7 +498,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Row>
               </Section>
               <EmailButton
-                href={data.trend.shareUrl || "https://react.email"}
+                href={trendShareTrackingUrl || "https://react.email"}
                 label={data.trend.ctaLabel}
                 iconUrl={`${assetBaseUrl}/figma/download-icon.png`}
                 type="dark"
@@ -589,7 +632,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               </Section>
 
               <EmailButton
-                href={data.diagnosis.shareUrl || "https://react.email"}
+                href={statsShareTrackingUrl || "https://react.email"}
                 label={data.weeklyNudge.ctaLabel}
                 iconUrl={`${assetBaseUrl}/figma/download-icon_black.png`}
                 type="bright"
@@ -609,7 +652,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   {data.weeklyNudge.message}
                 </Text>
                 <EmailButton
-                  href={data.weeklyNudge.linkUrl || "https://react.email"}
+                  href={inviteTrackingUrl || "https://react.email"}
                   label={data.weeklyNudge.ctaLabel}
                   iconUrl={`${assetBaseUrl}/figma/share-icon.png`}
                   type="blue"
@@ -651,7 +694,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <Section className="text-white/70 text-center text-[14px] leading-[20px] mt-[30px]">
                   <Link
                     className="text-white/70 mr-[4px]"
-                    href={`${assetBaseUrl}/unsubscribe?state=confirm&uid=${encodeURIComponent(
+                    href={unsubscribeTrackingUrl || `${assetBaseUrl}/unsubscribe?state=confirm&uid=${encodeURIComponent(
                       data.uid,
                     )}`}
                   >

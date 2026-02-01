@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import UnsubscribeClient from "./UnsubscribeClient";
 
 export const viewport = {
@@ -6,5 +7,9 @@ export const viewport = {
 };
 
 export default function UnsubscribePage() {
-  return <UnsubscribeClient />;
+  return (
+    <Suspense>
+      <UnsubscribeClient />
+    </Suspense>
+  );
 }
