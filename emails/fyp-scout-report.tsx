@@ -67,6 +67,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     dizzy: 223,
   };
   const catIconSize = catIconSizeByState[data.feedlingState];
+  const normalizedCatIconLeft = Number(catIconLeft) || 0;
+  const openingIconSizePercent = (catIconSize / 520) * 100;
+  const openingIconLeftPercent = (normalizedCatIconLeft / 520) * 100;
   const openingCopy =
     openingCopyByState[data.feedlingState] ||
     "This week you explored a lot of new corners in TikTok.";
@@ -277,8 +280,6 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
       <Html>
         <Head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <meta name="color-scheme" content="light" />
-          <meta name="supported-color-schemes" content="light" />
           <style>{`
 @media screen and (max-width: 480px) {
   .mobile-max-330 {
@@ -287,6 +288,14 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   .mobile-width-330 {
     width: 330px !important;
     max-width: 330px !important;
+  }
+  .mobile-opening-bg {
+    width: 330px !important;
+    height: 160px !important;
+    background-size: 330px 160px !important;
+  }
+  .mobile-opening-cell {
+    height: 160px !important;
   }
   .mobile-img-330 {
     width: 330px !important;
@@ -353,7 +362,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
         </Head>
         <Preview>FYP Scout Weekly Newsletter</Preview>
         <Body
-          className="m-0 w-full body"
+          className="m-0 w-full font-sans body"
           style={{ margin: 0, padding: 0, width: "100%" }}
         >
           {trackingPixelUrl ? (
@@ -378,7 +387,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             <Section className="bg-bgDark pt-[30px] px-5 text-center text-[#fffffe]">
               <Section
                 align="center"
-                className="mx-auto mb-[38px] mobile-width-330"
+                className="mx-auto mb-[38px] mobile-width-330 mobile-opening-bg"
                 style={{
                   width: "520px",
                   height: "200px",
@@ -392,6 +401,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               >
                 <Row>
                   <Column
+                    className="mobile-opening-cell"
                     style={{
                       height: "200px",
                       verticalAlign: "middle",
@@ -406,7 +416,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                       height={catIconSize}
                       style={{
                         display: "block",
-                        marginLeft: catIconLeft,
+                        width: `${openingIconSizePercent}%`,
+                        height: "auto",
+                        marginLeft: `${openingIconLeftPercent}%`,
                       }}
                     />
                   </Column>
