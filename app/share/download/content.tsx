@@ -58,7 +58,7 @@ export default function DownloadContent() {
             trackingEventName="share_card_download"
             trackingData={{ type }}
             width="100%"
-            style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}
+            style={{ width: "100%", maxWidth: 360, margin: "0 auto" }}
           />
         </div>
 
@@ -70,12 +70,13 @@ export default function DownloadContent() {
       <style jsx>{`
         .download-page {
           min-height: 100vh;
-          background: #f3f4f6;
+          background: #1f1f1f;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 16px;
+          padding: clamp(16px, 6vw, 24px);
+          color: #fffffe;
         }
 
         .download-page--error {
@@ -84,44 +85,53 @@ export default function DownloadContent() {
         }
 
         .download-card {
-          background: #fffffe;
-          padding: 24px;
-          border-radius: 12px;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-          max-width: 600px;
+          background: #2a2a2a;
+          padding: clamp(20px, 6vw, 28px);
+          border-radius: 24px;
+          box-shadow: 0 18px 30px -16px rgba(0, 0, 0, 0.5);
+          max-width: 402px;
           width: 100%;
           text-align: center;
+          display: flex;
+          flex-direction: column;
+          gap: clamp(12px, 4vw, 18px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .download-title {
-          font-size: 24px;
+          font-size: clamp(22px, 6vw, 28px);
           font-weight: 700;
-          margin-bottom: 16px;
-          color: #1f2937;
+          margin: 0;
+          color: #fffffe;
           text-align: center;
         }
 
         .download-subtitle {
-          color: #4b5563;
-          margin-bottom: 24px;
+          color: rgba(255, 255, 255, 0.7);
+          margin: 0;
+          font-size: clamp(14px, 4vw, 16px);
+          line-height: clamp(20px, 5vw, 22px);
           text-align: center;
         }
 
         .download-image {
           display: flex;
           justify-content: center;
-          margin-bottom: 24px;
           width: 100%;
+          padding: clamp(8px, 3vw, 12px);
+          background: #181818;
+          border-radius: 18px;
         }
 
         .download-hint {
-          font-size: 14px;
-          color: #9ca3af;
-          margin-top: 16px;
+          font-size: clamp(12px, 3.5vw, 14px);
+          color: rgba(255, 255, 255, 0.6);
+          margin: 0;
         }
 
         .download-error-text {
-          color: #ef4444;
+          color: #ff4f7a;
+          text-align: center;
         }
       `}</style>
     </div>

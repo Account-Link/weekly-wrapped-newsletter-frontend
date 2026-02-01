@@ -4,6 +4,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { postTrackEvent } from "@/lib/api-client";
 
 // 方法功能：渲染跳转页面并执行跳转逻辑
 export default function RedirectContent() {
@@ -22,17 +23,13 @@ export default function RedirectContent() {
     }
 
     // 重要逻辑：跳转前先写入埋点，保证可追踪
-    fetch("/api/track", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        event: "email_button_click",
-        type,
-        uid,
-        weekStart: weekStart || null,
-        source: "email",
-        targetUrl: url,
-      }),
+    postTrackEvent({
+      event: "email_button_click",
+      type,
+      uid,
+      weekStart: weekStart || null,
+      source: "email",
+      targetUrl: url,
     }).catch(() => null);
 
     // 重要逻辑：短暂延时让埋点完成再跳转

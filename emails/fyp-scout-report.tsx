@@ -649,7 +649,12 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   type="dark"
                 />
                 <Section className="text-white/70 text-center text-[14px] leading-[20px] mt-[30px]">
-                  <Link className="text-white/70 mr-[4px]" href="">
+                  <Link
+                    className="text-white/70 mr-[4px]"
+                    href={`${assetBaseUrl}/unsubscribe?state=confirm&uid=${encodeURIComponent(
+                      data.uid,
+                    )}`}
+                  >
                     Unsubscribe
                   </Link>
                   ·
