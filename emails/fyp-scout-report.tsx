@@ -280,7 +280,38 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
       <Html>
         <Head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta name="color-scheme" content="light" />
+          <meta name="supported-color-schemes" content="light" />
           <style>{`
+:root {
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  .force-dark {
+    background-color: #313131 !important;
+    background-image: linear-gradient(#313131, #313131) !important;
+    color: #fffffe !important;
+  }
+  .force-light {
+    background-color: #e4e4e4 !important;
+    color: #000001 !important;
+  }
+  .keep-brand {
+    color: #ff5678 !important;
+  }
+}
+[data-ogsc] .force-dark {
+  background-color: #313131 !important;
+  background-image: linear-gradient(#313131, #313131) !important;
+  color: #fffffe !important;
+}
+[data-ogsc] .force-light {
+  background-color: #e4e4e4 !important;
+  color: #000001 !important;
+}
+[data-ogsc] .keep-brand {
+  color: #ff5678 !important;
+}
 @media screen and (max-width: 480px) {
   .mobile-max-330 {
     max-width: 330px !important;
@@ -375,7 +406,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             />
           ) : null}
           <Container
-            className="w-full max-w-[1080px] mx-auto bg-bgDark"
+            className="w-full max-w-[1080px] mx-auto bg-bgDark force-dark"
             style={{
               width: "100%",
               maxWidth: "1080px",
@@ -384,7 +415,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             }}
           >
             {/* OPENING SECTION */}
-            <Section className="bg-bgDark pt-[30px] px-5 text-center text-[#fffffe]">
+            <Section className="bg-bgDark pt-[30px] px-5 text-center text-[#fffffe] force-dark">
               <Section
                 align="center"
                 className="mx-auto mb-[38px] mobile-width-330 mobile-opening-bg"
@@ -428,7 +459,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 {openingPrefix}
                 {openingHighlight ? (
                   <span
-                    className="text-brand"
+                    className="text-brand keep-brand"
                     style={{ marginLeft: 4, marginRight: 4 }}
                   >
                     {openingHighlight}
@@ -443,7 +474,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
             {/* TREND SECTION */}
             <Section
-              className="h-[770px] w-full text-center text-[#000001] p-[40px] pt-[200px] mt-[-100px]"
+              className="h-[770px] w-full text-center text-[#000001] p-[40px] pt-[200px] mt-[-100px] force-light"
               style={{
                 backgroundImage: `url(${assetBaseUrl}/figma/trend-bg.png)`,
                 backgroundSize: "1080px 770px",
@@ -469,7 +500,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               <Text className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28">
                 {data.trend.topic}
               </Text>
-              <Text className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16">
+              <Text className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16 keep-brand">
                 {data.trend.statusText}
               </Text>
               <Text className="text-[18px] font-bold mb-[10px] mobile-text-16">
@@ -543,7 +574,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   className="border border-[#fffffe4d] rounded-[30px] w-[245px] h-[104px] text-center mobile-stat-box"
                   align="center"
                 >
-                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20">
+                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20 keep-brand">
                     {data.diagnosis.totalVideosValue}{" "}
                     {data.diagnosis.totalVideosUnit}
                   </Text>
@@ -556,7 +587,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   className="border border-[#fffffe4d] rounded-[30px] w-[245px] h-[104px] mr-[30px] text-center mobile-stat-box"
                   align="center"
                 >
-                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20">
+                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20 keep-brand">
                     {data.diagnosis.totalTimeValue}{" "}
                     {data.diagnosis.totalTimeUnit}
                   </Text>
@@ -568,7 +599,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
               <Text className="text-[18px] mb-[30px] leading-[32px] font-bold mobile-text-16">
                 {data.diagnosis.comparisonDiff && (
-                  <span className="text-[24px] text-brand mobile-text-22">
+                  <span className="text-[24px] text-brand mobile-text-22 keep-brand">
                     {data.diagnosis.comparisonDiff}{" "}
                   </span>
                 )}
@@ -576,7 +607,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <br />
                 <span className="mobile-text-16">
                   Your thumb ran{" "}
-                  <span className="text-[24px] text-brand mobile-text-22">
+                  <span className="text-[24px] text-brand mobile-text-22 keep-brand">
                     {data.diagnosis.miles} miles
                   </span>{" "}
                   {data.diagnosis.milesComment}
@@ -634,7 +665,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               <Section className="text-left mb-[60px]">
                 <Row>
                   <Column style={{ width: "60%" }}>
-                    <Text className="text-[18px] text-brand font-bold mb-[16px] mobile-text-16">
+                    <Text className="text-[18px] text-brand font-bold mb-[16px] mobile-text-16 keep-brand">
                       {data.rabbitHole.timeLabel}
                     </Text>
                     <Text className="text-[30px] font-bold text-[#fffffe] leading-[40px] mobile-text-24">
@@ -660,7 +691,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* NUDGE SECTION */}
-            <Section className="bg-bgNudge py-[60px] text-center text-[#000001]">
+            <Section className="bg-bgNudge py-[60px] text-center text-[#000001] force-light">
               <Section
                 className="max-w-[520px] mx-auto mobile-max-330"
                 align="center"
@@ -682,7 +713,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
             {/* FOOTER */}
             <Section
-              className="w-full text-center pb-[160px]"
+              className="w-full text-center pb-[160px] force-dark"
               style={{
                 backgroundImage: `url(${assetBaseUrl}/figma/bottom-bg.png)`,
                 backgroundSize: "1080px 258px",

@@ -26,11 +26,13 @@ const typeStyles: Record<EmailButtonType, CSSProperties> = {
   },
   bright: {
     backgroundColor: "#FFFFFE",
+    backgroundImage: "linear-gradient(#FFFFFE, #FFFFFE)",
     color: "#000001",
     border: "1px solid #000001",
   },
   blue: {
     backgroundColor: "#6A00F4",
+    backgroundImage: "linear-gradient(#6A00F4, #6A00F4)",
     color: "#FFFFFE",
     border: "1px solid #6A00F4",
   },
