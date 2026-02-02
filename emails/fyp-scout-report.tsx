@@ -240,7 +240,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
       },
       extend: {
         colors: {
-          black: "#000001",
+          black: "#313131",
           white: "#fffffe",
           brand: "#FF5678",
           bgDark: "#313131",
@@ -505,7 +505,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               </Section>
 
               {/* TREND SECTION */}
-              <Section className="h-[570px] w-full text-center text-[#000001] p-[40px] box-border">
+              <Section className="h-[570px] w-full text-center  text-black p-[40px] box-border">
                 <Section
                   className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
                   style={{
@@ -524,7 +524,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Section>
                 <Text
                   className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28 text-black"
-                  style={{ fontWeight: 700, color: "#111" }}
+                  style={{ fontWeight: 700 }}
                 >
                   {data.trend.topic}
                 </Text>
@@ -561,23 +561,23 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   ) : null}
                 </Section>
                 <Section
-                  className=" max-w-[520px] text-[16px] text-[#000001] font-bold mobile-width-330 mx-auto"
+                  className=" max-w-[520px] text-[16px] text-black font-bold mobile-width-330 mx-auto"
                   align="center"
                 >
                   <Row>
                     <Column className="w-[50%]" align="left">
-                      {/* <Text className="mt-[0px] leading-[14px] mb-[0px] force-text-dark">
+                      {/* <Text className="mt-[0px] leading-[14px] mb-[0px] text-black">
                       {data.trend.startTag}
                     </Text> */}
-                      <Text className="mt-[0px] force-text-dark">
+                      <Text className="mt-[0px] text-black">
                         {data.trend.startPercent}
                       </Text>
                     </Column>
                     <Column className="w-[50%]" align="right">
-                      {/* <Text className="mt-[0px] leading-[14px] mb-[0px] force-text-dark">
+                      {/* <Text className="mt-[0px] leading-[14px] mb-[0px] text-black">
                       {data.trend.endTag}
                     </Text> */}
-                      <Text className="mt-[0px] force-text-dark">
+                      <Text className="mt-[0px] text-black">
                         {data.trend.endPercent}
                       </Text>
                     </Column>
@@ -728,17 +728,17 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
             {/* NUDGE SECTION */}
             <Section
-              className="bg-bgNudge py-[60px] text-center text-[#000001] force-light box-border"
+              className="bg-bgNudge py-[60px] text-center text-black force-light box-border"
               style={{ backgroundImage: "linear-gradient(#e4e4e4, #e4e4e4)" }}
             >
               <Section
                 className="max-w-[520px] mx-auto mobile-max-330"
                 align="center"
               >
-                <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px] text-center mobile-text-24 text-[#000001] ">
+                <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px] text-center mobile-text-24  text-black ">
                   {data.weeklyNudge.title}
                 </Text>
-                <Text className="text-[18px] text-center mobile-text-16 text-[#000001]">
+                <Text className="text-[18px] text-center mobile-text-16  text-black">
                   {data.weeklyNudge.message}
                 </Text>
                 <EmailButton
