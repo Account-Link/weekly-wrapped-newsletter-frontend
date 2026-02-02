@@ -286,88 +286,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta name="color-scheme" content="light dark" />
           <meta name="supported-color-schemes" content="light dark" />
-          <style>{`
-@media screen and (max-width: 480px) {
-.tt-bg {
-  background-color: red
-}
-  .mobile-max-330 {
-    max-width: 330px !important;
-  }
-  .mobile-width-330 {
-    width: 330px !important;
-    max-width: 330px !important;
-  }
-  .mobile-opening-bg {
-    width: 330px !important;
-    height: 127px !important;
-    background-size: 330px 127px !important;
-  }
-  .mobile-opening-cell {
-    height: 127px !important;
-  }
-  .mobile-img-330 {
-    width: 330px !important;
-    height: auto !important;
-  }
-  .mobile-img-376 {
-    width: 376px !important;
-    height: auto !important;
-  }
-  .mobile-text-28 {
-    font-size: 28px !important;
-    line-height: 36px !important;
-  }
-  .mobile-text-24 {
-    font-size: 24px !important;
-    line-height: 32px !important;
-  }
-  .mobile-text-20 {
-    font-size: 20px !important;
-    line-height: 24px !important;
-  }
-  .mobile-text-16 {
-    font-size: 16px !important;
-    line-height: 1.3 !important;
-  }
-  .mobile-text-22 {
-    font-size: 22px !important;
-    line-height: 1.3 !important;
-  }
-  .mobile-text-12 {
-    font-size: 12px !important;
-    line-height: 16px !important;
-  }
-  .mobile-mb-40 {
-    margin-bottom: 40px !important;
-  }
-  .mobile-stat-box {
-    width: 155px !important;
-    height: 72px !important;
-  }
-  .mobile-gap-20 {
-    width: 20px !important;
-  }
-  .mobile-gap-12 {
-    width: 12px !important;
-  }
-  .mobile-content-item {
-    width: 100px !important;
-  }
-  .mobile-content-img {
-    width: 100px !important;
-    height: 100px !important;
-  }
-  .mobile-rabbit-img {
-    width: 120px !important;
-    height: auto !important;
-  }
-  .mobile-px-20 {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-  }
-}
-          `}</style>
+          <style></style>
         </Head>
         <Preview>FYP Scout Weekly Newsletter</Preview>
         <Body
@@ -393,6 +312,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             {/* OPENING SECTION */}
             <Section className="pt-[30px] pb-[60px] px-5 text-center text-white box-border">
               <Img
+                width="520"
+                height="200"
                 className="mx-auto mb-[38px] w-[520px] h-[200px] mobile:w-[330px] mobile:h-[127px]"
                 src={getImgUrl(
                   (catIconByState[data.feedlingState] || CatCuriousGif).src,
@@ -459,6 +380,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     align="center"
                   >
                     <Img
+                      width="566"
                       src={data.trend.progressImageUrl}
                       alt="Trend progress"
                       className="mx-auto inline-block w-[566px] mobile:w-[376px]"
@@ -561,7 +483,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     src={data.diagnosis.barChartImageUrl}
                     alt="Weekly comparison"
                     width="520"
-                    className="block mx-auto mobile:w-[330px]"
+                    className="block w-[520px] mx-auto mobile:w-[330px]"
                   />
                 ) : null}
               </Section>
@@ -576,24 +498,24 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 >
                   {contentCount === 1 ? (
                     <>
-                      <Column className="w-[185px] mobile-gap-12"></Column>
+                      <Column className="w-[185px] mobile:w-[115px]"></Column>
                       {renderNewContent(newContents[0], 0)}
-                      <Column className="w-[185px] mobile-gap-12"></Column>
+                      <Column className="w-[185px] mobile:w-[115px]"></Column>
                     </>
                   ) : null}
                   {contentCount === 2 ? (
                     <>
                       {renderNewContent(newContents[0], 0)}
-                      <Column className="w-[220px] mobile-gap-12"></Column>
+                      <Column className="w-[220px] mobile:w-[130px]"></Column>
                       {renderNewContent(newContents[1], 1)}
                     </>
                   ) : null}
                   {contentCount === 3 ? (
                     <>
                       {renderNewContent(newContents[0], 0)}
-                      <Column className="w-[35px] mobile-gap-12"></Column>
+                      <Column className="w-[35px] mobile:w-[15px]"></Column>
                       {renderNewContent(newContents[1], 1)}
-                      <Column className="w-[35px] mobile-gap-12"></Column>
+                      <Column className="w-[35px] mobile:w-[15px]"></Column>
                       {renderNewContent(newContents[2], 2)}
                     </>
                   ) : null}
@@ -617,7 +539,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     <Img
                       src={getImgUrl(CatSleep.src)}
                       width="160"
-                      className="mobile:w-[120px] mobile:h-[120px]"
+                      className="w-[160px] mobile:w-[120px]"
                     />
                   </Column>
                 </Row>
