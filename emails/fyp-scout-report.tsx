@@ -335,11 +335,11 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   }
   .mobile-opening-bg {
     width: 330px !important;
-    height: 160px !important;
-    background-size: 330px 160px !important;
+    height: 127px !important;
+    background-size: 330px 127px !important;
   }
   .mobile-opening-cell {
-    height: 160px !important;
+    height: 127px !important;
   }
   .mobile-img-330 {
     width: 330px !important;
@@ -437,19 +437,14 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               }}
             >
               {/* OPENING SECTION */}
-              <Section className="pt-[30px] px-5 text-center text-[#fffffe]">
+              <Section className="pt-[30px] pb-[60px] px-5 text-center text-[#fffffe]">
                 <Section
                   align="center"
-                  className="mx-auto mb-[38px] mobile-width-330 mobile-opening-bg"
+                  className="mx-auto mb-[38px] w-[520px] h-[200px] bg-size-[520px_200px] bg-center bg-no-repeat mobile-width-330 mobile-opening-bg"
                   style={{
-                    width: "520px",
-                    height: "200px",
                     backgroundImage: `url(${assetBaseUrl}/figma/${
                       catBgByState[data.feedlingState] || "cat-bg_curious.png"
                     })`,
-                    backgroundSize: "520px 200px",
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "center",
                   }}
                 >
                   <Row>
@@ -496,7 +491,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               </Section>
 
               {/* TREND SECTION */}
-              <Section className="h-[600px] w-full text-center text-[#000001] p-[40px]">
+              <Section className="h-[600px] w-full text-center text-[#000001] p-[40px] border-box">
                 <Section
                   className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
                   style={{
