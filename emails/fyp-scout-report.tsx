@@ -285,13 +285,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   color-scheme: light;
 }
 .bg-cover {
-  background-size: cover;
+  background-size: cover !important;
 }
 .opening-bg {
-  background-size: 520px 200px;
+  background-size: 520px 200px !important;
 }
 .first-screen-bg {
-              background-size: 1080px 770px;
+              background-size: 1080px 770px !important;
 }
 @media (prefers-color-scheme: dark) {
   .force-dark {
