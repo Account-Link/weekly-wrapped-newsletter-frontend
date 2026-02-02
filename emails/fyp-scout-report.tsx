@@ -284,6 +284,15 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 :root {
   color-scheme: light;
 }
+.bg-cover {
+  background-size: cover;
+}
+.opening-bg {
+  background-size: 520px 200px;
+}
+.first-screen-bg {
+              background-size: 1080px 770px;
+}
 @media (prefers-color-scheme: dark) {
   .force-dark {
     background-color: #313131 !important;
@@ -325,6 +334,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 [data-ogsc] .keep-brand {
   color: #ff5678 !important;
 }
+
 @media screen and (max-width: 480px) {
   .mobile-max-330 {
     max-width: 330px !important;
@@ -431,16 +441,14 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             <Section
               style={{
                 backgroundImage: `url(${assetBaseUrl}/figma/trend-bg.png)`,
-                backgroundSize: "1080px 770px",
-                backgroundPosition: "center bottom",
-                backgroundRepeat: "no-repeat",
               }}
+              className="first-screen-bg bg-position-center-bottom bg-no-repeat"
             >
               {/* OPENING SECTION */}
               <Section className="pt-[30px] pb-[60px] px-5 text-center text-[#fffffe]">
                 <Section
                   align="center"
-                  className="mx-auto mb-[38px] w-[520px] h-[200px] bg-size-[520px_200px] bg-center bg-no-repeat mobile-width-330 mobile-opening-bg"
+                  className="mx-auto mb-[38px] w-[520px] h-[200px] bg-center bg-no-repeat mobile-width-330 bg-cover mobile-opening-bg"
                   style={{
                     backgroundImage: `url(${assetBaseUrl}/figma/${
                       catBgByState[data.feedlingState] || "cat-bg_curious.png"
@@ -492,218 +500,218 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
               {/* TREND SECTION */}
               <Section className="h-[600px] w-full text-center text-[#000001] p-[40px] border-box">
-                <Section
+              <Section
                   className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
-                  style={{
-                    backgroundImage: `url(${assetBaseUrl}/figma/trend-icon-bg.png)`,
-                    backgroundSize: "cover",
-                  }}
-                  align="center"
-                >
-                  <Img
-                    src={`${assetBaseUrl}/figma/${trendIconFile}`}
-                    alt="Topic Sticker"
-                    width="73"
-                    height="60"
-                    className="mx-auto align-middle"
-                  />
-                </Section>
+                style={{
+                  backgroundImage: `url(${assetBaseUrl}/figma/trend-icon-bg.png)`,
+                  backgroundSize: "cover",
+                }}
+                align="center"
+              >
+                <Img
+                  src={`${assetBaseUrl}/figma/${trendIconFile}`}
+                  alt="Topic Sticker"
+                  width="73"
+                  height="60"
+                  className="mx-auto align-middle"
+                />
+              </Section>
                 <Text className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28">
-                  {data.trend.topic}
-                </Text>
+                {data.trend.topic}
+              </Text>
                 <Text className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16 keep-brand">
-                  {data.trend.statusText}
-                </Text>
+                {data.trend.statusText}
+              </Text>
                 <Text className="text-[18px] font-bold mb-[10px] mobile-text-16">
-                  {data.trend.rank !== null
-                    ? buildDiscoverySegments(
-                        data.trend.discoveryText,
-                        data.trend.rank,
-                        data.trend.totalDiscoverers,
-                      )
-                    : data.trend.discoveryText}
-                </Text>
-                <Section align="center">
-                  {data.trend.progressImageUrl ? (
-                    <Section
-                      className="w-full mx-auto text-center"
-                      align="center"
-                    >
-                      <Img
-                        src={data.trend.progressImageUrl}
-                        alt="Trend progress"
-                        width="566px"
-                        height="auto"
-                        className="mobile-img-376"
-                        style={{ margin: "0 auto", display: "inline-block" }}
-                      />
-                    </Section>
-                  ) : null}
-                </Section>
-                <Section
+                {data.trend.rank !== null
+                  ? buildDiscoverySegments(
+                      data.trend.discoveryText,
+                      data.trend.rank,
+                      data.trend.totalDiscoverers,
+                    )
+                  : data.trend.discoveryText}
+              </Text>
+              <Section align="center">
+                {data.trend.progressImageUrl ? (
+                  <Section
+                    className="w-full mx-auto text-center"
+                    align="center"
+                  >
+                    <Img
+                      src={data.trend.progressImageUrl}
+                      alt="Trend progress"
+                      width="566px"
+                      height="auto"
+                      className="mobile-img-376"
+                      style={{ margin: "0 auto", display: "inline-block" }}
+                    />
+                  </Section>
+                ) : null}
+              </Section>
+              <Section
                   className=" w-[520px] text-[16px] text-[#000001] font-bold mobile-width-330"
-                  align="center"
-                >
-                  <Row>
+                align="center"
+              >
+                <Row>
                     <Column className="w-[50%]" align="left">
                       {/* <Text className="mt-[0px] leading-[14px] mb-[0px]">
                       {data.trend.startTag}
                     </Text> */}
                       <Text className="mt-[0px]">
-                        {data.trend.startPercent}
-                      </Text>
-                    </Column>
+                  </Column>
+                  <Column style={{ width: "50%" }} align="right">
+                    {/* <Text className="mt-0 leading-[14px] mb-0">
                     <Column className="w-[50%]" align="right">
                       {/* <Text className="mt-[0px] leading-[14px] mb-[0px]">
-                      {data.trend.endTag}
-                    </Text> */}
+                    <Text className="mt-0">{data.trend.endPercent}</Text>
+                  </Column>
                       <Text className="mt-[0px]">{data.trend.endPercent}</Text>
-                    </Column>
-                  </Row>
-                </Section>
-                <EmailButton
-                  href={trendShareTrackingUrl}
-                  imageUrl={`${assetBaseUrl}/figma/btn_trend.png`}
-                  label={data.trend.ctaLabel}
-                  height={61}
-                />
               </Section>
-            </Section>
-
-            {/* DIAGNOSIS SECTION */}
-            <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-[#fffffe] text-center mobile-max-330 mobile-px-20">
-              <Img
-                src={`${assetBaseUrl}/figma/stats-icon.png`}
-                alt="Topic Sticker"
-                width="126"
-                height="113"
-                className="mx-auto mb-[0px]"
-              />
-              <Text className="text-[30px] font-bold mt-[0px] mb-[60px] mobile-text-24 mobile-mb-40">
-                {data.diagnosis.title}
-              </Text>
-
-              <Row className="mb-[56px] mobile-mb-40">
-                <Column
-                  className="border border-[#fffffe4d] rounded-[30px] w-[245px] h-[104px] text-center mobile-stat-box"
-                  align="center"
-                >
-                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20 keep-brand">
-                    {data.diagnosis.totalVideosValue}{" "}
-                    {data.diagnosis.totalVideosUnit}
-                  </Text>
-                  <Text className="text-[14px] text-[#fffffe] mt-[0px] mobile-text-12 force-text-light">
-                    Total Videos
-                  </Text>
-                </Column>
-                <Column className="w-[30px] mobile-gap-20"></Column>
-                <Column
-                  className="border border-[#fffffe4d] rounded-[30px] w-[245px] h-[104px] mr-[30px] text-center mobile-stat-box"
-                  align="center"
-                >
-                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20 keep-brand">
-                    {data.diagnosis.totalTimeValue}{" "}
-                    {data.diagnosis.totalTimeUnit}
-                  </Text>
-                  <Text className="text-[14px] text-[#fffffe] mt-[0px] mobile-text-12 force-text-light">
-                    Total Time
-                  </Text>
-                </Column>
-              </Row>
-
-              <Text className="text-[18px] mb-[30px] leading-[32px] font-bold mobile-text-16">
-                {data.diagnosis.comparisonDiff && (
-                  <span className="text-[24px] text-brand mobile-text-22 keep-brand">
-                    {data.diagnosis.comparisonDiff}{" "}
-                  </span>
-                )}
-                {data.diagnosis.comparisonText}
-                <br />
-                <span className="mobile-text-16">
-                  Your thumb ran{" "}
-                  <span className="text-[24px] text-brand mobile-text-22 keep-brand">
-                    {data.diagnosis.miles} miles
-                  </span>{" "}
-                  {data.diagnosis.milesComment}
-                </span>
-              </Text>
-
-              <Section className="mx-auto mb-10 align-bottom">
-                {data.diagnosis.barChartImageUrl ? (
-                  <Img
-                    src={data.diagnosis.barChartImageUrl}
-                    alt="Weekly comparison"
-                    width="520"
-                    className="block mx-auto mobile-img-330"
-                  />
-                ) : null}
-              </Section>
-
-              <Text className="text-[20px] font-bold text-[#fffffe] leading-none mt-[40px] mb-[60px] mobile-text-16 force-text-light">
-                • New contents you got into •
-              </Text>
-              {contentCount > 0 ? (
-                <Row
-                  className="mb-[30px] w-[520px] mx-auto mobile-width-330"
-                  align="center"
-                >
-                  {contentCount === 1 ? (
-                    <>
-                      <Column className="w-[185px] mobile-gap-12"></Column>
-                      {renderNewContent(newContents[0])}
-                      <Column className="w-[185px] mobile-gap-12"></Column>
-                    </>
-                  ) : null}
-                  {contentCount === 2 ? (
-                    <>
-                      {renderNewContent(newContents[0])}
-                      <Column className="w-[220px] mobile-gap-12"></Column>
-                      {renderNewContent(newContents[1])}
-                    </>
-                  ) : null}
-                  {contentCount === 3 ? (
-                    <>
-                      {renderNewContent(newContents[0])}
-                      <Column className="w-[35px] mobile-gap-12"></Column>
-                      {renderNewContent(newContents[1])}
-                      <Column className="w-[35px] mobile-gap-12"></Column>
-                      {renderNewContent(newContents[2])}
-                    </>
-                  ) : null}
-                </Row>
-              ) : null}
-
-              <Text className="text-[20px] font-bold text-[#fffffe] my-[30px] mb-[30px] mobile-text-16">
-                • Deepest rabbit hole •
-              </Text>
-              <Section className="text-left mb-[60px]">
-                <Row>
-                  <Column style={{ width: "60%" }}>
-                    <Text className="text-[18px] text-brand font-bold mb-[16px] mobile-text-16 keep-brand">
-                      {data.rabbitHole.timeLabel}
-                    </Text>
-                    <Text className="text-[30px] font-bold text-[#fffffe] leading-[40px] mobile-text-24">
-                      {data.rabbitHole.description}
-                    </Text>
-                  </Column>
-                  <Column style={{ width: "40%" }} align="right">
-                    <Img
-                      src={`${assetBaseUrl}/figma/cat_sleep.png`}
-                      width="160"
-                      className="mobile-rabbit-img"
-                    />
-                  </Column>
-                </Row>
-              </Section>
-
               <EmailButton
-                href={statsShareTrackingUrl}
-                label={data.weeklyNudge.ctaLabel}
-                imageUrl={`${assetBaseUrl}/figma/btn_stats.png`}
+                href={trendShareTrackingUrl}
+                imageUrl={`${assetBaseUrl}/figma/btn_trend.png`}
+                label={data.trend.ctaLabel}
                 height={61}
               />
             </Section>
+          </Section>
 
+          {/* DIAGNOSIS SECTION */}
+          <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-[#fffffe] text-center mobile-max-330 mobile-px-20">
+            {/* DIAGNOSIS SECTION */}
+            <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-[#fffffe] text-center mobile-max-330 mobile-px-20">
+            <Img
+              src={`${assetBaseUrl}/figma/stats-icon.png`}
+              alt="Topic Sticker"
+              width="126"
+              height="113"
+                className="mx-auto mb-[0px]"
+            />
+              <Text className="text-[30px] font-bold mt-[0px] mb-[60px] mobile-text-24 mobile-mb-40">
+              {data.diagnosis.title}
+            </Text>
+              <Column
+              <Row className="mb-[56px] mobile-mb-40">
+              <Column
+                  className="border border-[#fffffe4d] rounded-[30px] w-[245px] h-[104px] text-center mobile-stat-box"
+                align="center"
+              >
+                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20 keep-brand">
+                  className="text-30 font-bold text-brand mb-0 mobile-text-20 keep-brand"
+                  style={{ lineHeight: "36px" }}
+                >
+                  <Text className="text-[14px] text-[#fffffe] mt-[0px] mobile-text-12 force-text-light">
+                  {data.diagnosis.totalVideosUnit}
+                </Text>
+                <Text className="text-14 text-white mt-0 mobile-text-12 force-text-light">
+                <Column className="w-[30px] mobile-gap-20"></Column>
+                </Text>
+                  className="border border-[#fffffe4d] rounded-[30px] w-[245px] h-[104px] mr-[30px] text-center mobile-stat-box"
+              <Column
+                className="border border-white-30 rounded-30 w-245 h-104 text-center mobile-stat-box"
+                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20 keep-brand">
+                align="center"
+              >
+                <Text
+                  <Text className="text-[14px] text-[#fffffe] mt-[0px] mobile-text-12 force-text-light">
+                  style={{ lineHeight: "36px" }}
+                >
+                  {data.diagnosis.totalTimeValue} {data.diagnosis.totalTimeUnit}
+                </Text>
+              {data.diagnosis.comparisonDiff && (
+              <Text className="text-[18px] mb-[30px] leading-[32px] font-bold mobile-text-16">
+                </Text>
+                  <span className="text-[24px] text-brand mobile-text-22 keep-brand">
+            </Row>
+
+            <Text
+              className="text-18 mb-30 font-bold mobile-text-16"
+              style={{ lineHeight: "32px" }}
+            >
+              {data.diagnosis.comparisonDiff && (
+                  <span className="text-[24px] text-brand mobile-text-22 keep-brand">
+                  {data.diagnosis.comparisonDiff}{" "}
+                </span>
+              )}
+              {data.diagnosis.comparisonText}
+              <br />
+              {data.diagnosis.barChartImageUrl ? (
+                Your thumb ran{" "}
+                <span className="text-24 font-bold text-brand mobile-text-22 keep-brand">
+                  {data.diagnosis.miles} miles
+                </span>{" "}
+                {data.diagnosis.milesComment}
+              </span>
+            </Text>
+
+            <Section className="mx-auto mb-10 align-bottom">
+              {data.diagnosis.barChartImageUrl ? (
+              • New contents you got into •
+              <Text className="text-[20px] font-bold text-[#fffffe] leading-none mt-[40px] mb-[60px] mobile-text-16 force-text-light">
+                  alt="Weekly comparison"
+                  width="520"
+                  className="block mx-auto mobile-img-330"
+                />
+                  className="mb-[30px] w-[520px] mx-auto mobile-width-330"
+            </Section>
+
+            <Text
+              className="text-20 font-bold text-white mt-40 mb-60 mobile-text-16 force-text-light"
+                      <Column className="w-[185px] mobile-gap-12"></Column>
+            >
+                      <Column className="w-[185px] mobile-gap-12"></Column>
+            </Text>
+            {contentCount > 0 ? (
+              <Row
+                className="mb-30 w-520 mx-auto mobile-width-330"
+                align="center"
+                      <Column className="w-[220px] mobile-gap-12"></Column>
+                {contentCount === 1 ? (
+                  <>
+                    <Column
+                      style={{ width: 185 }}
+                      className="mobile-gap-12"
+                    ></Column>
+                      <Column className="w-[35px] mobile-gap-12"></Column>
+                    <Column
+                      <Column className="w-[35px] mobile-gap-12"></Column>
+                      className="mobile-gap-12"
+                    ></Column>
+                  </>
+                ) : null}
+                {contentCount === 2 ? (
+              • Deepest rabbit hole •
+              <Text className="text-[20px] font-bold text-[#fffffe] my-[30px] mb-[30px] mobile-text-16">
+                    <Column
+                      style={{ width: 220 }}
+              <Section className="text-left mb-[60px]">
+                    ></Column>
+                    {renderNewContent(newContents[1])}
+                    <Text className="text-[18px] text-brand font-bold mb-[16px] mobile-text-16 keep-brand">
+                ) : null}
+                {contentCount === 3 ? (
+                    <Text className="text-[30px] font-bold text-[#fffffe] leading-[40px] mobile-text-24">
+                    {renderNewContent(newContents[0])}
+                    <Column
+                      style={{ width: 35 }}
+                      className="mobile-gap-12"
+                    ></Column>
+                    {renderNewContent(newContents[1])}
+                    <Column
+                      style={{ width: 35 }}
+                      className="mobile-gap-12"
+                    ></Column>
+                    {renderNewContent(newContents[2])}
+                  </>
+              href={statsShareTrackingUrl}
+              </Row>
+            ) : null}
+
+            <Text className="text-20 font-bold text-white my-30 mb-30 mobile-text-16">
+              • Deepest rabbit hole •
+            </Text>
+            <Section className="text-left mb-60">
+          <Section className="bg-bgNudge py-[60px] text-center text-[#000001] force-light">
             {/* NUDGE SECTION */}
             <Section className="bg-bgNudge py-[60px] text-center text-[#000001] force-light">
               <Section
@@ -724,7 +732,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 />
               </Section>
             </Section>
-
+          <Section
             {/* FOOTER */}
             <Section
               className="w-full text-center pb-[160px]"
@@ -776,7 +784,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     Privacy Policy
                   </Link>
                 </Section>
-
+                @ Honey Badger Cooperation Labs, Inc.
                 <Text className="text-white/70 text-[14px] text-center mobile-text-12 leading-[20px] mt-[30px]">
                   @ Honey Badger Cooperation Labs, Inc.
                   <br />
@@ -788,5 +796,32 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
         </Body>
       </Html>
     </Tailwind>
+                    unsubscribeTrackingUrl ||
+                    `${assetBaseUrl}/unsubscribe?state=confirm&uid=${encodeURIComponent(
+                      data.uid,
+                    )}`
+                  }
+                >
+                  Unsubscribe
+                </Link>
+                ·
+                <Link
+                  className="text-white/70 ml-[4px] force-text-light-70"
+                  href=""
+                >
+                  Privacy Policy
+                </Link>
+              </Section>
+
+              <Text className="text-white/70 text-[14px] text-center mobile-text-12 leading-[20px] mt-[30px]">
+                @ Honey Badger Cooperation Labs, Inc.
+                <br />
+                123 Main St, San Francisco, CA 94102
+              </Text>
+            </Section>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
   );
 }
