@@ -16,7 +16,6 @@ import { Tailwind } from "@react-email/tailwind";
 import type { WeeklyData } from "../src/lib/firebase-admin";
 import { EmailButton } from "./components/EmailButton";
 import { FEEDLING_COPY_MAP } from "../src/domain/report/logic-map";
-import type { TrendType } from "../src/domain/report/types";
 import { getClickTrackingUrl, getOpenPixelUrl } from "../src/lib/tracking";
 
 import TrendBg from "../src/assets/figma/trend-bg.png";
@@ -44,6 +43,9 @@ import BtnInvite from "../src/assets/figma/btn_invite.png";
 import BottomBg from "../src/assets/figma/bottom-bg.png";
 import FeedlingIcon from "../src/assets/figma/feedling-icon_x2.png";
 import BtnFollow from "../src/assets/figma/btn_follow.png";
+import ContentSticker1 from "../src/assets/figma/content-sticker-1.png";
+import ContentSticker2 from "../src/assets/figma/content-sticker-2.png";
+import ContentSticker3 from "../src/assets/figma/content-sticker-3.png";
 
 // 方法功能：邮件模板入参定义
 interface FypScoutReportEmailProps {
@@ -53,7 +55,14 @@ interface FypScoutReportEmailProps {
 // 方法功能：渲染周报邮件模板
 export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   // 重要逻辑：从已有资源 URL 推导静态资源根路径
-  const assetBaseUrl = data.assetBaseUrl;
+  const assetBaseUrl = data.assetBaseUrl
+    ? data.assetBaseUrl.replace(/\/$/, "")
+    : "";
+  const getImgUrl = (src: string) => {
+    if (src.startsWith("http") || src.startsWith("data:")) return src;
+    return `${assetBaseUrl}${src}`;
+  };
+
   const openingCopyByState: Record<WeeklyData["feedlingState"], string> =
     FEEDLING_COPY_MAP;
   const catBgByState = {
@@ -277,25 +286,32 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     },
   };
   type NewContentItem = WeeklyData["newContents"][number];
+  const contentStickers = [ContentSticker1, ContentSticker2, ContentSticker3];
   const newContents = data.newContents.slice(0, 3);
   const contentCount = newContents.length;
-  const renderNewContent = (content: NewContentItem) => (
-    <Column
-      className="text-center mobile-content-item"
-      align="center"
-      style={{ width: "150px" }}
-    >
-      <Img
-        src={content.stickerUrl}
-        width="150"
-        height="150"
-        className="rounded-full border-[1px] border-[#fffffe4d] mb-[10px] mx-auto mobile-content-img"
-      />
-      <Text className="text-[16px] text-[#fffffe] font-bold mobile-text-12 force-text-light">
-        {content.label}
-      </Text>
-    </Column>
-  );
+  const renderNewContent = (content: NewContentItem, index: number) => {
+    let imgSrc = content.stickerUrl;
+    if (imgSrc.includes("content-sticker-")) {
+      imgSrc = (contentStickers[index] || ContentSticker1).src;
+    }
+    return (
+      <Column
+        className="text-center mobile-content-item"
+        align="center"
+        style={{ width: "150px" }}
+      >
+        <Img
+          src={getImgUrl(imgSrc)}
+          width="150"
+          height="150"
+          className="rounded-full border-[1px] border-[#fffffe4d] mb-[10px] mx-auto mobile-content-img"
+        />
+        <Text className="text-[16px] text-[#fffffe] font-bold mobile-text-12 force-text-light">
+          {content.label}
+        </Text>
+      </Column>
+    );
+  };
 
   return (
     <Tailwind config={tailwindConfig}>
@@ -455,7 +471,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             {/* First Screen */}
             <Section
               style={{
-                backgroundImage: `url(${TrendBg.src})`,
+                backgroundImage: `url(${getImgUrl(TrendBg.src)})`,
                 backgroundSize: "1080px 739px",
                 backgroundPosition: "center bottom",
                 backgroundRepeat: "no-repeat",
@@ -468,7 +484,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   align="center"
                   className="mx-auto mb-[38px] w-[520px] h-[200px] bg-size-[520px_200px] bg-center bg-no-repeat mobile-width-330 mobile-opening-bg"
                   style={{
-                    backgroundImage: `url(${(catBgByState[data.feedlingState] || CatBgCurious).src})`,
+                    backgroundImage: `url(${getImgUrl((catBgByState[data.feedlingState] || CatBgCurious).src)})`,
                   }}
                 >
                   <Row>
@@ -480,10 +496,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                       }}
                     >
                       <Img
-                        src={
+                        src={getImgUrl(
                           (catIconByState[data.feedlingState] || CatCuriousGif)
-                            .src
-                        }
+                            .src,
+                        )}
                         alt="Opening Cat Icon"
                         width={catIconSize}
                         height={catIconSize}
@@ -519,13 +535,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <Section
                   className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
                   style={{
-                    backgroundImage: `url(${TrendIconBg.src})`,
+                    backgroundImage: `url(${getImgUrl(TrendIconBg.src)})`,
                     backgroundSize: "cover",
                   }}
                   align="center"
                 >
                   <Img
-                    src={trendIconFile.src}
+                    src={getImgUrl(trendIconFile.src)}
                     alt="Topic Sticker"
                     width="73"
                     height="60"
@@ -587,7 +603,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Section>
                 <EmailButton
                   href={trendShareTrackingUrl}
-                  imageUrl={BtnTrend.src}
+                  imageUrl={getImgUrl(BtnTrend.src)}
                   label={data.trend.ctaLabel}
                   height={61}
                 />
@@ -597,7 +613,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             {/* DIAGNOSIS SECTION */}
             <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-[#fffffe] text-center mobile-max-330 mobile-px-20 box-border">
               <Img
-                src={StatsIcon.src}
+                src={getImgUrl(StatsIcon.src)}
                 alt="Topic Sticker"
                 width="126"
                 height="113"
@@ -674,24 +690,24 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   {contentCount === 1 ? (
                     <>
                       <Column className="w-[185px] mobile-gap-12"></Column>
-                      {renderNewContent(newContents[0])}
+                      {renderNewContent(newContents[0], 0)}
                       <Column className="w-[185px] mobile-gap-12"></Column>
                     </>
                   ) : null}
                   {contentCount === 2 ? (
                     <>
-                      {renderNewContent(newContents[0])}
+                      {renderNewContent(newContents[0], 0)}
                       <Column className="w-[220px] mobile-gap-12"></Column>
-                      {renderNewContent(newContents[1])}
+                      {renderNewContent(newContents[1], 1)}
                     </>
                   ) : null}
                   {contentCount === 3 ? (
                     <>
-                      {renderNewContent(newContents[0])}
+                      {renderNewContent(newContents[0], 0)}
                       <Column className="w-[35px] mobile-gap-12"></Column>
-                      {renderNewContent(newContents[1])}
+                      {renderNewContent(newContents[1], 1)}
                       <Column className="w-[35px] mobile-gap-12"></Column>
-                      {renderNewContent(newContents[2])}
+                      {renderNewContent(newContents[2], 2)}
                     </>
                   ) : null}
                 </Row>
@@ -712,7 +728,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   </Column>
                   <Column style={{ width: "40%" }} align="right">
                     <Img
-                      src={CatSleep.src}
+                      src={getImgUrl(CatSleep.src)}
                       width="160"
                       className="mobile-rabbit-img"
                     />
@@ -723,7 +739,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               <EmailButton
                 href={statsShareTrackingUrl}
                 label={data.weeklyNudge.ctaLabel}
-                imageUrl={BtnStats.src}
+                imageUrl={getImgUrl(BtnStats.src)}
                 height={61}
               />
             </Section>
@@ -743,7 +759,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <EmailButton
                   href={inviteTrackingUrl}
                   label={data.weeklyNudge.ctaLabel}
-                  imageUrl={BtnInvite.src}
+                  imageUrl={getImgUrl(BtnInvite.src)}
                   height={61}
                 />
               </Section>
@@ -753,7 +769,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             <Section
               className="w-full text-center pb-[160px] box-border"
               style={{
-                backgroundImage: `url(${BottomBg.src})`,
+                backgroundImage: `url(${getImgUrl(BottomBg.src)})`,
                 backgroundSize: "1080px 258px",
                 backgroundPosition: "bottom center",
                 backgroundRepeat: "no-repeat",
@@ -761,7 +777,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             >
               <Section className="max-w-[520px] mx-auto py-10 px-5 text-center text-[#fffffe] mobile-max-330 force-text-light">
                 <Img
-                  src={FeedlingIcon.src}
+                  src={getImgUrl(FeedlingIcon.src)}
                   width="120"
                   height="120"
                   className="rounded-[10px] mb-[10px] mx-auto"
@@ -777,7 +793,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <EmailButton
                   href={"https://www.tiktok.com/@your.feedling"}
                   label="Follow us on TikTok"
-                  imageUrl={BtnFollow.src}
+                  imageUrl={getImgUrl(BtnFollow.src)}
                   height={61}
                 />
                 <Section className="text-white/70 text-center text-[14px] leading-[20px] mt-[30px]">
