@@ -124,7 +124,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           return (
             <span
               key={`discovery-${index}`}
-              className="text-brand text-[24px] font-bold mobile-text-16"
+              className="text-brand text-[24px] font-bold mobile:text-[16px]"
             >
               {part}
             </span>
@@ -249,6 +249,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           chartActive: "#00CC66",
           chartMuted: "#555555",
         },
+        screens: {
+          mobile: { max: "480px" },
+        },
       },
     },
   };
@@ -262,18 +265,14 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
       imgSrc = (contentStickers[index] || ContentSticker1).src;
     }
     return (
-      <Column
-        className="text-center mobile-content-item"
-        align="center"
-        style={{ width: "150px" }}
-      >
+      <Column className="text-center w-[150px] mobile:w-[100px]" align="center">
         <Img
           src={getImgUrl(imgSrc)}
           width="150"
           height="150"
-          className="rounded-full border-[1px] border-[#ffffff4d] mb-[10px] mx-auto mobile-content-img"
+          className="w-[150px] mobile:w-[100px] h-[150px] mobile:h-[100px] rounded-full border-[1px] border-[#ffffff4d] mb-[10px]"
         />
-        <Text className="text-[16px] text-white font-bold mobile-text-12 force-text-light">
+        <Text className="text-[16px] text-white font-bold mobile:text-[12px]">
           {content.label}
         </Text>
       </Column>
@@ -392,15 +391,15 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             }}
           >
             {/* OPENING SECTION */}
-            <Section className="pt-[30px] pb-[60px] px-5 text-center text-white box-border tt-bg">
+            <Section className="pt-[30px] pb-[60px] px-5 text-center text-white box-border">
               <Img
-                className="mx-auto mb-[38px] max-w-[520px] h-[200px] mobile-img-330"
+                className="mx-auto mb-[38px] w-[520px] h-[200px] mobile:w-[330px] mobile:h-[127px]"
                 src={getImgUrl(
                   (catIconByState[data.feedlingState] || CatCuriousGif).src,
                 )}
                 alt="Opening Cat Icon"
               />
-              <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile-text-24 mobile-max-330">
+              <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile:text-[24px] mobile:leading-[32px] mobile:w-[330px]">
                 {openingPrefix}
                 {openingHighlight ? (
                   <span
@@ -412,7 +411,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 ) : null}
                 {openingSuffix}
               </Text>
-              <Text className="text-[18px] text-white mb-10 mobile-text-16">
+              <Text className="text-[18px] text-white mb-10 mobile:text-[16px]">
                 {data.opening.dateRange}
               </Text>
             </Section>
@@ -435,17 +434,14 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   className="mx-auto align-middle"
                 />
               </Section>
-              <Text
-                className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28 text-black"
-                style={{ fontWeight: 700 }}
-              >
+              <Text className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px]  text-black mobile:text-[24px] mobile:leading-[40px]">
                 {data.trend.topic}
               </Text>
-              <Text className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16">
+              <Text className="text-[18px] text-brand mt-[0px] font-bold mobile:text-[16px]">
                 {data.trend.statusText}
               </Text>
               <Text
-                className="text-[18px] font-bold mb-[10px] mobile-text-16 text-black"
+                className="text-[18px] font-bold mb-[10px] text-black mobile:text-[16px] "
                 style={{ color: "#111" }}
               >
                 {data.trend.rank !== null
@@ -465,16 +461,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     <Img
                       src={data.trend.progressImageUrl}
                       alt="Trend progress"
-                      width="566px"
-                      height="auto"
-                      className="mobile-img-376"
-                      style={{ margin: "0 auto", display: "inline-block" }}
+                      className="mx-auto inline-block w-[566px] mobile:w-[376px]"
                     />
                   </Section>
                 ) : null}
               </Section>
               <Section
-                className=" max-w-[520px] text-[16px] text-black font-bold mobile-width-330 mx-auto"
+                className="mx-auto w-[520px] text-[16px] text-black font-bold mobile:w-[330px]"
                 align="center"
               >
                 <Row>
@@ -505,7 +498,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* DIAGNOSIS SECTION */}
-            <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-white text-center mobile-max-330 mobile-px-20 box-border">
+            <Section className="w-[520px] mx-auto py-10 px-[40px] text-white text-center mobile:w-[330px] mobile:px-20 box-border">
               <Img
                 src={getImgUrl(StatsIcon.src)}
                 alt="Topic Sticker"
@@ -513,49 +506,49 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 height="113"
                 className="mx-auto mb-[0px]"
               />
-              <Text className="text-[30px] font-bold mt-[0px] mb-[60px] mobile-text-24 mobile-mb-40">
+              <Text className="text-[30px] font-bold mt-[0px] mb-[60px] mobile:text-[24px] mobile:mb-[40px]">
                 {data.diagnosis.title}
               </Text>
 
-              <Row className="mb-[56px] mobile-mb-40">
+              <Row className="mb-[56px] mobile:mb-[40px]">
                 <Column
-                  className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] text-center mobile-stat-box"
+                  className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] text-center mobile:w-[155px] mobile:h-[72px]"
                   align="center"
                 >
-                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20 keep-brand">
+                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile:text-[20px] keep-brand">
                     {data.diagnosis.totalVideosValue}{" "}
                     {data.diagnosis.totalVideosUnit}
                   </Text>
-                  <Text className="text-[14px] text-white mt-[0px] mobile-text-12 force-text-light">
+                  <Text className="text-[14px] text-white mt-[0px] mobile:text-[12px]">
                     Total Videos
                   </Text>
                 </Column>
-                <Column className="w-[30px] mobile-gap-20"></Column>
+                <Column className="w-[30px] mobile:w-[20px]"></Column>
                 <Column
-                  className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] mr-[30px] text-center mobile-stat-box"
+                  className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] mr-[30px] text-center mobile:w-[155px] mobile:h-[72px]"
                   align="center"
                 >
-                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20 keep-brand">
+                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile:text-[20px] keep-brand">
                     {data.diagnosis.totalTimeValue}{" "}
                     {data.diagnosis.totalTimeUnit}
                   </Text>
-                  <Text className="text-[14px] text-white mt-[0px] mobile-text-12 force-text-light">
+                  <Text className="text-[14px] text-white mt-[0px] mobile:text-[12px]">
                     Total Time
                   </Text>
                 </Column>
               </Row>
 
-              <Text className="text-[18px] mb-[30px] leading-[32px] font-bold mobile-text-16">
+              <Text className="text-[18px] mb-[30px] leading-[32px] font-bold mobile:text-[16px]">
                 {data.diagnosis.comparisonDiff && (
-                  <span className="text-[24px] text-brand mobile-text-22 keep-brand">
+                  <span className="text-[24px] text-brand mobile:text-[22px] keep-brand">
                     {data.diagnosis.comparisonDiff}{" "}
                   </span>
                 )}
                 {data.diagnosis.comparisonText}
                 <br />
-                <span className="mobile-text-16">
+                <span>
                   Your thumb ran{" "}
-                  <span className="text-[24px] text-brand mobile-text-22 keep-brand">
+                  <span className="text-[24px] text-brand mobile:text-[22px] keep-brand">
                     {data.diagnosis.miles} miles
                   </span>{" "}
                   {data.diagnosis.milesComment}
@@ -568,17 +561,17 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     src={data.diagnosis.barChartImageUrl}
                     alt="Weekly comparison"
                     width="520"
-                    className="block mx-auto mobile-img-330"
+                    className="block mx-auto mobile:w-[330px]"
                   />
                 ) : null}
               </Section>
 
-              <Text className="text-[20px] font-bold text-white leading-none mt-[40px] mb-[60px] mobile-text-16 force-text-light">
+              <Text className="text-[20px] font-bold text-white leading-none mt-[40px] mb-[60px] mobile:text-[16px]">
                 • New contents you got into •
               </Text>
               {contentCount > 0 ? (
                 <Row
-                  className="mb-[30px] w-[520px] mx-auto mobile-width-330"
+                  className="mb-[30px] w-[520px] mx-auto mobile:w-[330px]"
                   align="center"
                 >
                   {contentCount === 1 ? (
@@ -607,16 +600,16 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Row>
               ) : null}
 
-              <Text className="text-[20px] font-bold text-white my-[30px] mb-[30px] mobile-text-16">
+              <Text className="text-[20px] font-bold text-white my-[30px] mb-[30px] mobile:text-[16px]">
                 • Deepest rabbit hole •
               </Text>
               <Section className="text-left mb-[60px]">
                 <Row>
                   <Column style={{ width: "60%" }}>
-                    <Text className="text-[18px] text-brand font-bold mb-[16px] mobile-text-16 keep-brand">
+                    <Text className="text-[18px] text-brand font-bold mb-[16px] mobile:text-[16px]">
                       {data.rabbitHole.timeLabel}
                     </Text>
-                    <Text className="text-[30px] font-bold text-white leading-[40px] mobile-text-24">
+                    <Text className="text-[30px] font-bold text-white leading-[40px] mobile:text-[24px] mobile-leading-[36px]">
                       {data.rabbitHole.description}
                     </Text>
                   </Column>
@@ -624,7 +617,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     <Img
                       src={getImgUrl(CatSleep.src)}
                       width="160"
-                      className="mobile-rabbit-img"
+                      className="mobile:w-[120px] mobile:h-[120px]"
                     />
                   </Column>
                 </Row>
@@ -639,15 +632,15 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* NUDGE SECTION */}
-            <Section className="bg-bgWhite py-[60px] text-center text-black force-light box-border">
+            <Section className="bg-bgWhite py-[60px] text-center text-black box-border">
               <Section
-                className="max-w-[520px] mx-auto mobile-max-330"
+                className="w-[520px] mx-auto mobile:w-[330px]"
                 align="center"
               >
-                <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px] text-center mobile-text-24  text-black ">
+                <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px] text-center mobile:text-[24px] mobile-leading-[36px]">
                   {data.weeklyNudge.title}
                 </Text>
-                <Text className="text-[18px] text-center mobile-text-16  text-black">
+                <Text className="text-[18px] text-center mobile:text-[16px] mobile-leading-[24px] text-black">
                   {data.weeklyNudge.message}
                 </Text>
                 <EmailButton
@@ -669,17 +662,17 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 backgroundRepeat: "no-repeat",
               }}
             >
-              <Section className="max-w-[520px] mx-auto py-10 px-5 text-center text-white mobile-max-330 force-text-light">
+              <Section className="w-[520px] mx-auto py-10 px-5 text-center text-white mobile:w-[330px]">
                 <Img
                   src={getImgUrl(FeedlingIcon.src)}
                   width="120"
                   height="120"
                   className="rounded-[10px] mb-[10px] mx-auto"
                 />
-                <Text className="text-[30px] font-bold mb-[30px] mobile-text-24">
+                <Text className="text-[30px] font-bold mb-[30px] mobile:text-[24px]">
                   Who’s Feedling?
                 </Text>
-                <Text className="text-[14px] leading-[20px] text-white mb-[60px] mx-auto mobile-text-12">
+                <Text className="text-[14px] leading-[20px] text-white mb-[60px] mx-auto">
                   Feeding is an app that turns your TikTok habits into a virtual
                   pet you grow and nurture with your scrolling. We&apos;re
                   launching soon!
@@ -706,7 +699,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   >
                     Privacy Policy
                   </Link>
-                  <Text className="text-white/70 text-[14px] text-center mobile-text-12 leading-[20px] mt-[30px]">
+                  <Text className="text-white/70 text-[14px] text-center mobile:text-[12px] mt-[30px]">
                     @ Honey Badger Cooperation Labs, Inc.
                     <br />
                     123 Main St, San Francisco, CA 94102
