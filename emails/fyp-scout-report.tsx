@@ -236,7 +236,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           <meta name="supported-color-schemes" content="light dark" />
           <style></style>
         </Head>
-        <Preview>FYP Scout Weekly Newsletter</Preview>
+        {/* <Preview>FYP Scout Weekly Newsletter</Preview> */}
         <Body
           className="m-0 p-0 w-full box-border"
           style={{ margin: 0, padding: 0, width: "100%" }}
