@@ -739,7 +739,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             >
               <Section className="max-w-[520px] mx-auto py-10 px-5 text-center text-[#fffffe] mobile-max-330 force-text-light">
                 <Img
-                  src={`${assetBaseUrl}/figma/feedling-icon.png`}
+                  src={`${assetBaseUrl}/figma/feedling-icon_x2.png`}
                   width="120"
                   height="120"
                   className="rounded-[10px] mb-[10px] mx-auto"
