@@ -58,10 +58,12 @@ export async function GET(request: Request) {
     const recipient = email || "test@example.com";
 
     // 重要逻辑：发送邮件并返回 messageId 以便追踪
+    // 添加时间戳防止 Gmail 折叠邮件 (Conversation View threading)
+    const timestamp = new Date().toLocaleTimeString();
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM || '"FYP Scout" <no-reply@example.com>',
       to: recipient,
-      subject: `FYP Scout Weekly Wrapped (Case: ${caseKey})`,
+      subject: `FYP Scout Weekly Wrapped (Case: ${caseKey}) - ${timestamp}`,
       html: html,
     });
 
