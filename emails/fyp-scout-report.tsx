@@ -421,7 +421,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             />
           ) : null}
           <Container
-            className="w-full max-w-[1080px] mx-auto bg-bgDark force-dark"
+            className="w-full max-w-[1080px] mx-auto bg-bgDark"
             style={{
               width: "100%",
               maxWidth: "1080px",
@@ -430,7 +430,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             }}
           >
             {/* OPENING SECTION */}
-            <Section className="bg-bgDark pt-[30px] px-5 text-center text-[#fffffe] force-dark">
+            <Section className="bg-bgDark pt-[30px] px-5 text-center text-[#fffffe]">
               <Section
                 align="center"
                 className="mx-auto mb-[38px] mobile-width-330 mobile-opening-bg"
@@ -489,7 +489,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
             {/* TREND SECTION */}
             <Section
-              className="h-[770px] w-full text-center text-[#000001] p-[40px] pt-[200px] mt-[-100px]"
+              className="h-[770px] w-full text-center text-[#000001] p-[40px] pt-[200px]"
               style={{
                 backgroundImage: `url(${assetBaseUrl}/figma/trend-bg.png)`,
                 backgroundSize: "1080px 770px",
@@ -728,7 +728,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
             {/* FOOTER */}
             <Section
-              className="w-full text-center pb-[160px] force-dark"
+              className="w-full text-center pb-[160px]"
               style={{
                 backgroundImage: `url(${assetBaseUrl}/figma/bottom-bg.png)`,
                 backgroundSize: "1080px 258px",
