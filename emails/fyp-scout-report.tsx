@@ -333,6 +333,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   }
   .force-light {
     background-color: #e4e4e4 !important;
+    background-image: linear-gradient(#e4e4e4, #e4e4e4) !important;
     color: #000001 !important;
   }
   .force-text-dark {
@@ -548,13 +549,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     className="mx-auto align-middle"
                   />
                 </Section>
-                <Text className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28">
+                <Text className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28 force-text-dark">
                   {data.trend.topic}
                 </Text>
                 <Text className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16 keep-brand">
                   {data.trend.statusText}
                 </Text>
-                <Text className="text-[18px] font-bold mb-[10px] mobile-text-16">
+                <Text className="text-[18px] font-bold mb-[10px] mobile-text-16 force-text-dark">
                   {data.trend.rank !== null
                     ? buildDiscoverySegments(
                         data.trend.discoveryText,
@@ -586,18 +587,20 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 >
                   <Row>
                     <Column className="w-[50%]" align="left">
-                      {/* <Text className="mt-[0px] leading-[14px] mb-[0px]">
+                      {/* <Text className="mt-[0px] leading-[14px] mb-[0px] force-text-dark">
                       {data.trend.startTag}
                     </Text> */}
-                      <Text className="mt-[0px]">
+                      <Text className="mt-[0px] force-text-dark">
                         {data.trend.startPercent}
                       </Text>
                     </Column>
                     <Column className="w-[50%]" align="right">
-                      {/* <Text className="mt-[0px] leading-[14px] mb-[0px]">
+                      {/* <Text className="mt-[0px] leading-[14px] mb-[0px] force-text-dark">
                       {data.trend.endTag}
                     </Text> */}
-                      <Text className="mt-[0px]">{data.trend.endPercent}</Text>
+                      <Text className="mt-[0px] force-text-dark">
+                        {data.trend.endPercent}
+                      </Text>
                     </Column>
                   </Row>
                 </Section>
@@ -750,10 +753,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 className="max-w-[520px] mx-auto mobile-max-330"
                 align="center"
               >
-                <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px] text-center mobile-text-24">
+                <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px] text-center mobile-text-24 force-text-dark">
                   {data.weeklyNudge.title}
                 </Text>
-                <Text className="text-[18px] text-center mobile-text-16">
+                <Text className="text-[18px] text-center mobile-text-16 force-text-dark">
                   {data.weeklyNudge.message}
                 </Text>
                 <EmailButton
@@ -813,6 +816,11 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     Privacy Policy
                   </Link>
                 </Section>
+                <Text className="text-white/70 text-[14px] text-center mobile-text-12 leading-[20px] mt-[30px]">
+                  @ Honey Badger Cooperation Labs, Inc.
+                  <br />
+                  123 Main St, San Francisco, CA 94102
+                </Text>
               </Section>
             </Section>
           </Container>
