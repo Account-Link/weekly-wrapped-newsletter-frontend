@@ -269,7 +269,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
         height="150"
         className="rounded-full border-[1px] border-[#fffffe4d] mb-[10px] mx-auto mobile-content-img"
       />
-      <Text className="text-[16px] text-[#fffffe] font-bold mobile-text-12">
+      <Text className="text-[16px] text-[#fffffe] font-bold mobile-text-12 force-text-light">
         {content.label}
       </Text>
     </Column>
@@ -296,6 +296,15 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     background-color: #e4e4e4 !important;
     color: #000001 !important;
   }
+  .force-text-dark {
+    color: #000001 !important;
+  }
+  .force-text-light {
+    color: #fffffe !important;
+  }
+  .force-text-light-70 {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
   .keep-brand {
     color: #ff5678 !important;
   }
@@ -308,6 +317,12 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 [data-ogsc] .force-light {
   background-color: #e4e4e4 !important;
   color: #000001 !important;
+}
+[data-ogsc] .force-text-dark {
+  color: #000001 !important;
+}
+[data-ogsc] .force-text-light {
+  color: #fffffe !important;
 }
 [data-ogsc] .keep-brand {
   color: #ff5678 !important;
@@ -474,7 +489,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
             {/* TREND SECTION */}
             <Section
-              className="h-[770px] w-full text-center text-[#000001] p-[40px] pt-[200px] mt-[-100px] force-light"
+              className="h-[770px] w-full text-center text-[#000001] p-[40px] pt-[200px] mt-[-100px]"
               style={{
                 backgroundImage: `url(${assetBaseUrl}/figma/trend-bg.png)`,
                 backgroundSize: "1080px 770px",
@@ -578,7 +593,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     {data.diagnosis.totalVideosValue}{" "}
                     {data.diagnosis.totalVideosUnit}
                   </Text>
-                  <Text className="text-[14px] text-[#fffffe] mt-[0px] mobile-text-12">
+                  <Text className="text-[14px] text-[#fffffe] mt-[0px] mobile-text-12 force-text-light">
                     Total Videos
                   </Text>
                 </Column>
@@ -591,7 +606,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     {data.diagnosis.totalTimeValue}{" "}
                     {data.diagnosis.totalTimeUnit}
                   </Text>
-                  <Text className="text-[14px] text-[#fffffe] mt-[0px] mobile-text-12">
+                  <Text className="text-[14px] text-[#fffffe] mt-[0px] mobile-text-12 force-text-light">
                     Total Time
                   </Text>
                 </Column>
@@ -625,7 +640,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 ) : null}
               </Section>
 
-              <Text className="text-[20px] font-bold text-[#fffffe] leading-none mt-[40px] mb-[60px] mobile-text-16">
+              <Text className="text-[20px] font-bold text-[#fffffe] leading-none mt-[40px] mb-[60px] mobile-text-16 force-text-light">
                 • New contents you got into •
               </Text>
               {contentCount > 0 ? (
@@ -721,7 +736,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 backgroundRepeat: "no-repeat",
               }}
             >
-              <Section className="max-w-[520px] mx-auto py-10 px-5 text-center text-[#fffffe] mobile-max-330">
+              <Section className="max-w-[520px] mx-auto py-10 px-5 text-center text-[#fffffe] mobile-max-330 force-text-light">
                 <Img
                   src={`${assetBaseUrl}/figma/feedling-icon.png`}
                   width="120"
@@ -755,7 +770,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     Unsubscribe
                   </Link>
                   ·
-                  <Link className="text-white/70 ml-[4px]" href="">
+                  <Link
+                    className="text-white/70 ml-[4px] force-text-light-70"
+                    href=""
+                  >
                     Privacy Policy
                   </Link>
                 </Section>
