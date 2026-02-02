@@ -345,9 +345,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 [data-ogsc] *[class~="keep-brand"] {
   color: #ff5678 !important;
 }
+
 @media screen and (max-width: 480px) {
   .mobile-max-330,
-  *[class~="mobile-max-330"] {
+  *[data-class*="mobile-max-330"] {
     max-width: 330px !important;
   }
   .mobile-width-330,
@@ -366,7 +367,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     height: 127px !important;
   }
   .mobile-img-330,
-  *[class~="mobile-img-330"] {
+  *[data-class*="mobile-img-330"] {
     width: 330px !important;
     height: auto !important;
   }
@@ -480,13 +481,12 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               {/* OPENING SECTION */}
               <Section className="pt-[30px] pb-[60px] px-5 text-center text-[#fffffe] box-border">
                 <Img
-                  className="mx-auto mb-[38px] w-[520px] h-[200px]"
+                  className="mx-auto mb-[38px] max-w-[520px] h-[200px]"
+                  data-class="mobile-img-330"
                   src={getImgUrl(
                     (catIconByState[data.feedlingState] || CatCuriousGif).src,
                   )}
                   alt="Opening Cat Icon"
-                  width={520}
-                  height={200}
                 />
                 <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile-text-24 mobile-max-330">
                   {openingPrefix}
