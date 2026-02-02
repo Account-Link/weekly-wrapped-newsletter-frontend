@@ -524,7 +524,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Section>
                 <Text
                   className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28 text-black"
-                  style={{ fontWeight: 700, color: "#000001" }}
+                  style={{ fontWeight: 700, color: "#111" }}
                 >
                   {data.trend.topic}
                 </Text>
@@ -533,7 +533,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Text>
                 <Text
                   className="text-[18px] font-bold mb-[10px] mobile-text-16 text-black"
-                  style={{ color: "#000001" }}
+                  style={{ color: "#111" }}
                 >
                   {data.trend.rank !== null
                     ? buildDiscoverySegments(
