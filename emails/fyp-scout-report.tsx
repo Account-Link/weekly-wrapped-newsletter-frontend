@@ -285,8 +285,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
       <Html>
         <Head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <meta name="color-scheme" content="light" />
-          <meta name="supported-color-schemes" content="light" />
+          <meta name="color-scheme" content="light dark" />
+          <meta name="supported-color-schemes" content="light dark" />
           <style>{`
 :root {
   color-scheme: light;
@@ -296,7 +296,6 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   .force-dark,
   *[class~="force-dark"] {
     background-color: #313131 !important;
-    background-image: linear-gradient(#313131, #313131) !important;
     color: #fffffe !important;
   }
   .force-light,
@@ -525,14 +524,17 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Section>
                 <Text
                   className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28 text-black"
-                  style={{ fontWeight: 700 }}
+                  style={{ fontWeight: 700, color: "#000001" }}
                 >
                   {data.trend.topic}
                 </Text>
                 <Text className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16">
                   {data.trend.statusText}
                 </Text>
-                <Text className="text-[18px] font-bold mb-[10px] mobile-text-16 text-black">
+                <Text
+                  className="text-[18px] font-bold mb-[10px] mobile-text-16 text-black"
+                  style={{ color: "#000001" }}
+                >
                   {data.trend.rank !== null
                     ? buildDiscoverySegments(
                         data.trend.discoveryText,
@@ -725,7 +727,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* NUDGE SECTION */}
-            <Section className="bg-bgNudge py-[60px] text-center text-[#000001] force-light box-border">
+            <Section
+              className="bg-bgNudge py-[60px] text-center text-[#000001] force-light box-border"
+              style={{ backgroundImage: "linear-gradient(#e4e4e4, #e4e4e4)" }}
+            >
               <Section
                 className="max-w-[520px] mx-auto mobile-max-330"
                 align="center"
