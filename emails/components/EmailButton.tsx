@@ -22,21 +22,18 @@ interface EmailButtonProps {
 // 方法功能：按钮类型到样式的映射
 const typeStyles: Record<EmailButtonType, CSSProperties> = {
   dark: {
-    backgroundColor: "#000001",
-    backgroundImage: "linear-gradient(#000001, #000001)",
-    color: "#FFFFFE",
-    border: "1px solid #000001",
+    backgroundColor: "#000000",
+    color: "#FFFFFF",
+    border: "1px solid #000000",
   },
   bright: {
-    backgroundColor: "#FFFFFE",
-    backgroundImage: "linear-gradient(#FFFFFE, #FFFFFE)",
-    color: "#000001",
-    border: "1px solid #000001",
+    backgroundColor: "#FFFFFF",
+    color: "#000000",
+    border: "1px solid #000000",
   },
   blue: {
     backgroundColor: "#6A00F4",
-    backgroundImage: "linear-gradient(#6A00F4, #6A00F4)",
-    color: "#FFFFFE",
+    color: "#FFFFFF",
     border: "1px solid #6A00F4",
   },
 };

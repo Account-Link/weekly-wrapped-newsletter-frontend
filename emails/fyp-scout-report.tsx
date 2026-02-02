@@ -403,12 +403,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             />
           ) : null}
           <Section
-            className="w-full max-w-[1080px] mx-auto box-border"
+            className="w-full max-w-[1080px] mx-auto box-border bg-bgDark"
             style={{
               width: "100%",
               maxWidth: "1080px",
-              backgroundColor: "#313131",
-              backgroundImage: "linear-gradient(#313131, #313131)",
             }}
           >
             {/* First Screen */}
@@ -422,7 +420,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               className="box-border"
             >
               {/* OPENING SECTION */}
-              <Section className="pt-[30px] pb-[60px] px-5 text-center text-white box-border">
+              <Section className="pt-[30px] pb-[60px] px-5 text-center text-white box-border bg-bgDark">
                 <Img
                   className="mx-auto mb-[38px] max-w-[520px] h-[200px]"
                   data-class="mobile-img-330"
@@ -671,10 +669,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* NUDGE SECTION */}
-            <Section
-              className="bg-bgNudge py-[60px] text-center text-black force-light box-border"
-              style={{ backgroundImage: "linear-gradient(#e4e4e4, #e4e4e4)" }}
-            >
+            <Section className="bg-bgNudge py-[60px] text-center text-black force-light box-border">
               <Section
                 className="max-w-[520px] mx-auto mobile-max-330"
                 align="center"
