@@ -243,8 +243,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           black: "#000000",
           white: "#ffffff",
           brand: "#FF5678",
-          bgDark: "#000000",
-          bgNudge: "#E4E4E4",
+          bgDark: "#313131",
+          bgWhite: "#E4E4E4",
           trendFill: "#6A00F4",
           chartActive: "#00CC66",
           chartMuted: "#555555",
@@ -409,129 +409,118 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               maxWidth: "1080px",
             }}
           >
-            {/* First Screen */}
-            <Section
-              style={{
-                backgroundImage: `url(${getImgUrl(TrendBg.src)})`,
-                backgroundSize: "1080px 739px",
-                backgroundPosition: "center bottom",
-                backgroundRepeat: "no-repeat",
-              }}
-              className="box-border"
-            >
-              {/* OPENING SECTION */}
-              <Section className="pt-[30px] pb-[60px] px-5 text-center text-white box-border bg-bgDark">
-                <Img
-                  className="mx-auto mb-[38px] max-w-[520px] h-[200px]"
-                  data-class="mobile-img-330"
-                  src={getImgUrl(
-                    (catIconByState[data.feedlingState] || CatCuriousGif).src,
-                  )}
-                  alt="Opening Cat Icon"
-                />
-                <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile-text-24 mobile-max-330">
-                  {openingPrefix}
-                  {openingHighlight ? (
-                    <span
-                      className="text-brand"
-                      style={{ marginLeft: 4, marginRight: 4 }}
-                    >
-                      {openingHighlight}
-                    </span>
-                  ) : null}
-                  {openingSuffix}
-                </Text>
-                <Text className="text-[18px] text-white mb-10 mobile-text-16">
-                  {data.opening.dateRange}
-                </Text>
-              </Section>
+            {/* OPENING SECTION */}
+            <Section className="pt-[30px] pb-[60px] px-5 text-center text-white box-border">
+              <Img
+                className="mx-auto mb-[38px] max-w-[520px] h-[200px]"
+                data-class="mobile-img-330"
+                src={getImgUrl(
+                  (catIconByState[data.feedlingState] || CatCuriousGif).src,
+                )}
+                alt="Opening Cat Icon"
+              />
+              <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile-text-24 mobile-max-330">
+                {openingPrefix}
+                {openingHighlight ? (
+                  <span
+                    className="text-brand"
+                    style={{ marginLeft: 4, marginRight: 4 }}
+                  >
+                    {openingHighlight}
+                  </span>
+                ) : null}
+                {openingSuffix}
+              </Text>
+              <Text className="text-[18px] text-white mb-10 mobile-text-16">
+                {data.opening.dateRange}
+              </Text>
+            </Section>
 
-              {/* TREND SECTION */}
-              <Section className="h-[570px] w-full text-center  text-black p-[40px] box-border">
-                <Section
-                  className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
-                  style={{
-                    backgroundImage: `url(${getImgUrl(TrendIconBg.src)})`,
-                    backgroundSize: "cover",
-                  }}
-                  align="center"
-                >
-                  <Img
-                    src={getImgUrl(trendIconFile.src)}
-                    alt="Topic Sticker"
-                    width="73"
-                    height="60"
-                    className="mx-auto align-middle"
-                  />
-                </Section>
-                <Text
-                  className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28 text-black"
-                  style={{ fontWeight: 700 }}
-                >
-                  {data.trend.topic}
-                </Text>
-                <Text className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16">
-                  {data.trend.statusText}
-                </Text>
-                <Text
-                  className="text-[18px] font-bold mb-[10px] mobile-text-16 text-black"
-                  style={{ color: "#111" }}
-                >
-                  {data.trend.rank !== null
-                    ? buildDiscoverySegments(
-                        data.trend.discoveryText,
-                        data.trend.rank,
-                        data.trend.totalDiscoverers,
-                      )
-                    : data.trend.discoveryText}
-                </Text>
-                <Section align="center">
-                  {data.trend.progressImageUrl ? (
-                    <Section
-                      className="w-full mx-auto text-center"
-                      align="center"
-                    >
-                      <Img
-                        src={data.trend.progressImageUrl}
-                        alt="Trend progress"
-                        width="566px"
-                        height="auto"
-                        className="mobile-img-376"
-                        style={{ margin: "0 auto", display: "inline-block" }}
-                      />
-                    </Section>
-                  ) : null}
-                </Section>
-                <Section
-                  className=" max-w-[520px] text-[16px] text-black font-bold mobile-width-330 mx-auto"
-                  align="center"
-                >
-                  <Row>
-                    <Column className="w-[50%]" align="left">
-                      {/* <Text className="mt-[0px] leading-[14px] mb-[0px] text-black">
+            {/* TREND SECTION */}
+            <Section className="h-[570px] w-full text-center  text-black p-[40px] box-border bg-bgWhite">
+              <Section
+                className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
+                style={{
+                  backgroundImage: `url(${getImgUrl(TrendIconBg.src)})`,
+                  backgroundSize: "cover",
+                }}
+                align="center"
+              >
+                <Img
+                  src={getImgUrl(trendIconFile.src)}
+                  alt="Topic Sticker"
+                  width="73"
+                  height="60"
+                  className="mx-auto align-middle"
+                />
+              </Section>
+              <Text
+                className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28 text-black"
+                style={{ fontWeight: 700 }}
+              >
+                {data.trend.topic}
+              </Text>
+              <Text className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16">
+                {data.trend.statusText}
+              </Text>
+              <Text
+                className="text-[18px] font-bold mb-[10px] mobile-text-16 text-black"
+                style={{ color: "#111" }}
+              >
+                {data.trend.rank !== null
+                  ? buildDiscoverySegments(
+                      data.trend.discoveryText,
+                      data.trend.rank,
+                      data.trend.totalDiscoverers,
+                    )
+                  : data.trend.discoveryText}
+              </Text>
+              <Section align="center">
+                {data.trend.progressImageUrl ? (
+                  <Section
+                    className="w-full mx-auto text-center"
+                    align="center"
+                  >
+                    <Img
+                      src={data.trend.progressImageUrl}
+                      alt="Trend progress"
+                      width="566px"
+                      height="auto"
+                      className="mobile-img-376"
+                      style={{ margin: "0 auto", display: "inline-block" }}
+                    />
+                  </Section>
+                ) : null}
+              </Section>
+              <Section
+                className=" max-w-[520px] text-[16px] text-black font-bold mobile-width-330 mx-auto"
+                align="center"
+              >
+                <Row>
+                  <Column className="w-[50%]" align="left">
+                    {/* <Text className="mt-[0px] leading-[14px] mb-[0px] text-black">
                       {data.trend.startTag}
                     </Text> */}
-                      <Text className="mt-[0px] text-black">
-                        {data.trend.startPercent}
-                      </Text>
-                    </Column>
-                    <Column className="w-[50%]" align="right">
-                      {/* <Text className="mt-[0px] leading-[14px] mb-[0px] text-black">
+                    <Text className="mt-[0px] text-black">
+                      {data.trend.startPercent}
+                    </Text>
+                  </Column>
+                  <Column className="w-[50%]" align="right">
+                    {/* <Text className="mt-[0px] leading-[14px] mb-[0px] text-black">
                       {data.trend.endTag}
                     </Text> */}
-                      <Text className="mt-[0px] text-black">
-                        {data.trend.endPercent}
-                      </Text>
-                    </Column>
-                  </Row>
-                </Section>
-                <EmailButton
-                  href={trendShareTrackingUrl}
-                  imageUrl={getImgUrl(BtnTrend.src)}
-                  label={data.trend.ctaLabel}
-                  height={61}
-                />
+                    <Text className="mt-[0px] text-black">
+                      {data.trend.endPercent}
+                    </Text>
+                  </Column>
+                </Row>
               </Section>
+              <EmailButton
+                href={trendShareTrackingUrl}
+                imageUrl={getImgUrl(BtnTrend.src)}
+                label={data.trend.ctaLabel}
+                height={61}
+              />
             </Section>
 
             {/* DIAGNOSIS SECTION */}
@@ -669,7 +658,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* NUDGE SECTION */}
-            <Section className="bg-bgNudge py-[60px] text-center text-black force-light box-border">
+            <Section className="bg-bgWhite py-[60px] text-center text-black force-light box-border">
               <Section
                 className="max-w-[520px] mx-auto mobile-max-330"
                 align="center"
