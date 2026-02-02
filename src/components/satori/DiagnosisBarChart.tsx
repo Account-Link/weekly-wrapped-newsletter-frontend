@@ -68,6 +68,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
         paddingLeft: 40,
         paddingTop: topPadding,
         boxSizing: "border-box",
+        backgroundColor: "#313131",
       }}
     >
       <div

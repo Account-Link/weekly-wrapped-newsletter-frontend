@@ -241,7 +241,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
       extend: {
         colors: {
           black: "#313131",
-          white: "#fffffe",
+          white: "#ffffff",
           brand: "#FF5678",
           bgDark: "#313131",
           bgNudge: "#E4E4E4",
@@ -271,9 +271,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           src={getImgUrl(imgSrc)}
           width="150"
           height="150"
-          className="rounded-full border-[1px] border-[#fffffe4d] mb-[10px] mx-auto mobile-content-img"
+          className="rounded-full border-[1px] border-[#ffffff4d] mb-[10px] mx-auto mobile-content-img"
         />
-        <Text className="text-[16px] text-[#fffffe] font-bold mobile-text-12 force-text-light">
+        <Text className="text-[16px] text-white font-bold mobile-text-12 force-text-light">
           {content.label}
         </Text>
       </Column>
@@ -288,62 +288,6 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           <meta name="color-scheme" content="light dark" />
           <meta name="supported-color-schemes" content="light dark" />
           <style>{`
-:root {
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  .force-dark,
-  *[class~="force-dark"] {
-    background-color: #313131 !important;
-    color: #fffffe !important;
-  }
-  .force-light,
-  *[class~="force-light"] {
-    background-color: #e4e4e4 !important;
-    background-image: linear-gradient(#e4e4e4, #e4e4e4) !important;
-    color: #000001 !important;
-  }
-  .force-text-dark,
-  *[class~="force-text-dark"] {
-    color: #000001 !important;
-  }
-  .force-text-light,
-  *[class~="force-text-light"] {
-    color: #fffffe !important;
-  }
-  .force-text-light-70,
-  *[class~="force-text-light-70"] {
-    color: rgba(255, 255, 255, 0.7) !important;
-  }
-  .keep-brand,
-  *[class~="keep-brand"] {
-    color: #ff5678 !important;
-  }
-}
-[data-ogsc] .force-dark,
-[data-ogsc] *[class~="force-dark"] {
-  background-color: #313131 !important;
-  background-image: linear-gradient(#313131, #313131) !important;
-  color: #fffffe !important;
-}
-[data-ogsc] .force-light,
-[data-ogsc] *[class~="force-light"] {
-  background-color: #e4e4e4 !important;
-  color: #000001 !important;
-}
-[data-ogsc] .force-text-dark,
-[data-ogsc] *[class~="force-text-dark"] {
-  color: #000001 !important;
-}
-[data-ogsc] .force-text-light,
-[data-ogsc] *[class~="force-text-light"] {
-  color: #fffffe !important;
-}
-[data-ogsc] .keep-brand,
-[data-ogsc] *[class~="keep-brand"] {
-  color: #ff5678 !important;
-}
 
 @media screen and (max-width: 480px) {
   .mobile-max-330,
@@ -478,7 +422,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               className="box-border"
             >
               {/* OPENING SECTION */}
-              <Section className="pt-[30px] pb-[60px] px-5 text-center text-[#fffffe] box-border">
+              <Section className="pt-[30px] pb-[60px] px-5 text-center text-white box-border">
                 <Img
                   className="mx-auto mb-[38px] max-w-[520px] h-[200px]"
                   data-class="mobile-img-330"
@@ -499,7 +443,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   ) : null}
                   {openingSuffix}
                 </Text>
-                <Text className="text-[18px] text-[#fffffe] mb-10 mobile-text-16">
+                <Text className="text-[18px] text-white mb-10 mobile-text-16">
                   {data.opening.dateRange}
                 </Text>
               </Section>
@@ -593,7 +537,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* DIAGNOSIS SECTION */}
-            <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-[#fffffe] text-center mobile-max-330 mobile-px-20 box-border">
+            <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-white text-center mobile-max-330 mobile-px-20 box-border">
               <Img
                 src={getImgUrl(StatsIcon.src)}
                 alt="Topic Sticker"
@@ -607,27 +551,27 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
               <Row className="mb-[56px] mobile-mb-40">
                 <Column
-                  className="border border-[#fffffe4d] rounded-[30px] w-[245px] h-[104px] text-center mobile-stat-box"
+                  className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] text-center mobile-stat-box"
                   align="center"
                 >
                   <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20 keep-brand">
                     {data.diagnosis.totalVideosValue}{" "}
                     {data.diagnosis.totalVideosUnit}
                   </Text>
-                  <Text className="text-[14px] text-[#fffffe] mt-[0px] mobile-text-12 force-text-light">
+                  <Text className="text-[14px] text-white mt-[0px] mobile-text-12 force-text-light">
                     Total Videos
                   </Text>
                 </Column>
                 <Column className="w-[30px] mobile-gap-20"></Column>
                 <Column
-                  className="border border-[#fffffe4d] rounded-[30px] w-[245px] h-[104px] mr-[30px] text-center mobile-stat-box"
+                  className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] mr-[30px] text-center mobile-stat-box"
                   align="center"
                 >
                   <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile-text-20 keep-brand">
                     {data.diagnosis.totalTimeValue}{" "}
                     {data.diagnosis.totalTimeUnit}
                   </Text>
-                  <Text className="text-[14px] text-[#fffffe] mt-[0px] mobile-text-12 force-text-light">
+                  <Text className="text-[14px] text-white mt-[0px] mobile-text-12 force-text-light">
                     Total Time
                   </Text>
                 </Column>
@@ -661,7 +605,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 ) : null}
               </Section>
 
-              <Text className="text-[20px] font-bold text-[#fffffe] leading-none mt-[40px] mb-[60px] mobile-text-16 force-text-light">
+              <Text className="text-[20px] font-bold text-white leading-none mt-[40px] mb-[60px] mobile-text-16 force-text-light">
                 • New contents you got into •
               </Text>
               {contentCount > 0 ? (
@@ -695,7 +639,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Row>
               ) : null}
 
-              <Text className="text-[20px] font-bold text-[#fffffe] my-[30px] mb-[30px] mobile-text-16">
+              <Text className="text-[20px] font-bold text-white my-[30px] mb-[30px] mobile-text-16">
                 • Deepest rabbit hole •
               </Text>
               <Section className="text-left mb-[60px]">
@@ -704,7 +648,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     <Text className="text-[18px] text-brand font-bold mb-[16px] mobile-text-16 keep-brand">
                       {data.rabbitHole.timeLabel}
                     </Text>
-                    <Text className="text-[30px] font-bold text-[#fffffe] leading-[40px] mobile-text-24">
+                    <Text className="text-[30px] font-bold text-white leading-[40px] mobile-text-24">
                       {data.rabbitHole.description}
                     </Text>
                   </Column>
@@ -760,7 +704,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 backgroundRepeat: "no-repeat",
               }}
             >
-              <Section className="max-w-[520px] mx-auto py-10 px-5 text-center text-[#fffffe] mobile-max-330 force-text-light">
+              <Section className="max-w-[520px] mx-auto py-10 px-5 text-center text-white mobile-max-330 force-text-light">
                 <Img
                   src={getImgUrl(FeedlingIcon.src)}
                   width="120"
@@ -770,7 +714,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <Text className="text-[30px] font-bold mb-[30px] mobile-text-24">
                   Who’s Feedling?
                 </Text>
-                <Text className="text-[14px] leading-[20px] text-[#fffffe] mb-[60px] mx-auto mobile-text-12">
+                <Text className="text-[14px] leading-[20px] text-white mb-[60px] mx-auto mobile-text-12">
                   Feeding is an app that turns your TikTok habits into a virtual
                   pet you grow and nurture with your scrolling. We&apos;re
                   launching soon!
