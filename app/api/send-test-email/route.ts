@@ -9,6 +9,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get("email");
   const caseKey = searchParams.get("case") || "curious";
+  const uid = searchParams.get("uid");
 
   if (!email && !process.env.SMTP_HOST) {
     // If no real SMTP and no email provided, we can still run with Ethereal but we need a recipient.
@@ -17,7 +18,11 @@ export async function GET(request: Request) {
 
   try {
     // 重要逻辑：生成 HTML，确保模板与资源注入生效
-    const html = await generateEmailHtml(caseKey);
+    // 如果传入了 uid，则尝试拉取真实数据
+    const html = await generateEmailHtml(caseKey, {
+      uidOverride: uid || undefined,
+      useRealData: !!uid,
+    });
 
     let transporter;
     let isEthereal = false;

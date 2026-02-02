@@ -7,6 +7,7 @@ import {
 import { mockReports } from "@/domain/report/mock";
 import crypto from "node:crypto";
 import type { WeeklyData } from "@/lib/firebase-admin";
+import { getWeeklyData } from "@/lib/firebase-admin";
 import type { WeeklyReportApiResponse } from "@/domain/report/types";
 import { ReportPipeline } from "@/core/pipeline/report-pipeline";
 import type { AssetKeySet } from "@/core/pipeline/types";
@@ -20,6 +21,7 @@ const assetBaseUrl =
 type GenerateEmailOptions = {
   uidOverride?: string;
   useUploads?: boolean;
+  useRealData?: boolean;
 };
 
 export type { UploadTarget } from "@/core/pipeline/types";
@@ -102,12 +104,27 @@ export async function generateEmailHtml(
   // 重要逻辑：允许 options 为字符串以快速覆写 uid
   const resolvedOptions =
     typeof options === "string" ? { uidOverride: options } : (options ?? {});
-  const { uidOverride, useUploads = true } = resolvedOptions;
-  const data = buildWeeklyDataFromMock(caseKey, assetBaseUrl, uidOverride);
+  const {
+    uidOverride,
+    useUploads = true,
+    useRealData = false,
+  } = resolvedOptions;
+
+  let data: WeeklyData;
+  if (useRealData && uidOverride) {
+    // 如果指定使用真实数据且有 uid，则从 API 拉取
+    data = await getWeeklyData(uidOverride);
+  } else {
+    data = buildWeeklyDataFromMock(caseKey, assetBaseUrl, uidOverride);
+  }
 
   // 重要逻辑：生成唯一资源 key，避免覆盖历史资产
   const assetId = crypto.randomUUID();
-  const assetKeys = buildPreviewAssetKeys(caseKey, assetId);
+  const assetKeys =
+    useRealData && uidOverride
+      ? buildWeeklyAssetKeys(data.uid, data.weekStart, assetId)
+      : buildPreviewAssetKeys(caseKey, assetId);
+
   const { html } = await ReportPipeline.run({
     data,
     assetBaseUrl,
