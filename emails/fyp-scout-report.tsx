@@ -385,7 +385,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] text-center mobile:w-[155px] mobile:h-[72px]"
                   align="center"
                 >
-                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile:text-[20px] keep-brand">
+                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile:text-[20px]">
                     {data.diagnosis.totalVideosValue}{" "}
                     {data.diagnosis.totalVideosUnit}
                   </Text>
@@ -398,7 +398,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   className="border border-[#ffffff4d] rounded-[30px] w-[245px] h-[104px] mr-[30px] text-center mobile:w-[155px] mobile:h-[72px]"
                   align="center"
                 >
-                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile:text-[20px] keep-brand">
+                  <Text className="text-[30px] font-bold text-brand leading-[36px] mb-[0px] mobile:text-[20px]">
                     {data.diagnosis.totalTimeValue}{" "}
                     {data.diagnosis.totalTimeUnit}
                   </Text>
@@ -410,7 +410,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
               <Text className="text-[18px] mb-[30px] leading-[32px] font-bold mobile:text-[16px]">
                 {data.diagnosis.comparisonDiff && (
-                  <span className="text-[24px] text-brand mobile:text-[22px] keep-brand">
+                  <span className="text-[24px] text-brand mobile:text-[22px]">
                     {data.diagnosis.comparisonDiff}{" "}
                   </span>
                 )}
@@ -418,7 +418,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <br />
                 <span>
                   Your thumb ran{" "}
-                  <span className="text-[24px] text-brand mobile:text-[22px] keep-brand">
+                  <span className="text-[24px] text-brand mobile:text-[22px]">
                     {data.diagnosis.miles} miles
                   </span>{" "}
                   {data.diagnosis.milesComment}
@@ -561,7 +561,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   >
                     Unsubscribe
                   </Link>
-                  <Text className="inline-block m-[0px] mx-[4px] text-white/70">
+                  <Text className="inline-block m-[0px] mx-[8px] text-white/70">
                     |
                   </Text>
                   <Link
