@@ -284,6 +284,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 :root {
   color-scheme: light;
 }
+
 @media (prefers-color-scheme: dark) {
   .force-dark {
     background-color: #313131 !important;
@@ -406,7 +407,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
         </Head>
         <Preview>FYP Scout Weekly Newsletter</Preview>
         <Body
-          className="m-0 w-full font-sans body"
+          className="m-0 p-0 w-full box-border"
           style={{ margin: 0, padding: 0, width: "100%" }}
         >
           {trackingPixelUrl ? (
@@ -419,7 +420,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             />
           ) : null}
           <Container
-            className="w-full max-w-[1080px] mx-auto"
+            className="w-full max-w-[1080px] mx-auto box-border"
             style={{
               width: "100%",
               maxWidth: "1080px",
@@ -431,13 +432,14 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             <Section
               style={{
                 backgroundImage: `url(${assetBaseUrl}/figma/trend-bg.png)`,
-                backgroundSize: "1080px 770px",
+                backgroundSize: "1080px 739px",
                 backgroundPosition: "center bottom",
                 backgroundRepeat: "no-repeat",
               }}
+              className="box-border"
             >
               {/* OPENING SECTION */}
-              <Section className="pt-[30px] pb-[60px] px-5 text-center text-[#fffffe]">
+              <Section className="pt-[30px] pb-[60px] px-5 text-center text-[#fffffe] box-border">
                 <Section
                   align="center"
                   className="mx-auto mb-[38px] w-[520px] h-[200px] bg-size-[520px_200px] bg-center bg-no-repeat mobile-width-330 mobile-opening-bg"
@@ -491,7 +493,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               </Section>
 
               {/* TREND SECTION */}
-              <Section className="h-[600px] w-full text-center text-[#000001] p-[40px] border-box">
+              <Section className="h-[570px] w-full text-center text-[#000001] p-[40px] box-border">
                 <Section
                   className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
                   style={{
@@ -571,7 +573,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* DIAGNOSIS SECTION */}
-            <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-[#fffffe] text-center mobile-max-330 mobile-px-20">
+            <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-[#fffffe] text-center mobile-max-330 mobile-px-20 box-border">
               <Img
                 src={`${assetBaseUrl}/figma/stats-icon.png`}
                 alt="Topic Sticker"
@@ -705,7 +707,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* NUDGE SECTION */}
-            <Section className="bg-bgNudge py-[60px] text-center text-[#000001] force-light">
+            <Section className="bg-bgNudge py-[60px] text-center text-[#000001] force-light box-border">
               <Section
                 className="max-w-[520px] mx-auto mobile-max-330"
                 align="center"
@@ -727,7 +729,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
             {/* FOOTER */}
             <Section
-              className="w-full text-center pb-[160px]"
+              className="w-full text-center pb-[160px] box-border"
               style={{
                 backgroundImage: `url(${assetBaseUrl}/figma/bottom-bg.png)`,
                 backgroundSize: "1080px 258px",
