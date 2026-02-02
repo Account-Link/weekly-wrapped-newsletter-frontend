@@ -243,7 +243,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           black: "#000000",
           white: "#ffffff",
           brand: "#FF5678",
-          bgDark: "#313131",
+          bgDark: "#000000",
           bgNudge: "#E4E4E4",
           trendFill: "#6A00F4",
           chartActive: "#00CC66",
