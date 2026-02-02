@@ -9,11 +9,14 @@ type EmailButtonType = "dark" | "bright" | "blue";
 // 方法功能：邮件按钮入参定义
 interface EmailButtonProps {
   href: string;
-  label: string;
+  label?: string;
   iconUrl?: string;
   iconWidth?: number;
   iconHeight?: number;
-  type: EmailButtonType;
+  type?: EmailButtonType;
+  imageUrl?: string;
+  width?: number;
+  height?: number;
 }
 
 // 方法功能：按钮类型到样式的映射
@@ -45,8 +48,35 @@ export function EmailButton({
   iconUrl,
   iconWidth = 13,
   iconHeight = 13,
-  type,
+  type = "dark",
+  imageUrl,
+  width,
+  height,
 }: EmailButtonProps) {
+  if (imageUrl) {
+    return (
+      <Section align="center">
+        <Row>
+          <Column align="center">
+            <Link href={href} style={{ textDecoration: "none" }}>
+              <Img
+                src={imageUrl}
+                alt={label || "Button"}
+                width="auto"
+                height={height}
+                style={{
+                  display: "block",
+                  border: "none",
+                  outline: "none",
+                }}
+              />
+            </Link>
+          </Column>
+        </Row>
+      </Section>
+    );
+  }
+
   return (
     <Section align="center">
       <Row>

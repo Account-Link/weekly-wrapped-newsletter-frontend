@@ -563,10 +563,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Row>
               </Section>
               <EmailButton
-                href={trendShareTrackingUrl || "https://react.email"}
+                href={trendShareTrackingUrl}
+                imageUrl={`${assetBaseUrl}/figma/btn_trend.png`}
                 label={data.trend.ctaLabel}
-                iconUrl={`${assetBaseUrl}/figma/download-icon.png`}
-                type="dark"
+                height={61}
               />
             </Section>
 
@@ -697,10 +697,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               </Section>
 
               <EmailButton
-                href={statsShareTrackingUrl || "https://react.email"}
+                href={statsShareTrackingUrl}
                 label={data.weeklyNudge.ctaLabel}
-                iconUrl={`${assetBaseUrl}/figma/download-icon_black.png`}
-                type="bright"
+                imageUrl={`${assetBaseUrl}/figma/btn_stats.png`}
+                height={61}
               />
             </Section>
 
@@ -717,10 +717,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   {data.weeklyNudge.message}
                 </Text>
                 <EmailButton
-                  href={inviteTrackingUrl || "https://react.email"}
+                  href={inviteTrackingUrl}
                   label={data.weeklyNudge.ctaLabel}
-                  iconUrl={`${assetBaseUrl}/figma/share-icon.png`}
-                  type="blue"
+                  imageUrl={`${assetBaseUrl}/figma/btn_invite.png`}
+                  height={61}
                 />
               </Section>
             </Section>
@@ -753,8 +753,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <EmailButton
                   href={"https://www.tiktok.com/@your.feedling"}
                   label="Follow us on TikTok"
-                  iconUrl={`${assetBaseUrl}/figma/tiktok-icon.png`}
-                  type="dark"
+                  imageUrl={`${assetBaseUrl}/figma/btn_follow.png`}
+                  height={61}
                 />
                 <Section className="text-white/70 text-center text-[14px] leading-[20px] mt-[30px]">
                   <Link
