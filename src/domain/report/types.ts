@@ -117,7 +117,7 @@ export interface WeeklyReportData {
     rank: number | null; // 用户发现排位 (null 代表没发现)
     totalDiscoverers: number; // 总发现人数
     origin: string; // 起源标签 e.g. "#BeautyTik"
-    currentSpread: TrendStatus; // 当前扩散阶段
+    currentSpread: string; // 当前扩散阶段
     penetrationStart: number; // 起始渗透率 e.g. 0.2
     penetrationEnd: number; // 结束渗透率 e.g. 12
     type?: TrendType;

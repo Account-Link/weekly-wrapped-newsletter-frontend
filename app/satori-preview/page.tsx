@@ -70,7 +70,7 @@ export default async function SatoriPreviewPage({
       topicSubtitle: weeklyData.trend.statusText,
       discoveryRank: weeklyData.trend.rank ?? 0,
       totalDiscovery: weeklyData.trend.totalDiscoverers.toLocaleString(),
-      progress: weeklyData.hero.trendProgress,
+      progress: weeklyData.trend.trendProgress,
       fireIconData: `${assetBaseUrl}/figma/fire.png`,
       hashtag: weeklyData.trend.startTag,
       hashtagPercent: weeklyData.trend.startPercent,

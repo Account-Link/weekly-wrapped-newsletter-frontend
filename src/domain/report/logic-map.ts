@@ -5,7 +5,7 @@
  * 负责将数据状态映射为前端展示的文案 (Copy Mapping)
  */
 
-import { FeedlingState, TrendStatus } from "@/domain/report/types";
+import { FeedlingState } from "@/domain/report/types";
 
 // ==========================================
 // A. Feedling 状态文案映射 [Source: PRD Feedling Status Copy]
@@ -16,16 +16,6 @@ export const FEEDLING_COPY_MAP: Record<FeedlingState, string> = {
   cozy: "You had a balanced week on TikTok.",
   sleepy: "You spent a lot of late nights scrolling this week.",
   dizzy: "Your feed got a little chaotic this week.",
-};
-
-// ==========================================
-// B. 趋势扩散进度条文案 [Source: PRD Spread Progress Variants]
-// ==========================================
-export const SPREAD_VISUAL_MAP: Record<TrendStatus, string> = {
-  spreading: "0.2% → 4%",
-  going_mainstream: "0.2% → 8%",
-  almost_everywhere: "0.2% → 10%",
-  everywhere: "0.2% → 12%",
 };
 
 // ==========================================
@@ -56,7 +46,7 @@ export function getDiscoveryText(rank: number | null, total: number): string {
 // 方法功能：生成本周与上周时长对比文案
 export function getTimeComparisonText(
   currentMinutes: number,
-  lastWeekMinutes: number
+  lastWeekMinutes: number,
 ): string {
   const diff = currentMinutes - lastWeekMinutes;
   const formatTime = (mins: number) => {

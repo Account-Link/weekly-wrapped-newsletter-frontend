@@ -29,9 +29,7 @@ interface FypScoutReportEmailProps {
 // 方法功能：渲染周报邮件模板
 export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   // 重要逻辑：从已有资源 URL 推导静态资源根路径
-  const assetBaseUrl = data.hero.imageUrl
-    ? data.hero.imageUrl.split("/figma/")[0]
-    : "";
+  const assetBaseUrl = data.assetBaseUrl;
   const openingCopyByState: Record<WeeklyData["feedlingState"], string> =
     FEEDLING_COPY_MAP;
   const catBgByState: Record<WeeklyData["feedlingState"], string> = {

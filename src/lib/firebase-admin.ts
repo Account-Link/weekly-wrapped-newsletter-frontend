@@ -79,17 +79,12 @@ export const adminDb = admin.apps.length > 0 ? admin.firestore() : null;
 export const adminStorage = admin.apps.length > 0 ? admin.storage() : null;
 
 // ===== 业务类型定义 =====
-export interface WeeklyHero {
-  imageUrl: string;
-  imageAlt: string;
-  trendProgress: number; // 0-100
-}
+// WeeklyHero has been removed
 
 export interface WeeklyOpening {
   title: string;
   subtitle: string;
   dateRange: string;
-  catUrl: string;
 }
 
 export interface WeeklyTrend {
@@ -102,6 +97,7 @@ export interface WeeklyTrend {
   startPercent: string;
   endTag: string;
   endPercent: string;
+  trendProgress: number; // 0-100
   type?: TrendType;
   ctaLabel: string;
   progressImageUrl?: string;
@@ -150,11 +146,11 @@ export interface WeeklyFooter {
 
 export interface WeeklyData {
   uid: string;
+  assetBaseUrl: string;
   weekStart: string; // ISO date string
   weekEnd: string; // ISO date string
   trackingBaseUrl: string;
   feedlingState: FeedlingState;
-  hero: WeeklyHero;
   opening: WeeklyOpening;
   trend: WeeklyTrend;
   diagnosis: WeeklyDiagnosis;

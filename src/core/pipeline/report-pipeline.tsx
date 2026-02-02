@@ -27,7 +27,7 @@ async function renderShareCardPngs(data: WeeklyData) {
     topicSubtitle: data.trend.statusText,
     discoveryRank: data.trend.rank ?? 0,
     totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
-    progress: data.hero.trendProgress,
+    progress: data.trend.trendProgress,
     hashtag: data.trend.startTag,
     hashtagPercent: data.trend.startPercent,
     endTag: data.trend.endTag,
@@ -70,7 +70,7 @@ async function attachBasicChartAssets(
   const { useUploads = true, uploadTarget = "api" } = options;
   // 重要逻辑：进度条图作为 hero 区块视觉主图
   const progressPng = await renderTrendProgressImage({
-    progress: data.hero.trendProgress,
+    progress: data.trend.trendProgress,
     width: 520,
     height: 64,
   });

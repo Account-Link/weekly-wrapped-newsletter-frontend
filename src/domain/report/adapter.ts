@@ -3,7 +3,6 @@
 import type {
   WeeklyReportApiResponse,
   WeeklyReportData,
-  TrendStatus,
 } from "@/domain/report/types";
 import {
   FEEDLING_COPY_MAP,
@@ -57,19 +56,6 @@ function formatWeekRange(
   return "—";
 }
 
-// 方法功能：规范化趋势状态枚举
-function normalizeTrendStatus(value?: string | null): TrendStatus {
-  if (
-    value === "spreading" ||
-    value === "going_mainstream" ||
-    value === "almost_everywhere" ||
-    value === "everywhere"
-  ) {
-    return value;
-  }
-  return "spreading";
-}
-
 export function mapApiReportToWeeklyReportData(
   report: WeeklyReportApiResponse,
 ): WeeklyReportData {
@@ -89,7 +75,7 @@ export function mapApiReportToWeeklyReportData(
       rank: report.discovery_rank ?? null,
       totalDiscoverers: report.total_discoverers ?? 0,
       origin: report.origin_niche_text ?? "",
-      currentSpread: normalizeTrendStatus(report.spread_end_text),
+      currentSpread: report.spread_end_text ?? "",
       penetrationStart: report.reach_start ?? 0,
       penetrationEnd: report.reach_end ?? 0,
       type: report.trend_type ?? undefined,
@@ -130,7 +116,6 @@ export function mapApiReportToWeeklyReportData(
 function buildOpening(
   feedlingState: WeeklyReportData["feedling"]["state"],
   report: WeeklyReportData,
-  assetBaseUrl: string,
 ): WeeklyOpening {
   // 重要逻辑：开场文案根据 feedlingState 拆分为 title/subtitle，便于高亮关键短语
   const openingCopy =
@@ -140,7 +125,6 @@ function buildOpening(
       openingCopy.split(" a lot of ")[0].trim() || "This week you explored",
     subtitle: openingCopy.replace("This week you explored", "").trim(),
     dateRange: report.weekRange,
-    catUrl: `${assetBaseUrl}/figma/opening-cat.png`,
   };
 }
 
@@ -159,6 +143,11 @@ function buildTrend(report: WeeklyReportData): WeeklyTrend {
     startPercent: `${report.trend.penetrationStart}%`,
     endTag: report.trend.endText || "Everywhere",
     endPercent: `${report.trend.penetrationEnd}%`,
+    trendProgress: calculateTrendProgress(
+      report.trend.penetrationStart,
+      report.trend.penetrationEnd,
+      report.trend.currentReach,
+    ),
     type: report.trend.type,
     ctaLabel: "Share My Week",
   };
@@ -251,7 +240,7 @@ export function mapReportToWeeklyData(
   // 重要逻辑：统一资产与追踪入口，保证后续渲染可直接使用
   const assetBaseUrl = options.assetBaseUrl;
   const feedlingState = report.feedling.state || calculateFeedlingState(report);
-  const opening = buildOpening(feedlingState, report, assetBaseUrl);
+  const opening = buildOpening(feedlingState, report);
   const trend = buildTrend(report);
   const diagnosis = buildDiagnosis(report);
   const newContents = buildNewContents(report, assetBaseUrl);
@@ -260,19 +249,11 @@ export function mapReportToWeeklyData(
 
   return {
     uid,
+    assetBaseUrl,
     weekStart: report.weekRange.split(" - ")[0],
     weekEnd: report.weekRange.split(" - ")[1] || report.weekRange,
     trackingBaseUrl: options.trackingBaseUrl,
     feedlingState,
-    hero: {
-      imageUrl: `${assetBaseUrl}/figma/opening-cat.png`,
-      imageAlt: "Feedling Cat",
-      trendProgress: calculateTrendProgress(
-        report.trend.penetrationStart,
-        report.trend.penetrationEnd,
-        report.trend.currentReach,
-      ),
-    },
     opening,
     trend,
     diagnosis,
