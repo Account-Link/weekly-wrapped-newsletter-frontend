@@ -730,7 +730,6 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     <Img
                       src={getImgUrl(CatSleep.src)}
                       width="160"
-                      height="160"
                       className="mobile-rabbit-img"
                     />
                   </Column>
