@@ -17,7 +17,7 @@ import { EmailButton } from "./components/EmailButton";
 import { FEEDLING_COPY_MAP } from "../src/domain/report/logic-map";
 import { getClickTrackingUrl, getOpenPixelUrl } from "../src/lib/tracking";
 
-import TrendBg from "../src/assets/figma/trend-bg.png";
+import SplitBg from "../src/assets/figma/split-bg.png";
 import CatCuriousGif from "../src/assets/figma/Curious.gif";
 import CatExcitedGif from "../src/assets/figma/Excited.gif";
 import CatCozyGif from "../src/assets/figma/Cozy.gif";
@@ -258,7 +258,15 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             }}
           >
             {/* OPENING SECTION */}
-            <Section className="pt-[30px] pb-[60px] px-5 text-center text-white box-border">
+            <Section
+              className="pt-[30px] pb-[60px] px-5 text-center text-white box-border"
+              style={{
+                backgroundImage: `url(${getImgUrl(SplitBg.src)})`,
+                backgroundSize: "1080px 194px",
+                backgroundPosition: "center bottom",
+                backgroundRepeat: "no-repeat",
+              }}
+            >
               <Img
                 width="520"
                 height="200"
