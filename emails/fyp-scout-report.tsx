@@ -240,7 +240,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
       },
       extend: {
         colors: {
-          black: "#313131",
+          black: "#000000",
           white: "#ffffff",
           brand: "#FF5678",
           bgDark: "#313131",
