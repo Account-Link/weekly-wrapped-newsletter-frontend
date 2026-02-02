@@ -40,7 +40,7 @@ export async function loadFontData() {
 export async function loadImageData(filename: string) {
   // 重要逻辑：本地资源转 base64，供 Satori 直接渲染
   if (!cachedImages.has(filename)) {
-    const iconPath = path.join(process.cwd(), "public/figma", filename);
+    const iconPath = path.join(process.cwd(), "src/assets/figma", filename);
     try {
       const buffer = await readFile(iconPath);
       cachedImages.set(

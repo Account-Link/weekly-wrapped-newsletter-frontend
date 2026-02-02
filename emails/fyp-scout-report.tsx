@@ -1,5 +1,3 @@
-// 文件功能：周报邮件主模板，处于 HTML 邮件渲染阶段
-// 方法概览：模板渲染、文案与数据拼装、埋点像素注入
 import React from "react";
 import {
   Body,
@@ -21,6 +19,32 @@ import { FEEDLING_COPY_MAP } from "../src/domain/report/logic-map";
 import type { TrendType } from "../src/domain/report/types";
 import { getClickTrackingUrl, getOpenPixelUrl } from "../src/lib/tracking";
 
+import TrendBg from "../src/assets/figma/trend-bg.png";
+import CatBgCurious from "../src/assets/figma/cat-bg_curious.png";
+import CatBgExcited from "../src/assets/figma/cat-bg_excited.png";
+import CatBgCozy from "../src/assets/figma/cat-bg_cozy.png";
+import CatBgSleepy from "../src/assets/figma/cat-bg_sleepy.png";
+import CatBgDizzy from "../src/assets/figma/cat-bg_dizzy.png";
+import CatCuriousGif from "../src/assets/figma/cat_curious.gif";
+import CatExcitedGif from "../src/assets/figma/cat_excited.gif";
+import CatCozyGif from "../src/assets/figma/cat_cozy.gif";
+import CatSleepyGif from "../src/assets/figma/cat_sleepy.gif";
+import CatDizzyGif from "../src/assets/figma/cat_dizzy.gif";
+import TrendIconSound from "../src/assets/figma/trend-icon_sound.png";
+import TrendIconHashtag from "../src/assets/figma/trend-icon_hashtag.png";
+import TrendIconCreator from "../src/assets/figma/trend-icon_creator.png";
+import TrendIconFormat from "../src/assets/figma/trend-icon_format.png";
+import TrendIconDefault from "../src/assets/figma/trend-icon.png";
+import TrendIconBg from "../src/assets/figma/trend-icon-bg.png";
+import StatsIcon from "../src/assets/figma/stats-icon.png";
+import CatSleep from "../src/assets/figma/cat_sleep.png";
+import BtnTrend from "../src/assets/figma/btn_trend.png";
+import BtnStats from "../src/assets/figma/btn_stats.png";
+import BtnInvite from "../src/assets/figma/btn_invite.png";
+import BottomBg from "../src/assets/figma/bottom-bg.png";
+import FeedlingIcon from "../src/assets/figma/feedling-icon_x2.png";
+import BtnFollow from "../src/assets/figma/btn_follow.png";
+
 // 方法功能：邮件模板入参定义
 interface FypScoutReportEmailProps {
   data: WeeklyData;
@@ -32,19 +56,19 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   const assetBaseUrl = data.assetBaseUrl;
   const openingCopyByState: Record<WeeklyData["feedlingState"], string> =
     FEEDLING_COPY_MAP;
-  const catBgByState: Record<WeeklyData["feedlingState"], string> = {
-    curious: "cat-bg_curious.png",
-    excited: "cat-bg_excited.png",
-    cozy: "cat-bg_cozy.png",
-    sleepy: "cat-bg_sleepy.png",
-    dizzy: "cat-bg_dizzy.png",
+  const catBgByState = {
+    curious: CatBgCurious,
+    excited: CatBgExcited,
+    cozy: CatBgCozy,
+    sleepy: CatBgSleepy,
+    dizzy: CatBgDizzy,
   };
-  const catIconByState: Record<WeeklyData["feedlingState"], string> = {
-    curious: "cat_curious.gif",
-    excited: "cat_excited.gif",
-    cozy: "cat_cozy.gif",
-    sleepy: "cat_sleepy.gif",
-    dizzy: "cat_dizzy.gif",
+  const catIconByState = {
+    curious: CatCuriousGif,
+    excited: CatExcitedGif,
+    cozy: CatCozyGif,
+    sleepy: CatSleepyGif,
+    dizzy: CatDizzyGif,
   };
   const catIconLeftByState: Record<
     WeeklyData["feedlingState"],
@@ -79,15 +103,15 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     dizzy: "little chaotic",
   };
   const highlightTarget = highlightByState[data.feedlingState] || "";
-  const trendIconByType: Record<TrendType, string> = {
-    sound: "trend-icon_sound.png",
-    hashtag: "trend-icon_hashtag.png",
-    creator: "trend-icon_creator.png",
-    format: "trend-icon_format.png",
+  const trendIconByType = {
+    sound: TrendIconSound,
+    hashtag: TrendIconHashtag,
+    creator: TrendIconCreator,
+    format: TrendIconFormat,
   };
   const trendIconFile = data.trend.type
     ? trendIconByType[data.trend.type]
-    : "trend-icon.png";
+    : TrendIconDefault;
   // 方法功能：将高亮关键词拆分为前中后三段
   const getHighlightParts = (text: string, target: string) => {
     // 重要逻辑：大小写不敏感匹配，保留原始文本
@@ -431,7 +455,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             {/* First Screen */}
             <Section
               style={{
-                backgroundImage: `url(${assetBaseUrl}/figma/trend-bg.png)`,
+                backgroundImage: `url(${TrendBg.src})`,
                 backgroundSize: "1080px 739px",
                 backgroundPosition: "center bottom",
                 backgroundRepeat: "no-repeat",
@@ -444,9 +468,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   align="center"
                   className="mx-auto mb-[38px] w-[520px] h-[200px] bg-size-[520px_200px] bg-center bg-no-repeat mobile-width-330 mobile-opening-bg"
                   style={{
-                    backgroundImage: `url(${assetBaseUrl}/figma/${
-                      catBgByState[data.feedlingState] || "cat-bg_curious.png"
-                    })`,
+                    backgroundImage: `url(${(catBgByState[data.feedlingState] || CatBgCurious).src})`,
                   }}
                 >
                   <Row>
@@ -458,10 +480,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                       }}
                     >
                       <Img
-                        src={`${assetBaseUrl}/figma/${
-                          catIconByState[data.feedlingState] ||
-                          "cat_curious.gif"
-                        }`}
+                        src={
+                          (catIconByState[data.feedlingState] || CatCuriousGif)
+                            .src
+                        }
                         alt="Opening Cat Icon"
                         width={catIconSize}
                         height={catIconSize}
@@ -497,13 +519,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <Section
                   className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
                   style={{
-                    backgroundImage: `url(${assetBaseUrl}/figma/trend-icon-bg.png)`,
+                    backgroundImage: `url(${TrendIconBg.src})`,
                     backgroundSize: "cover",
                   }}
                   align="center"
                 >
                   <Img
-                    src={`${assetBaseUrl}/figma/${trendIconFile}`}
+                    src={trendIconFile.src}
                     alt="Topic Sticker"
                     width="73"
                     height="60"
@@ -565,7 +587,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Section>
                 <EmailButton
                   href={trendShareTrackingUrl}
-                  imageUrl={`${assetBaseUrl}/figma/btn_trend.png`}
+                  imageUrl={BtnTrend.src}
                   label={data.trend.ctaLabel}
                   height={61}
                 />
@@ -575,7 +597,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             {/* DIAGNOSIS SECTION */}
             <Section className="max-w-[520px] mx-auto py-10 px-[40px] text-[#fffffe] text-center mobile-max-330 mobile-px-20 box-border">
               <Img
-                src={`${assetBaseUrl}/figma/stats-icon.png`}
+                src={StatsIcon.src}
                 alt="Topic Sticker"
                 width="126"
                 height="113"
@@ -690,7 +712,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   </Column>
                   <Column style={{ width: "40%" }} align="right">
                     <Img
-                      src={`${assetBaseUrl}/figma/cat_sleep.png`}
+                      src={CatSleep.src}
                       width="160"
                       className="mobile-rabbit-img"
                     />
@@ -701,7 +723,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               <EmailButton
                 href={statsShareTrackingUrl}
                 label={data.weeklyNudge.ctaLabel}
-                imageUrl={`${assetBaseUrl}/figma/btn_stats.png`}
+                imageUrl={BtnStats.src}
                 height={61}
               />
             </Section>
@@ -721,7 +743,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <EmailButton
                   href={inviteTrackingUrl}
                   label={data.weeklyNudge.ctaLabel}
-                  imageUrl={`${assetBaseUrl}/figma/btn_invite.png`}
+                  imageUrl={BtnInvite.src}
                   height={61}
                 />
               </Section>
@@ -731,7 +753,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             <Section
               className="w-full text-center pb-[160px] box-border"
               style={{
-                backgroundImage: `url(${assetBaseUrl}/figma/bottom-bg.png)`,
+                backgroundImage: `url(${BottomBg.src})`,
                 backgroundSize: "1080px 258px",
                 backgroundPosition: "bottom center",
                 backgroundRepeat: "no-repeat",
@@ -739,7 +761,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             >
               <Section className="max-w-[520px] mx-auto py-10 px-5 text-center text-[#fffffe] mobile-max-330 force-text-light">
                 <Img
-                  src={`${assetBaseUrl}/figma/feedling-icon_x2.png`}
+                  src={FeedlingIcon.src}
                   width="120"
                   height="120"
                   className="rounded-[10px] mb-[10px] mx-auto"
@@ -755,35 +777,26 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <EmailButton
                   href={"https://www.tiktok.com/@your.feedling"}
                   label="Follow us on TikTok"
-                  imageUrl={`${assetBaseUrl}/figma/btn_follow.png`}
+                  imageUrl={BtnFollow.src}
                   height={61}
                 />
                 <Section className="text-white/70 text-center text-[14px] leading-[20px] mt-[30px]">
                   <Link
                     className="text-white/70 mr-[4px]"
-                    href={
-                      unsubscribeTrackingUrl ||
-                      `${assetBaseUrl}/unsubscribe?state=confirm&uid=${encodeURIComponent(
-                        data.uid,
-                      )}`
-                    }
+                    href={unsubscribeTrackingUrl}
+                    style={{ textDecoration: "underline", color: "#ffffffb3" }}
                   >
                     Unsubscribe
                   </Link>
-                  ·
+                  <Text className="inline-block m-0 mx-2 text-white/70">|</Text>
                   <Link
-                    className="text-white/70 ml-[4px] force-text-light-70"
-                    href=""
+                    className="text-white/70 ml-[4px]"
+                    href="https://feedling.app/privacy"
+                    style={{ textDecoration: "underline", color: "#ffffffb3" }}
                   >
                     Privacy Policy
                   </Link>
                 </Section>
-
-                <Text className="text-white/70 text-[14px] text-center mobile-text-12 leading-[20px] mt-[30px]">
-                  @ Honey Badger Cooperation Labs, Inc.
-                  <br />
-                  123 Main St, San Francisco, CA 94102
-                </Text>
               </Section>
             </Section>
           </Container>
