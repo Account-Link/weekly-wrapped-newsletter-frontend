@@ -419,7 +419,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             />
           ) : null}
           <Container
-            className="w-full max-w-[1080px] mx-auto bg-bgDark"
+            className="w-full max-w-[1080px] mx-auto"
             style={{
               width: "100%",
               maxWidth: "1080px",
@@ -427,147 +427,152 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               backgroundImage: "linear-gradient(#313131, #313131)",
             }}
           >
-            {/* OPENING SECTION */}
-            <Section className="bg-bgDark pt-[30px] px-5 text-center text-[#fffffe]">
-              <Section
-                align="center"
-                className="mx-auto mb-[38px] mobile-width-330 mobile-opening-bg"
-                style={{
-                  width: "520px",
-                  height: "200px",
-                  backgroundImage: `url(${assetBaseUrl}/figma/${
-                    catBgByState[data.feedlingState] || "cat-bg_curious.png"
-                  })`,
-                  backgroundSize: "520px 200px",
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "center",
-                }}
-              >
-                <Row>
-                  <Column
-                    className="mobile-opening-cell"
-                    style={{
-                      height: "200px",
-                      verticalAlign: "middle",
-                    }}
-                  >
-                    <Img
-                      src={`${assetBaseUrl}/figma/${
-                        catIconByState[data.feedlingState] || "cat_curious.gif"
-                      }`}
-                      alt="Opening Cat Icon"
-                      width={catIconSize}
-                      height={catIconSize}
-                      style={{
-                        display: "block",
-                        width: `${openingIconSizePercent}%`,
-                        height: "auto",
-                        marginLeft: `${openingIconLeftPercent}%`,
-                      }}
-                    />
-                  </Column>
-                </Row>
-              </Section>
-              <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile-text-24 mobile-max-330">
-                {openingPrefix}
-                {openingHighlight ? (
-                  <span
-                    className="text-brand keep-brand"
-                    style={{ marginLeft: 4, marginRight: 4 }}
-                  >
-                    {openingHighlight}
-                  </span>
-                ) : null}
-                {openingSuffix}
-              </Text>
-              <Text className="text-[18px] text-[#fffffe] mb-10 mobile-text-16">
-                {data.opening.dateRange}
-              </Text>
-            </Section>
-
-            {/* TREND SECTION */}
+            {/* First Screen */}
             <Section
-              className="h-[770px] w-full text-center text-[#000001] p-[40px] pt-[200px]"
               style={{
                 backgroundImage: `url(${assetBaseUrl}/figma/trend-bg.png)`,
                 backgroundSize: "1080px 770px",
-                backgroundPosition: "center",
+                backgroundPosition: "center bottom",
                 backgroundRepeat: "no-repeat",
               }}
             >
-              <Section
-                className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
-                style={{
-                  backgroundImage: `url(${assetBaseUrl}/figma/trend-icon-bg.png)`,
-                  backgroundSize: "cover",
-                }}
-                align="center"
-              >
-                <Img
-                  src={`${assetBaseUrl}/figma/${trendIconFile}`}
-                  alt="Topic Sticker"
-                  width="73"
-                  height="60"
-                  className="mx-auto align-middle"
-                />
+              {/* OPENING SECTION */}
+              <Section className="pt-[30px] px-5 text-center text-[#fffffe]">
+                <Section
+                  align="center"
+                  className="mx-auto mb-[38px] mobile-width-330 mobile-opening-bg"
+                  style={{
+                    width: "520px",
+                    height: "200px",
+                    backgroundImage: `url(${assetBaseUrl}/figma/${
+                      catBgByState[data.feedlingState] || "cat-bg_curious.png"
+                    })`,
+                    backgroundSize: "520px 200px",
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "center",
+                  }}
+                >
+                  <Row>
+                    <Column
+                      className="mobile-opening-cell"
+                      style={{
+                        height: "200px",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <Img
+                        src={`${assetBaseUrl}/figma/${
+                          catIconByState[data.feedlingState] ||
+                          "cat_curious.gif"
+                        }`}
+                        alt="Opening Cat Icon"
+                        width={catIconSize}
+                        height={catIconSize}
+                        style={{
+                          display: "block",
+                          width: `${openingIconSizePercent}%`,
+                          height: "auto",
+                          marginLeft: `${openingIconLeftPercent}%`,
+                        }}
+                      />
+                    </Column>
+                  </Row>
+                </Section>
+                <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile-text-24 mobile-max-330">
+                  {openingPrefix}
+                  {openingHighlight ? (
+                    <span
+                      className="text-brand keep-brand"
+                      style={{ marginLeft: 4, marginRight: 4 }}
+                    >
+                      {openingHighlight}
+                    </span>
+                  ) : null}
+                  {openingSuffix}
+                </Text>
+                <Text className="text-[18px] text-[#fffffe] mb-10 mobile-text-16">
+                  {data.opening.dateRange}
+                </Text>
               </Section>
-              <Text className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28">
-                {data.trend.topic}
-              </Text>
-              <Text className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16 keep-brand">
-                {data.trend.statusText}
-              </Text>
-              <Text className="text-[18px] font-bold mb-[10px] mobile-text-16">
-                {data.trend.rank !== null
-                  ? buildDiscoverySegments(
-                      data.trend.discoveryText,
-                      data.trend.rank,
-                      data.trend.totalDiscoverers,
-                    )
-                  : data.trend.discoveryText}
-              </Text>
-              <Section align="center">
-                {data.trend.progressImageUrl ? (
-                  <Section
-                    className="w-full mx-auto text-center"
-                    align="center"
-                  >
-                    <Img
-                      src={data.trend.progressImageUrl}
-                      alt="Trend progress"
-                      width="566px"
-                      height="auto"
-                      className="mobile-img-376"
-                      style={{ margin: "0 auto", display: "inline-block" }}
-                    />
-                  </Section>
-                ) : null}
-              </Section>
-              <Section
-                className=" w-[520px] text-[16px] text-[#000001] font-bold mobile-width-330"
-                align="center"
-              >
-                <Row>
-                  <Column className="w-[50%]" align="left">
-                    {/* <Text className="mt-[0px] leading-[14px] mb-[0px]">
+
+              {/* TREND SECTION */}
+              <Section className="h-[600px] w-full text-center text-[#000001] p-[40px]">
+                <Section
+                  className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
+                  style={{
+                    backgroundImage: `url(${assetBaseUrl}/figma/trend-icon-bg.png)`,
+                    backgroundSize: "cover",
+                  }}
+                  align="center"
+                >
+                  <Img
+                    src={`${assetBaseUrl}/figma/${trendIconFile}`}
+                    alt="Topic Sticker"
+                    width="73"
+                    height="60"
+                    className="mx-auto align-middle"
+                  />
+                </Section>
+                <Text className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28">
+                  {data.trend.topic}
+                </Text>
+                <Text className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16 keep-brand">
+                  {data.trend.statusText}
+                </Text>
+                <Text className="text-[18px] font-bold mb-[10px] mobile-text-16">
+                  {data.trend.rank !== null
+                    ? buildDiscoverySegments(
+                        data.trend.discoveryText,
+                        data.trend.rank,
+                        data.trend.totalDiscoverers,
+                      )
+                    : data.trend.discoveryText}
+                </Text>
+                <Section align="center">
+                  {data.trend.progressImageUrl ? (
+                    <Section
+                      className="w-full mx-auto text-center"
+                      align="center"
+                    >
+                      <Img
+                        src={data.trend.progressImageUrl}
+                        alt="Trend progress"
+                        width="566px"
+                        height="auto"
+                        className="mobile-img-376"
+                        style={{ margin: "0 auto", display: "inline-block" }}
+                      />
+                    </Section>
+                  ) : null}
+                </Section>
+                <Section
+                  className=" w-[520px] text-[16px] text-[#000001] font-bold mobile-width-330"
+                  align="center"
+                >
+                  <Row>
+                    <Column className="w-[50%]" align="left">
+                      {/* <Text className="mt-[0px] leading-[14px] mb-[0px]">
                       {data.trend.startTag}
                     </Text> */}
-                    <Text className="mt-[0px]">{data.trend.startPercent}</Text>
-                  </Column>
-                  <Column className="w-[50%]" align="right">
-                    {/* <Text className="mt-[0px] leading-[14px] mb-[0px]">
+                      <Text className="mt-[0px]">
+                        {data.trend.startPercent}
+                      </Text>
+                    </Column>
+                    <Column className="w-[50%]" align="right">
+                      {/* <Text className="mt-[0px] leading-[14px] mb-[0px]">
                       {data.trend.endTag}
                     </Text> */}
-                    <Text className="mt-[0px]">{data.trend.endPercent}</Text>
-                  </Column>
-                </Row>
+                      <Text className="mt-[0px]">{data.trend.endPercent}</Text>
+                    </Column>
+                  </Row>
+                </Section>
+                <EmailButton
+                  href={trendShareTrackingUrl}
+                  imageUrl={`${assetBaseUrl}/figma/btn_trend.png`}
+                  label={data.trend.ctaLabel}
+                  height={61}
+                />
               </Section>
-              <EmailButton
-                href={trendShareTrackingUrl}
-                imageUrl={`${assetBaseUrl}/figma/btn_trend.png`}
-                label={data.trend.ctaLabel}
-                height={61}
-              />
             </Section>
 
             {/* DIAGNOSIS SECTION */}
