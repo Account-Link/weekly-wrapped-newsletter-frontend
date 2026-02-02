@@ -548,10 +548,16 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     className="mx-auto align-middle"
                   />
                 </Section>
-                <Text className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28 force-text-dark">
+                <Text
+                  className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28 force-text-dark"
+                  style={{ fontWeight: 700 }}
+                >
                   {data.trend.topic}
                 </Text>
-                <Text className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16 keep-brand">
+                <Text
+                  className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16 keep-brand"
+                  style={{ fontWeight: 700 }}
+                >
                   {data.trend.statusText}
                 </Text>
                 <Text className="text-[18px] font-bold mb-[10px] mobile-text-16 force-text-dark">
