@@ -244,7 +244,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           white: "#ffffff",
           brand: "#FF5678",
           bgDark: "#313131",
-          bgWhite: "#E4E4E4",
+          bgWhite: "#cecece",
           trendFill: "#6A00F4",
           chartActive: "#00CC66",
           chartMuted: "#555555",
