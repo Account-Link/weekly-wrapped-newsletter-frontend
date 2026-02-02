@@ -288,100 +288,82 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           <meta name="color-scheme" content="light dark" />
           <meta name="supported-color-schemes" content="light dark" />
           <style>{`
-
 @media screen and (max-width: 480px) {
-  .mobile-max-330,
-  *[data-class*="mobile-max-330"] {
+.tt-bg {
+  background-color: red
+}
+  .mobile-max-330 {
     max-width: 330px !important;
   }
-  .mobile-width-330,
-  *[class~="mobile-width-330"] {
+  .mobile-width-330 {
     width: 330px !important;
     max-width: 330px !important;
   }
-  .mobile-opening-bg,
-  *[class~="mobile-opening-bg"] {
+  .mobile-opening-bg {
     width: 330px !important;
     height: 127px !important;
     background-size: 330px 127px !important;
   }
-  .mobile-opening-cell,
-  *[class~="mobile-opening-cell"] {
+  .mobile-opening-cell {
     height: 127px !important;
   }
-  .mobile-img-330,
-  *[data-class*="mobile-img-330"] {
+  .mobile-img-330 {
     width: 330px !important;
     height: auto !important;
   }
-  .mobile-img-376,
-  *[class~="mobile-img-376"] {
+  .mobile-img-376 {
     width: 376px !important;
     height: auto !important;
   }
-  .mobile-text-28,
-  *[class~="mobile-text-28"] {
+  .mobile-text-28 {
     font-size: 28px !important;
     line-height: 36px !important;
   }
-  .mobile-text-24,
-  *[class~="mobile-text-24"] {
+  .mobile-text-24 {
     font-size: 24px !important;
     line-height: 32px !important;
   }
-  .mobile-text-20,
-  *[class~="mobile-text-20"] {
+  .mobile-text-20 {
     font-size: 20px !important;
     line-height: 24px !important;
   }
-  .mobile-text-16,
-  *[class~="mobile-text-16"] {
+  .mobile-text-16 {
     font-size: 16px !important;
     line-height: 1.3 !important;
   }
-  .mobile-text-22,
-  *[class~="mobile-text-22"] {
+  .mobile-text-22 {
     font-size: 22px !important;
     line-height: 1.3 !important;
   }
-  .mobile-text-12,
-  *[class~="mobile-text-12"] {
+  .mobile-text-12 {
     font-size: 12px !important;
     line-height: 16px !important;
   }
-  .mobile-mb-40,
-  *[class~="mobile-mb-40"] {
+  .mobile-mb-40 {
     margin-bottom: 40px !important;
   }
-  .mobile-stat-box,
-  *[class~="mobile-stat-box"] {
+  .mobile-stat-box {
     width: 155px !important;
     height: 72px !important;
   }
-  .mobile-gap-20,
-  *[class~="mobile-gap-20"] {
+  .mobile-gap-20 {
     width: 20px !important;
   }
-  .mobile-gap-12,
-  *[class~="mobile-gap-12"] {
+  .mobile-gap-12 {
     width: 12px !important;
   }
-  .mobile-content-item,
-  *[class~="mobile-content-item"] {
+  .mobile-content-item {
     width: 100px !important;
   }
-  .mobile-content-img,
-  *[class~="mobile-content-img"] {
+  .mobile-content-img {
     width: 100px !important;
     height: 100px !important;
   }
-  .mobile-rabbit-img,
-  *[class~="mobile-rabbit-img"] {
+  .mobile-rabbit-img {
     width: 120px !important;
     height: auto !important;
   }
-  .mobile-px-20,
-  *[class~="mobile-px-20"] {
+  .mobile-px-20 {
     padding-left: 20px !important;
     padding-right: 20px !important;
   }
@@ -410,10 +392,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             }}
           >
             {/* OPENING SECTION */}
-            <Section className="pt-[30px] pb-[60px] px-5 text-center text-white box-border">
+            <Section className="pt-[30px] pb-[60px] px-5 text-center text-white box-border tt-bg">
               <Img
-                className="mx-auto mb-[38px] max-w-[520px] h-[200px]"
-                data-class="mobile-img-330"
+                className="mx-auto mb-[38px] max-w-[520px] h-[200px] mobile-img-330"
                 src={getImgUrl(
                   (catIconByState[data.feedlingState] || CatCuriousGif).src,
                 )}
