@@ -494,6 +494,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 backgroundImage: `url(${assetBaseUrl}/figma/trend-bg.png)`,
                 backgroundSize: "1080px 770px",
                 backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
               }}
             >
               <Section

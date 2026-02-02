@@ -71,6 +71,7 @@ export function EmailButton({
               style={{
                 display: "inline-block",
                 verticalAlign: "middle",
+                color: typeStyles[type].color,
               }}
             >
               {label}
