@@ -481,9 +481,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               <Section className="pt-[30px] pb-[60px] px-5 text-center text-[#fffffe] box-border">
                 <Img
                   className="mx-auto mb-[38px] w-[520px] h-[200px]"
-                  src={
-                    (catIconByState[data.feedlingState] || CatCuriousGif).src
-                  }
+                  src={getImgUrl(
+                    (catIconByState[data.feedlingState] || CatCuriousGif).src,
+                  )}
                   alt="Opening Cat Icon"
                   width={520}
                   height={200}
