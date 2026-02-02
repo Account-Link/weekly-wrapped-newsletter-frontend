@@ -2,7 +2,6 @@ import React from "react";
 import {
   Body,
   Column,
-  Container,
   Head,
   Html,
   Img,
@@ -460,7 +459,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               style={{ display: "none" }}
             />
           ) : null}
-          <Container
+          <Section
             className="w-full max-w-[1080px] mx-auto box-border"
             style={{
               width: "100%",
@@ -815,15 +814,15 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   >
                     Privacy Policy
                   </Link>
+                  <Text className="text-white/70 text-[14px] text-center mobile-text-12 leading-[20px] mt-[30px]">
+                    @ Honey Badger Cooperation Labs, Inc.
+                    <br />
+                    123 Main St, San Francisco, CA 94102
+                  </Text>
                 </Section>
-                <Text className="text-white/70 text-[14px] text-center mobile-text-12 leading-[20px] mt-[30px]">
-                  @ Honey Badger Cooperation Labs, Inc.
-                  <br />
-                  123 Main St, San Francisco, CA 94102
-                </Text>
               </Section>
             </Section>
-          </Container>
+          </Section>
         </Body>
       </Html>
     </Tailwind>
