@@ -286,7 +286,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* TREND SECTION */}
-            <Section className="h-[570px] w-full text-center  text-black p-[40px] box-border bg-bgWhite">
+            <Section className="h-[570px] w-full text-center  text-black py-[40px] box-border bg-bgWhite">
               <Section
                 className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
                 style={{
@@ -368,7 +368,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* DIAGNOSIS SECTION */}
-            <Section className="w-[520px] mx-auto py-10 px-[40px] text-white text-center mobile:w-[330px] mobile:px-20 box-border">
+            <Section className="w-[520px] mx-auto py-[40px] text-white text-center mobile:w-[330px] mobile:px-20 box-border">
               <Img
                 src={getImgUrl(StatsIcon.src)}
                 alt="Topic Sticker"
@@ -425,7 +425,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </span>
               </Text>
 
-              <Section className="mx-auto mb-10 align-bottom">
+              <Section className="mx-auto mb-[40px] align-bottom">
                 {data.diagnosis.barChartImageUrl ? (
                   <Img
                     src={data.diagnosis.barChartImageUrl}
@@ -532,7 +532,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 backgroundRepeat: "no-repeat",
               }}
             >
-              <Section className="w-[520px] mx-auto py-10 px-5 text-center text-white mobile:w-[330px]">
+              <Section className="w-[520px] mx-auto py-[40px] text-center text-white mobile:w-[330px]">
                 <Img
                   src={getImgUrl(FeedlingIcon.src)}
                   width="120"
@@ -561,7 +561,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   >
                     Unsubscribe
                   </Link>
-                  <Text className="inline-block m-0 mx-2 text-white/70">|</Text>
+                  <Text className="inline-block m-[0px] mx-[4px] text-white/70">
+                    |
+                  </Text>
                   <Link
                     className="text-white/70 ml-[4px]"
                     href="https://feedling.app/privacy"
