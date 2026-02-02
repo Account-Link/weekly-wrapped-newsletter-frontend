@@ -18,16 +18,11 @@ import { FEEDLING_COPY_MAP } from "../src/domain/report/logic-map";
 import { getClickTrackingUrl, getOpenPixelUrl } from "../src/lib/tracking";
 
 import TrendBg from "../src/assets/figma/trend-bg.png";
-import CatBgCurious from "../src/assets/figma/cat-bg_curious.png";
-import CatBgExcited from "../src/assets/figma/cat-bg_excited.png";
-import CatBgCozy from "../src/assets/figma/cat-bg_cozy.png";
-import CatBgSleepy from "../src/assets/figma/cat-bg_sleepy.png";
-import CatBgDizzy from "../src/assets/figma/cat-bg_dizzy.png";
-import CatCuriousGif from "../src/assets/figma/cat_curious.gif";
-import CatExcitedGif from "../src/assets/figma/cat_excited.gif";
-import CatCozyGif from "../src/assets/figma/cat_cozy.gif";
-import CatSleepyGif from "../src/assets/figma/cat_sleepy.gif";
-import CatDizzyGif from "../src/assets/figma/cat_dizzy.gif";
+import CatCuriousGif from "../src/assets/figma/Curious.gif";
+import CatExcitedGif from "../src/assets/figma/Excited.gif";
+import CatCozyGif from "../src/assets/figma/Cozy.gif";
+import CatSleepyGif from "../src/assets/figma/Sleepy.gif";
+import CatDizzyGif from "../src/assets/figma/Dizzy.gif";
 import TrendIconSound from "../src/assets/figma/trend-icon_sound.png";
 import TrendIconHashtag from "../src/assets/figma/trend-icon_hashtag.png";
 import TrendIconCreator from "../src/assets/figma/trend-icon_creator.png";
@@ -64,13 +59,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
   const openingCopyByState: Record<WeeklyData["feedlingState"], string> =
     FEEDLING_COPY_MAP;
-  const catBgByState = {
-    curious: CatBgCurious,
-    excited: CatBgExcited,
-    cozy: CatBgCozy,
-    sleepy: CatBgSleepy,
-    dizzy: CatBgDizzy,
-  };
+
   const catIconByState = {
     curious: CatCuriousGif,
     excited: CatExcitedGif,
@@ -78,28 +67,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     sleepy: CatSleepyGif,
     dizzy: CatDizzyGif,
   };
-  const catIconLeftByState: Record<
-    WeeklyData["feedlingState"],
-    number | string
-  > = {
-    curious: 136,
-    cozy: 232,
-    excited: 55,
-    sleepy: 89,
-    dizzy: 198,
-  };
-  const catIconLeft = catIconLeftByState[data.feedlingState];
-  const catIconSizeByState: Record<WeeklyData["feedlingState"], number> = {
-    curious: 249,
-    sleepy: 240,
-    excited: 223,
-    cozy: 223,
-    dizzy: 223,
-  };
-  const catIconSize = catIconSizeByState[data.feedlingState];
-  const normalizedCatIconLeft = Number(catIconLeft) || 0;
-  const openingIconSizePercent = (catIconSize / 520) * 100;
-  const openingIconLeftPercent = (normalizedCatIconLeft / 520) * 100;
+
   const openingCopy =
     openingCopyByState[data.feedlingState] ||
     "This week you explored a lot of new corners in TikTok.";
@@ -511,44 +479,20 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             >
               {/* OPENING SECTION */}
               <Section className="pt-[30px] pb-[60px] px-5 text-center text-[#fffffe] box-border">
-                <Section
-                  align="center"
-                  className="mx-auto mb-[38px] w-[520px] h-[200px] bg-size-[520px_200px] bg-center bg-no-repeat mobile-width-330 mobile-opening-bg"
-                  style={{
-                    backgroundImage: `url(${getImgUrl((catBgByState[data.feedlingState] || CatBgCurious).src)})`,
-                  }}
-                >
-                  <Row>
-                    <Column
-                      className="mobile-opening-cell"
-                      style={{
-                        height: "200px",
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      <Img
-                        src={getImgUrl(
-                          (catIconByState[data.feedlingState] || CatCuriousGif)
-                            .src,
-                        )}
-                        alt="Opening Cat Icon"
-                        width={catIconSize}
-                        height={catIconSize}
-                        style={{
-                          display: "block",
-                          width: `${openingIconSizePercent}%`,
-                          height: "auto",
-                          marginLeft: `${openingIconLeftPercent}%`,
-                        }}
-                      />
-                    </Column>
-                  </Row>
-                </Section>
+                <Img
+                  className="mx-auto mb-[38px] w-[520px] h-[200px]"
+                  src={
+                    (catIconByState[data.feedlingState] || CatCuriousGif).src
+                  }
+                  alt="Opening Cat Icon"
+                  width={520}
+                  height={200}
+                />
                 <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile-text-24 mobile-max-330">
                   {openingPrefix}
                   {openingHighlight ? (
                     <span
-                      className="text-brand keep-brand"
+                      className="text-brand"
                       style={{ marginLeft: 4, marginRight: 4 }}
                     >
                       {openingHighlight}
@@ -580,18 +524,15 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   />
                 </Section>
                 <Text
-                  className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28 force-text-dark"
+                  className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px] mobile-text-28 text-black"
                   style={{ fontWeight: 700 }}
                 >
                   {data.trend.topic}
                 </Text>
-                <Text
-                  className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16 keep-brand"
-                  style={{ fontWeight: 700 }}
-                >
+                <Text className="text-[18px] text-brand mt-[0px] font-bold mobile-text-16">
                   {data.trend.statusText}
                 </Text>
-                <Text className="text-[18px] font-bold mb-[10px] mobile-text-16 force-text-dark">
+                <Text className="text-[18px] font-bold mb-[10px] mobile-text-16 text-black">
                   {data.trend.rank !== null
                     ? buildDiscoverySegments(
                         data.trend.discoveryText,
@@ -618,7 +559,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   ) : null}
                 </Section>
                 <Section
-                  className=" w-[520px] text-[16px] text-[#000001] font-bold mobile-width-330"
+                  className=" max-w-[520px] text-[16px] text-[#000001] font-bold mobile-width-330 mx-auto"
                   align="center"
                 >
                   <Row>
@@ -789,10 +730,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 className="max-w-[520px] mx-auto mobile-max-330"
                 align="center"
               >
-                <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px] text-center mobile-text-24 force-text-dark">
+                <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px] text-center mobile-text-24 text-[#000001] ">
                   {data.weeklyNudge.title}
                 </Text>
-                <Text className="text-[18px] text-center mobile-text-16 force-text-dark">
+                <Text className="text-[18px] text-center mobile-text-16 text-[#000001]">
                   {data.weeklyNudge.message}
                 </Text>
                 <EmailButton
