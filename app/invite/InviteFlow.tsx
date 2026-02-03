@@ -9,27 +9,13 @@ import {
   pollTikTokRedirect,
   getTikTokCode,
 } from "@/lib/api/tiktok";
-
-// Assets
-import CatCurious from "@/assets/figma/cat_curious.png";
-import CatExcited from "@/assets/figma/cat_excited.png";
-import CatCozy from "@/assets/figma/cat_cozy.png";
-import CatSleepy from "@/assets/figma/cat_sleepy.png";
-import CatDizzy from "@/assets/figma/cat_dizzy.png";
+import { FeedlingState } from "@/domain/report/types";
 
 import TiktokIcon from "@/assets/figma/invite/tiktok-icon.svg";
 import ScreenBg1 from "@/assets/figma/invite/screen-bg_1.gif";
 import ScreenBg2 from "@/assets/figma/invite/screen-bg_2.gif";
 import ScreenBg3 from "@/assets/figma/invite/screen-bg_3.gif";
 import ScreenBg4 from "@/assets/figma/invite/screen-bg_4.gif";
-
-const CAT_MAP = {
-  curious: CatCurious,
-  excited: CatExcited,
-  cozy: CatCozy,
-  sleepy: CatSleepy,
-  dizzy: CatDizzy,
-};
 
 type InviteFlowProps = {
   data: {
@@ -38,7 +24,7 @@ type InviteFlowProps = {
       rank: number | null;
       totalDiscoverers: number;
     };
-    feedlingState: string; // "excited" | "curious" | ...
+    feedlingState: FeedlingState;
   };
 };
 
@@ -56,7 +42,6 @@ export default function InviteFlow({ data }: InviteFlowProps) {
   const [isRedirected, setIsRedirected] = useState(false);
 
   const { trend, feedlingState } = data;
-  const CatImage = CAT_MAP[feedlingState as keyof typeof CAT_MAP] || CatCozy;
 
   // Format numbers
   const rankStr = trend.rank ? trend.rank.toLocaleString() : "N/A";
