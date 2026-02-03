@@ -80,8 +80,8 @@ export default function UnsubscribeClient() {
 
   if (state === "confirm") {
     return (
-      <div className="relative min-h-screen mx-auto w-[40.2rem] bg-[#313131] text-white">
-        <div className="relative min-h-screen">
+      <div className="relative h-dvh mx-auto w-[40.2rem] bg-[#313131] text-white">
+        <div className="relative h-dvh">
           <Image
             src={TopicIcon}
             className="absolute z-[0] object-contain left-0 top-0 w-[50.9rem] h-auto"
@@ -125,8 +125,8 @@ export default function UnsubscribeClient() {
 
   if (state === "unsubscribed") {
     return (
-      <div className="relative min-h-screen mx-auto w-[40.2rem] bg-[#313131] text-white">
-        <div className="relative min-h-screen w-full flex flex-col items-center text-center px-[3.4rem] py-[2rem]">
+      <div className="relative h-dvh mx-auto w-[40.2rem] bg-[#313131] text-white">
+        <div className="relative h-full w-full flex flex-col items-center text-center px-[3.4rem] py-[2rem]">
           <div className="absolute w-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="inline-block mb-[3rem] text-center">
               <Image
@@ -170,8 +170,14 @@ export default function UnsubscribeClient() {
 
   if (state === "subscribed") {
     return (
-      <div className="relative min-h-screen mx-auto w-[40.2rem] bg-[#313131] text-white">
-        <div className="relative min-h-screen w-full flex flex-col items-center text-center px-[3.4rem] py-[2rem]">
+      <div
+        className="relative h-dvh mx-auto w-[40.2rem] bg-[#313131] text-white"
+        style={{
+          paddingTop: `env(safe-area-inset-top)`,
+          paddingBottom: `env(safe-area-inset-bottom)`,
+        }}
+      >
+        <div className="relative h-full w-full flex flex-col items-center text-center px-[3.4rem] py-[2rem]">
           <div className="absolute w-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="inline-block mb-[1rem] text-center">
               <Image

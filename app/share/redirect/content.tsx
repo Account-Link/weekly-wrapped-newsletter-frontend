@@ -42,7 +42,7 @@ export default function RedirectContent() {
 
   if (!url) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="h-dvh w-[40.2rem] flex items-center justify-center p-4">
         <p className="text-red-500">Error: No redirect URL provided.</p>
       </div>
     );
@@ -50,7 +50,7 @@ export default function RedirectContent() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center"
+      className="h-dvh w-[40.2rem] flex flex-col items-center justify-center"
       style={{ background: "#fffffe" }}
     >
       <div className="animate-pulse flex flex-col items-center">

@@ -92,7 +92,13 @@ export default function DownloadContent() {
 
   if (!url) {
     return (
-      <div className="min-h-screen bg-[#1f1f1f] flex flex-col items-center justify-center px-[2rem] py-[2.4rem] text-[#fffffe]">
+      <div
+        className="h-dvh w-[40.2rem] bg-[#313131] flex flex-col items-center justify-center px-[2rem] py-[2.4rem] text-[#fffffe]"
+        style={{
+          paddingTop: `calc(env(safe-area-inset-top) + 2rem)`,
+          paddingBottom: `calc(env(safe-area-inset-bottom) + 2rem)`,
+        }}
+      >
         <p className="text-[#ff4f7a] text-center text-[1.4rem]">
           Error: No image URL provided.
         </p>
@@ -102,7 +108,11 @@ export default function DownloadContent() {
 
   return (
     <div
-      className={`min-h-screen max-w-[40.2rem] flex flex-col items-center py-[2rem] px-[5.5rem] ${backgroundColor} ${textColor}`}
+      className={`h-dvh w-[40.2rem] flex flex-col items-center px-[5.5rem] ${backgroundColor} ${textColor}`}
+      style={{
+        paddingTop: `calc(env(safe-area-inset-top) + 2rem)`,
+        paddingBottom: `calc(env(safe-area-inset-bottom) + 2rem)`,
+      }}
     >
       <h1 className="text-[2.4rem] leading-[3.2rem] font-bold m-0 text-center">
         Your Wrapped is Ready!
