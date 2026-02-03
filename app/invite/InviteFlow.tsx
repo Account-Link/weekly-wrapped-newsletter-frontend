@@ -11,38 +11,17 @@ import {
 } from "@/lib/api/tiktok";
 
 // Assets
-import FireIcon from "@/assets/figma/fire.png";
 import CatCurious from "@/assets/figma/cat_curious.png";
 import CatExcited from "@/assets/figma/cat_excited.png";
 import CatCozy from "@/assets/figma/cat_cozy.png";
 import CatSleepy from "@/assets/figma/cat_sleepy.png";
 import CatDizzy from "@/assets/figma/cat_dizzy.png";
 
-// New Assets (from src/assets/figma/invite)
 import TiktokIcon from "@/assets/figma/invite/tiktok-icon.svg";
-import BgScreen2 from "@/assets/figma/invite/bg-screen-2.png";
-import LoadingGraphic from "@/assets/figma/invite/loading-graphic.png";
-import ConfettiLeft from "@/assets/figma/invite/confetti-left.png";
-import ConfettiRight from "@/assets/figma/invite/confetti-right.png";
-import StickerEyes from "@/assets/figma/invite/sticker-eyes.png";
-import StickerBulb from "@/assets/figma/invite/sticker-bulb.png";
-import StickerFind from "@/assets/figma/invite/sticker-find.png";
-
 import ScreenBg1 from "@/assets/figma/invite/screen-bg_1.gif";
 import ScreenBg2 from "@/assets/figma/invite/screen-bg_2.gif";
 import ScreenBg3 from "@/assets/figma/invite/screen-bg_3.gif";
 import ScreenBg4 from "@/assets/figma/invite/screen-bg_4.gif";
-
-const ASSETS = {
-  tiktokIcon: TiktokIcon,
-  bgScreen2: BgScreen2,
-  loadingGraphic: LoadingGraphic,
-  confettiLeft: ConfettiLeft,
-  confettiRight: ConfettiRight,
-  stickerEyes: StickerEyes,
-  stickerBulb: StickerBulb,
-  stickerFind: StickerFind,
-};
 
 const CAT_MAP = {
   curious: CatCurious,
@@ -336,7 +315,7 @@ export default function InviteFlow({ data }: InviteFlowProps) {
                 ) : (
                   <>
                     <Image
-                      src={ASSETS.tiktokIcon}
+                      src={TiktokIcon}
                       width={18}
                       height={21}
                       alt="TikTok"
