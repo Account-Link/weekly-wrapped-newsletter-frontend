@@ -28,6 +28,11 @@ import StickerEyes from "@/assets/figma/invite/sticker-eyes.png";
 import StickerBulb from "@/assets/figma/invite/sticker-bulb.png";
 import StickerFind from "@/assets/figma/invite/sticker-find.png";
 
+import ScreenBg1 from "@/assets/figma/invite/screen-bg_1.gif";
+import ScreenBg2 from "@/assets/figma/invite/screen-bg_2.gif";
+import ScreenBg3 from "@/assets/figma/invite/screen-bg_3.gif";
+import ScreenBg4 from "@/assets/figma/invite/screen-bg_4.gif";
+
 const ASSETS = {
   tiktokIcon: TiktokIcon,
   bgScreen2: BgScreen2,
@@ -59,7 +64,7 @@ type InviteFlowProps = {
 };
 
 export default function InviteFlow({ data }: InviteFlowProps) {
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(3);
   const [progress, setProgress] = useState(0);
 
   // TikTok Connect State
@@ -92,7 +97,7 @@ export default function InviteFlow({ data }: InviteFlowProps) {
           }
           return prev + 2; // Increment speed
         });
-      }, 30);
+      }, 100);
       return () => clearInterval(interval);
     }
   }, [step]);
@@ -192,7 +197,7 @@ export default function InviteFlow({ data }: InviteFlowProps) {
 
   return (
     <main
-      className="h-dvh bg-[#313131] text-white flex flex-col items-center relative overflow-hidden px-[3.4rem]"
+      className="h-dvh bg-[#313131] text-white flex flex-col items-center relative overflow-hidden"
       style={{
         paddingTop: `calc(env(safe-area-inset-top) + 2rem)`,
         paddingBottom: `calc(env(safe-area-inset-bottom) + 2rem)`,
@@ -220,18 +225,13 @@ export default function InviteFlow({ data }: InviteFlowProps) {
                   <p className="text-[2.4rem] font-bold text-white mt-[1rem]">
                     blew up this week
                   </p>
-                  <Image
-                    src={FireIcon}
-                    alt="Fire"
-                    className="absolute -bottom-[1rem] right-[1rem] w-[3.6rem] object-contain"
-                  />
                 </div>
 
                 {/* Cat Image */}
-                <div className="relative w-[280px] h-[280px] mt-4">
+                <div className="relative w-[40.2rem] h-[34rem] mt-[4rem]">
                   <Image
-                    src={CatImage}
-                    alt="Feedling Cat"
+                    src={ScreenBg1}
+                    alt="Find-Out"
                     fill
                     className="object-contain"
                     priority
@@ -294,9 +294,9 @@ export default function InviteFlow({ data }: InviteFlowProps) {
               </h2>
               <div className="pointer-events-none flex-1 w-full flex items-center justify-center">
                 <Image
-                  src={ASSETS.bgScreen2}
-                  alt="Background Decoration"
-                  className="object-contain w-[48rem] h-[48rem]"
+                  src={ScreenBg2}
+                  alt="Connecting"
+                  className="object-contain w-[33.5rem] h-[33.5rem]"
                 />
               </div>
               <div className="w-full flex flex-col gap-8 pb-[2.4rem]">
@@ -368,11 +368,11 @@ export default function InviteFlow({ data }: InviteFlowProps) {
                 Reading your watch history...
               </p>
               {/* Loading Graphic */}
-              <div className="relative w-[20rem] h-[20rem]">
+              <div className="relative w-full flex-grow my-[4rem]">
                 <Image
-                  src={ASSETS.loadingGraphic}
+                  src={ScreenBg3}
                   alt="Loading"
-                  className="object-contain animate-pulse w-full h-full"
+                  className="object-contain animate-pulse w-[33.2rem] h-[19.8rem]"
                 />
               </div>
 
@@ -387,7 +387,7 @@ export default function InviteFlow({ data }: InviteFlowProps) {
             key="step4"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full h-full flex flex-col items-center flex-grow overflow-hidden"
+            className="w-full h-full flex flex-col items-center flex-grow"
           >
             <div className="w-full flex flex-col items-center pt-[5rem] z-10 h-full justify-between flex-grow">
               <div className="flex flex-col items-center gap-5 text-center">
@@ -400,6 +400,15 @@ export default function InviteFlow({ data }: InviteFlowProps) {
                   <br />
                   Next Monday.
                 </p>
+              </div>
+              <div className="relative w-[40.2rem] h-[33rem] mt-[4rem]">
+                <Image
+                  src={ScreenBg4}
+                  alt="You-Are-In"
+                  fill
+                  className="object-contain"
+                  priority
+                />
               </div>
 
               <div className="mt-auto w-full flex flex-col items-center gap-8">
