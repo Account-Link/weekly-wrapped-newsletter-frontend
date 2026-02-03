@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import UnsubscribeClient from "./UnsubscribeClient";
+import UnsubscribeContent from "./content";
 
 export const viewport = {
   width: "device-width",
@@ -8,8 +8,8 @@ export const viewport = {
 
 export default function UnsubscribePage() {
   return (
-    <Suspense>
-      <UnsubscribeClient />
+    <Suspense fallback={<div>Loading...</div>}>
+      <UnsubscribeContent />
     </Suspense>
   );
 }

@@ -158,11 +158,17 @@ export interface WeeklyData {
   rabbitHole: WeeklyRabbitHole;
   weeklyNudge: WeeklyNudge;
   footer: WeeklyFooter;
+  period_start?: string;
+  period_end?: string;
 }
 
 // 方法功能：拉取周报数据并映射为 WeeklyData
 // 重要逻辑：请求后端接口并统一映射，保证模板可直接使用
-export async function getWeeklyData(uid: string): Promise<WeeklyData> {
+export async function getWeeklyData(
+  uid: string,
+  period_start?: string,
+  period_end?: string,
+): Promise<WeeklyData> {
   const apiBaseUrl = process.env.WEEKLY_REPORT_API_BASE_URL;
   if (!apiBaseUrl) {
     throw new Error("Missing WEEKLY_REPORT_API_BASE_URL in environment");
@@ -170,11 +176,16 @@ export async function getWeeklyData(uid: string): Promise<WeeklyData> {
 
   const apiKey = process.env.WEEKLY_REPORT_API_KEY;
   const headers: HeadersInit = apiKey ? { "x-api-key": apiKey } : {};
-  const url = new URL(
-    `weekly-report/${encodeURIComponent(uid)}`,
-    apiBaseUrl,
-  ).toString();
-  const response = await fetch(url, { method: "GET", headers });
+  const url = new URL(`weekly-report/${encodeURIComponent(uid)}`, apiBaseUrl);
+
+  if (period_start) {
+    url.searchParams.append("period_start", period_start);
+  }
+  if (period_end) {
+    url.searchParams.append("period_end", period_end);
+  }
+
+  const response = await fetch(url.toString(), { method: "GET", headers });
   if (!response.ok) {
     const text = await response.text();
     throw new Error(`Weekly report request failed: ${response.status} ${text}`);
@@ -189,8 +200,21 @@ export async function getWeeklyData(uid: string): Promise<WeeklyData> {
     (process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000");
-  return mapReportToWeeklyData(apiReport.app_user_id || uid, report, {
-    assetBaseUrl,
-    trackingBaseUrl: assetBaseUrl,
-  });
+  const weeklyData = mapReportToWeeklyData(
+    apiReport.app_user_id || uid,
+    report,
+    {
+      assetBaseUrl,
+      trackingBaseUrl: assetBaseUrl,
+    },
+  );
+
+  if (period_start) {
+    weeklyData.period_start = period_start;
+  }
+  if (period_end) {
+    weeklyData.period_end = period_end;
+  }
+
+  return weeklyData;
 }

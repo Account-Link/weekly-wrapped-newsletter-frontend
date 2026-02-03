@@ -30,6 +30,8 @@ export default function UnsubscribeClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const uid = searchParams.get("uid") ?? "";
+  const periodStart = searchParams.get("period_start");
+  const periodEnd = searchParams.get("period_end");
   const state = resolveState(searchParams.get("state"));
   const buildHref = (nextState: UnsubscribeState) => {
     const params = new URLSearchParams();
@@ -37,6 +39,8 @@ export default function UnsubscribeClient() {
     if (uid) {
       params.set("uid", uid);
     }
+    if (periodStart) params.set("period_start", periodStart);
+    if (periodEnd) params.set("period_end", periodEnd);
     return `?${params.toString()}`;
   };
 

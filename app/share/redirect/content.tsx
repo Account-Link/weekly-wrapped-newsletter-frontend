@@ -13,6 +13,8 @@ export default function RedirectContent() {
   const type = searchParams.get("type") || "unknown";
   const uid = searchParams.get("uid") || "anonymous";
   const weekStart = searchParams.get("weekStart");
+  const periodStart = searchParams.get("period_start");
+  const periodEnd = searchParams.get("period_end");
   const [status, setStatus] = useState("Redirecting...");
 
   useEffect(() => {
@@ -32,13 +34,18 @@ export default function RedirectContent() {
       targetUrl: url,
     }).catch(() => null);
 
+    // 重要逻辑：处理 URL 参数传递
+    const targetUrl = new URL(url.startsWith("http") ? url : `https://${url}`);
+    if (periodStart) targetUrl.searchParams.set("period_start", periodStart);
+    if (periodEnd) targetUrl.searchParams.set("period_end", periodEnd);
+
     // 重要逻辑：短暂延时让埋点完成再跳转
     const timer = setTimeout(() => {
-      window.location.href = url;
+      window.location.href = targetUrl.toString();
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [url, type, uid, weekStart]);
+  }, [url, type, uid, weekStart, periodStart, periodEnd]);
 
   if (!url) {
     return (

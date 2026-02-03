@@ -14,6 +14,8 @@ export default function DownloadContent() {
   const type = searchParams.get("type") || "unknown";
   const uid = searchParams.get("uid") || "anonymous";
   const weekStart = searchParams.get("weekStart");
+  const periodStart = searchParams.get("period_start");
+  const periodEnd = searchParams.get("period_end");
   const theme = searchParams.get("theme") || "dark";
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -64,10 +66,12 @@ export default function DownloadContent() {
       if (url.startsWith("data:")) {
         link.href = url;
       } else {
-        const apiUrl = `/api/download?url=${encodeURIComponent(
-          url,
-        )}&filename=${encodeURIComponent(filename)}`;
-        link.href = apiUrl;
+        const apiUrl = new URL("/api/download", window.location.origin);
+        apiUrl.searchParams.set("url", url);
+        apiUrl.searchParams.set("filename", filename);
+        if (periodStart) apiUrl.searchParams.set("period_start", periodStart);
+        if (periodEnd) apiUrl.searchParams.set("period_end", periodEnd);
+        link.href = apiUrl.toString();
       }
       link.download = filename;
       document.body.appendChild(link);

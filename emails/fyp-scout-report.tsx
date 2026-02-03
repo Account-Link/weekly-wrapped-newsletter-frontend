@@ -154,6 +154,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           "share_week",
           data.trend.shareUrl,
           data.trackingBaseUrl,
+          data.period_start,
+          data.period_end,
         )
       : data.trend.shareUrl || "";
   const statsShareTrackingUrl =
@@ -164,6 +166,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           "share_stats",
           data.diagnosis.shareUrl,
           data.trackingBaseUrl,
+          data.period_start,
+          data.period_end,
         )
       : data.diagnosis.shareUrl || "";
   const inviteTrackingUrl =
@@ -174,6 +178,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           "invite_click",
           data.weeklyNudge.linkUrl,
           data.trackingBaseUrl,
+          data.period_start,
+          data.period_end,
         )
       : data.weeklyNudge.linkUrl || "";
   const unsubscribeTrackingUrl = data.trackingBaseUrl
@@ -183,6 +189,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
         "unsubscribe",
         undefined,
         data.trackingBaseUrl,
+        data.period_start,
+        data.period_end,
       )
     : "";
   const tailwindConfig = {
@@ -251,7 +259,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             />
           ) : null}
           <Section
-            className="w-full max-w-[600px] mx-auto box-border bg-bgDark"
+            className="w-full max-w-[px] mx-auto box-border bg-bgDark"
             style={{
               width: "100%",
             }}

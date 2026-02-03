@@ -7,7 +7,7 @@ export default async function InvitePage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const { uid } = await searchParams;
+  const { uid, period_start, period_end } = await searchParams;
 
   if (!uid || Array.isArray(uid)) {
     return (
@@ -19,7 +19,9 @@ export default async function InvitePage({
 
   let data;
   try {
-    data = await getWeeklyData(uid);
+    const start = Array.isArray(period_start) ? period_start[0] : period_start;
+    const end = Array.isArray(period_end) ? period_end[0] : period_end;
+    data = await getWeeklyData(uid, start, end);
   } catch (error) {
     console.error("Error fetching weekly data:", error);
     return (

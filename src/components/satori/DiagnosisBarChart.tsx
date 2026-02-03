@@ -268,7 +268,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             color: "rgba(255,255,254,0.2)",
           }}
         >
-          {lastWeekLabel.toLowerCase()}
+          {lastWeekLabel}
         </span>
         <span
           style={{
@@ -279,7 +279,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             color: "#FFFFFE",
           }}
         >
-          {thisWeekLabel.toLowerCase()}
+          {thisWeekLabel}
         </span>
       </div>
     </div>
