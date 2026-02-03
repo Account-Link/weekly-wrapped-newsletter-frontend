@@ -251,10 +251,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             />
           ) : null}
           <Section
-            className="w-full max-w-[1080px] mx-auto box-border bg-bgDark"
+            className="w-full max-w-[600px] mx-auto box-border bg-bgDark"
             style={{
               width: "100%",
-              maxWidth: "1080px",
             }}
           >
             {/* OPENING SECTION */}
