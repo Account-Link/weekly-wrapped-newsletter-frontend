@@ -386,7 +386,7 @@ export default function InviteFlow({ data }: InviteFlowProps) {
                   Next Monday.
                 </p>
               </div>
-              <div className="relative w-[40.2rem] h-[33rem] mt-[4rem]">
+              <div className="absolute right-0 top-[50%] translate-y-[-50%] z-0 w-[40.2rem] h-[33rem]">
                 <Image
                   src={ScreenBg4}
                   alt="You-Are-In"
@@ -396,7 +396,7 @@ export default function InviteFlow({ data }: InviteFlowProps) {
                 />
               </div>
 
-              <div className="mt-auto w-full flex flex-col items-center gap-8">
+              <div className="mt-auto w-full flex flex-col items-center gap-[2rem] relative z-[1]">
                 <p className="text-[1.6rem] text-center">
                   Keep scrolling like normal.
                   <br />

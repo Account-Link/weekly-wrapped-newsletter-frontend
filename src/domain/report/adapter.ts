@@ -223,12 +223,16 @@ function buildRabbitHole(
 }
 
 // 方法功能：构建 nudge 模块数据
-function buildWeeklyNudge(report: WeeklyReportData): WeeklyNudge {
+function buildWeeklyNudge(
+  report: WeeklyReportData,
+  uid: string,
+  baseUrl: string,
+): WeeklyNudge {
   return {
     title: report.nudge.text || "👍🏻 Weekly Nudge 👍🏻",
     message: "Invite 1 friend to unlock next week",
     ctaLabel: "Share your invite link",
-    linkUrl: "https://feedling.app/nudge-invite",
+    linkUrl: `${baseUrl}/invite?uid=${uid}`,
   };
 }
 
@@ -245,7 +249,7 @@ export function mapReportToWeeklyData(
   const diagnosis = buildDiagnosis(report);
   const newContents = buildNewContents(report, assetBaseUrl);
   const rabbitHole = buildRabbitHole(report, assetBaseUrl);
-  const weeklyNudge = buildWeeklyNudge(report);
+  const weeklyNudge = buildWeeklyNudge(report, uid, assetBaseUrl);
 
   return {
     uid,
