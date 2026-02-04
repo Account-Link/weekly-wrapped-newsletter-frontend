@@ -32,6 +32,7 @@ const getDeviceId = () => {
 };
 
 const apiClient = axios.create({
+  timeout: 10000,
   baseURL: TIKTOK_API_BASE_URL,
   headers: {
     "Content-Type": "application/json",

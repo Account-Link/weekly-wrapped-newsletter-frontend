@@ -4,7 +4,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { postTrackEvent } from "@/lib/api-client";
+import { trackEvent } from "@/lib/api/tracking";
 
 // 方法功能：渲染跳转页面并执行跳转逻辑
 export default function RedirectContent() {
@@ -25,7 +25,7 @@ export default function RedirectContent() {
     }
 
     // 重要逻辑：跳转前先写入埋点，保证可追踪
-    postTrackEvent({
+    trackEvent({
       event: "email_button_click",
       type,
       uid,

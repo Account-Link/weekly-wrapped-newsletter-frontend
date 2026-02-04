@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import TopicIcon from "./images/topic.png";
 import BannedIcon from "./images/banned.png";
 import CatIcon from "./images/cat.gif";
-import { postWeeklyReportAction } from "@/lib/api-client";
+import { unsubscribe, resubscribe } from "@/lib/api/report";
 
 type UnsubscribeState = "confirm" | "unsubscribed" | "subscribed";
 
@@ -26,23 +26,13 @@ const resolveState = (value?: string | null): UnsubscribeState => {
 
 export default function UnsubscribeClient() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const uid = searchParams.get("uid") ?? "";
-  const periodStart = searchParams.get("period_start");
-  const periodEnd = searchParams.get("period_end");
-  const state = resolveState(searchParams.get("state"));
-  const buildHref = (nextState: UnsubscribeState) => {
-    const params = new URLSearchParams();
-    params.set("state", nextState);
-    if (uid) {
-      params.set("uid", uid);
-    }
-    if (periodStart) params.set("period_start", periodStart);
-    if (periodEnd) params.set("period_end", periodEnd);
-    return `?${params.toString()}`;
-  };
+
+  const [state, setState] = useState<UnsubscribeState>(() =>
+    resolveState(searchParams.get("state")),
+  );
 
   const handleUnsubscribe = async () => {
     if (!uid) {
@@ -54,8 +44,12 @@ export default function UnsubscribeClient() {
     setErrorMessage("");
 
     try {
-      await postWeeklyReportAction("unsubscribe", uid);
-      router.replace(buildHref("unsubscribed"));
+      const { success } = await unsubscribe(uid);
+      if (!success) {
+        setErrorMessage("Unsubscribe failed. Please try again.");
+        return;
+      }
+      setState("unsubscribed");
     } catch {
       setErrorMessage("Unsubscribe failed. Please try again.");
     } finally {
@@ -73,8 +67,12 @@ export default function UnsubscribeClient() {
     setErrorMessage("");
 
     try {
-      await postWeeklyReportAction("resubscribe", uid);
-      router.replace(buildHref("subscribed"));
+      const { success } = await resubscribe(uid);
+      if (!success) {
+        setErrorMessage("Re-subscribe failed. Please try again.");
+        return;
+      }
+      setState("subscribed");
     } catch {
       setErrorMessage("Re-subscribe failed. Please try again.");
     } finally {
@@ -84,14 +82,20 @@ export default function UnsubscribeClient() {
 
   if (state === "confirm") {
     return (
-      <div className="relative h-dvh mx-auto w-[40.2rem] bg-[#313131] text-white">
-        <div className="relative h-dvh">
+      <div
+        className="relative h-dvh mx-auto w-[40.2rem] bg-[#313131] text-white"
+        style={{
+          paddingTop: `calc(env(safe-area-inset-top) + 2rem)`,
+          paddingBottom: `calc(env(safe-area-inset-bottom) + 2rem)`,
+        }}
+      >
+        <div className="flex flex-col justify-end items-center h-full">
           <Image
             src={TopicIcon}
             className="absolute z-[0] object-contain left-0 top-0 w-[50.9rem] h-auto"
             alt=""
           />
-          <div className="absolute bottom-[2rem] left-0 w-full flex flex-col items-center text-center">
+          <div className="w-full flex flex-col items-center text-center">
             <h1 className="text-[2.8rem] leading-[3.4rem] font-bold mb-[4rem]">
               Are you sure you want to{" "}
               <span className="text-[#FF4F7A]">unsubscribe </span>?
@@ -108,7 +112,7 @@ export default function UnsubscribeClient() {
             </button>
             <button
               type="button"
-              onClick={() => router.replace(buildHref("subscribed"))}
+              onClick={() => setState("subscribed")}
               disabled={!uid}
               className={`block w-[33.4rem] h-[5.2rem] rounded-full text-[1.6rem] font-bold transition-opacity ${
                 uid ? "hover:opacity-90" : "opacity-60 cursor-not-allowed"
@@ -116,11 +120,6 @@ export default function UnsubscribeClient() {
             >
               No, keep sending
             </button>
-            {errorMessage ? (
-              <p className="text-[1.4rem] text-[#FF4F7A] mt-[1.2rem]">
-                {errorMessage}
-              </p>
-            ) : null}
           </div>
         </div>
       </div>
@@ -129,8 +128,14 @@ export default function UnsubscribeClient() {
 
   if (state === "unsubscribed") {
     return (
-      <div className="relative h-dvh mx-auto w-[40.2rem] bg-[#313131] text-white">
-        <div className="relative h-full w-full flex flex-col items-center text-center px-[3.4rem] py-[2rem]">
+      <div
+        className="relative h-dvh mx-auto w-[40.2rem] bg-[#313131] text-white"
+        style={{
+          paddingTop: `calc(env(safe-area-inset-top) + 2rem)`,
+          paddingBottom: `calc(env(safe-area-inset-bottom) + 2rem)`,
+        }}
+      >
+        <div className="h-full w-full flex flex-col justify-end items-center text-center px-[3.4rem]">
           <div className="absolute w-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="inline-block mb-[3rem] text-center">
               <Image
@@ -139,7 +144,7 @@ export default function UnsubscribeClient() {
                 className="w-[9.7rem] h-[9.7rem] object-contain"
               />
             </div>
-            <h1 className="text-[2.8rem] leading-[3.4rem] font-bold mb-[1.6rem] leading-none">
+            <h1 className="text-[2.8rem] font-bold mb-[1.6rem] leading-none">
               You&apos;ve been{" "}
               <span className="text-[#FF4F7A]">unsubscribed</span>.
             </h1>
@@ -147,7 +152,7 @@ export default function UnsubscribeClient() {
               You won&apos;t receive TikTok Weekly Scout Reports anymore.
             </p>
           </div>
-          <div className="absolute bottom-[2rem] left-0 w-full flex flex-col items-center justify-center">
+          <div className="w-full flex flex-col items-center justify-center">
             <span className="block mb-[1rem] text-white/50 text-[1.4rem] leading-none">
               Change your mind?
             </span>
@@ -190,7 +195,7 @@ export default function UnsubscribeClient() {
                 className="w-[24rem] h-[24rem] object-contain"
               />
             </div>
-            <h1 className="text-[2.8rem] leading-[3.4rem] font-bold mb-[1.6rem] leading-none">
+            <h1 className="text-[2.8rem] font-bold mb-[1.6rem] leading-none">
               You&apos;re <span className="text-[#FF4F7A]">subscribed</span> !
             </h1>
             <p className="text-[1.6rem] leading-[2.2rem] text-white/70 mb-[3.2rem] whitespace-pre-line">
