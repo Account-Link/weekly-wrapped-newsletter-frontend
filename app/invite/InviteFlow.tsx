@@ -123,7 +123,7 @@ export default function InviteFlow({ data }: InviteFlowProps) {
 
   return (
     <main
-      className="h-dvh bg-[#313131] text-white flex flex-col items-center relative overflow-hidden"
+      className="h-dvh bg-[#313131] text-white flex flex-col items-center relative overflow-hidden px-[3.2rem]"
       style={{
         paddingTop: `calc(env(safe-area-inset-top) + 2rem)`,
         paddingBottom: `calc(env(safe-area-inset-bottom) + 2rem)`,

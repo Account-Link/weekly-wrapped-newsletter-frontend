@@ -1,6 +1,7 @@
 // 文件功能：初始化 Firebase Admin 并定义周报数据类型与获取方法
 // 方法概览：Admin 单例初始化、类型定义、周报数据拉取与映射
 import admin from "firebase-admin";
+import { getWeeklyData as fetchWeeklyReport } from "@/lib/api/report";
 import type {
   WeeklyReportApiResponse,
   FeedlingState,
@@ -169,28 +170,7 @@ export async function getWeeklyData(
   period_start?: string,
   period_end?: string,
 ): Promise<WeeklyData> {
-  const apiBaseUrl = process.env.WEEKLY_REPORT_API_BASE_URL;
-  if (!apiBaseUrl) {
-    throw new Error("Missing WEEKLY_REPORT_API_BASE_URL in environment");
-  }
-
-  const apiKey = process.env.WEEKLY_REPORT_API_KEY;
-  const headers: HeadersInit = apiKey ? { "x-api-key": apiKey } : {};
-  const url = new URL(`weekly-report/${encodeURIComponent(uid)}`, apiBaseUrl);
-
-  if (period_start) {
-    url.searchParams.append("period_start", period_start);
-  }
-  if (period_end) {
-    url.searchParams.append("period_end", period_end);
-  }
-
-  const response = await fetch(url.toString(), { method: "GET", headers });
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Weekly report request failed: ${response.status} ${text}`);
-  }
-  const apiReport = (await response.json()) as WeeklyReportApiResponse;
+  const apiReport = await fetchWeeklyReport(uid, period_start, period_end);
 
   const { mapApiReportToWeeklyReportData, mapReportToWeeklyData } =
     await import("@/domain/report/adapter");

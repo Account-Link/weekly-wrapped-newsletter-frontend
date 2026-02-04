@@ -1,4 +1,5 @@
 import React from "react";
+import { isAxiosError } from "axios";
 import { getWeeklyData } from "@/lib/firebase-admin";
 import InviteFlow from "./InviteFlow";
 
@@ -24,9 +25,10 @@ export default async function InvitePage({
     data = await getWeeklyData(uid, start, end);
   } catch (error) {
     console.error("Error fetching weekly data:", error);
+    const is404 = isAxiosError(error) && error.response?.status === 404;
     return (
       <div className="h-dvh w-[40.2rem] bg-[#313131] flex items-center justify-center text-white">
-        Failed to load report
+        {is404 ? "Report not found" : "Failed to load report"}
       </div>
     );
   }
