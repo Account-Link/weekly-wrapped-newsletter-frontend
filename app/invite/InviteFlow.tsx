@@ -3,12 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  verifyRegion,
-  startTikTokLink,
-  pollTikTokRedirect,
-  getTikTokCode,
-} from "@/lib/api/tiktok";
+import { startTikTokLink, pollTikTokRedirect } from "@/lib/api/tiktok";
 import { FeedlingState } from "@/domain/report/types";
 
 import TiktokIcon from "@/assets/figma/invite/tiktok-icon.svg";
@@ -29,19 +24,16 @@ type InviteFlowProps = {
 };
 
 export default function InviteFlow({ data }: InviteFlowProps) {
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(3);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [progress, setProgress] = useState(0);
 
   // TikTok Connect State
   const [isConnecting, setIsConnecting] = useState(false);
-  const [isRegionVerified, setIsRegionVerified] = useState(false);
-  const [regionError, setRegionError] = useState<string | null>(null);
   const [tiktokToken, setTiktokToken] = useState<string | null>(null);
   const [appUserId, setAppUserId] = useState<string | null>(null);
-  const [authCode, setAuthCode] = useState<string | null>(null);
   const [isRedirected, setIsRedirected] = useState(false);
 
-  const { trend, feedlingState } = data;
+  const { trend } = data;
 
   // Format numbers
   const rankStr = trend.rank ? trend.rank.toLocaleString() : "N/A";
@@ -75,12 +67,11 @@ export default function InviteFlow({ data }: InviteFlowProps) {
     setIsRedirected(false);
     setTiktokToken(null);
     setAppUserId(null);
-    setAuthCode(null);
+    // setAuthCode(null);
   };
 
   const handleConnect = async () => {
     setIsConnecting(true);
-    setRegionError(null);
     setIsRedirected(false); // Reset redirect state
 
     try {
@@ -108,36 +99,6 @@ export default function InviteFlow({ data }: InviteFlowProps) {
               setTiktokToken(statusRes.token);
               setAppUserId(statusRes.app_user_id);
             }
-
-            // Get Authorization Code
-            try {
-              const codeRes = await getTikTokCode(jobId);
-              if (codeRes.authorization_code) {
-                console.log("Got auth code:", codeRes.authorization_code);
-                setAuthCode(codeRes.authorization_code);
-              }
-            } catch (err) {
-              console.error("Failed to get auth code:", err);
-            }
-
-            // Verify Region
-            try {
-              const regionRes = await verifyRegion(statusRes.token);
-              if (regionRes.allowed) {
-                setIsRegionVerified(true);
-                setStep(3); // Go to loading
-              } else {
-                setIsRegionVerified(false);
-                setRegionError(regionRes.message || "Region not supported");
-                alert(regionRes.message || "Region not supported");
-                resetState();
-              }
-            } catch (err) {
-              console.error("Region verify error", err);
-              setRegionError("Failed to verify region");
-              alert("Failed to verify region");
-              resetState();
-            }
           }
 
           if (
@@ -150,6 +111,7 @@ export default function InviteFlow({ data }: InviteFlowProps) {
           }
         } catch (error) {
           console.error("Polling error:", error);
+          resetState();
         }
       }, 3000);
     } catch (error) {
@@ -309,11 +271,6 @@ export default function InviteFlow({ data }: InviteFlowProps) {
                   </>
                 )}
               </button>
-              {regionError && (
-                <p className="text-red-500 text-sm mt-2 text-center">
-                  {regionError}
-                </p>
-              )}
             </div>
           </motion.div>
         )}

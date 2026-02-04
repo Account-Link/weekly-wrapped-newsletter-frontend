@@ -21,18 +21,6 @@ export interface TikTokRedirectResponse {
   app_user_id?: string;
 }
 
-export interface VerifyRegionResponse {
-  allowed: boolean;
-  message?: string;
-}
-
-export interface TikTokCodeResponse {
-  authorization_code: string;
-  status: TikTokLinkStatus;
-  expires_at: string;
-  queue_position: number | string;
-}
-
 // Helper to get or create device ID
 let memoryDeviceId: string | null = null;
 const getDeviceId = () => {
@@ -64,7 +52,7 @@ export async function verifyRegion(
 ): Promise<VerifyRegionResponse> {
   const headers: Record<string, string> = {};
   if (authorization) {
-    headers["Authorization"] = authorization;
+    headers["Authorization"] = `Bearer ${authorization}`;
   }
   const response = await apiClient.post(
     "/link/tiktok/verify-region",
@@ -83,15 +71,6 @@ export async function pollTikTokRedirect(
   job_id: string,
 ): Promise<TikTokRedirectResponse> {
   const response = await apiClient.get("/link/tiktok/redirect", {
-    params: { job_id },
-  });
-  return response.data;
-}
-
-export async function getTikTokCode(
-  job_id: string,
-): Promise<TikTokCodeResponse> {
-  const response = await apiClient.get("/link/tiktok/code", {
     params: { job_id },
   });
   return response.data;
