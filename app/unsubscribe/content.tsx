@@ -95,7 +95,7 @@ export default function UnsubscribeClient() {
             className="absolute z-[0] object-contain left-0 top-0 w-[50.9rem] h-auto"
             alt=""
           />
-          <div className="w-full flex flex-col items-center text-center">
+          <div className="w-full flex flex-col items-center text-center relative z-[1]">
             <h1 className="text-[2.8rem] leading-[3.4rem] font-bold mb-[4rem]">
               Are you sure you want to{" "}
               <span className="text-[#FF4F7A]">unsubscribe </span>?
