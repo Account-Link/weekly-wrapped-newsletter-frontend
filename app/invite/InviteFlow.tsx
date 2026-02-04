@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { QRCodeSVG } from "qrcode.react";
 import { startTikTokLink, pollTikTokRedirect } from "@/lib/api/tiktok";
 import { FeedlingState } from "@/domain/report/types";
 import { useToast } from "@/context/ToastContext";
@@ -32,12 +33,30 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const { showToast } = useToast();
 
   // TikTok Connect State
-  const [isConnecting, setIsConnecting] = useState(false);
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<string | null>(null);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   const [tiktokToken, setTiktokToken] = useState<string | null>(null);
   const [appUserId, setAppUserId] = useState<string | null>(null);
-  const [isRedirected, setIsRedirected] = useState(false);
+
+  // PC QR Code State
+  const [isPc, setIsPc] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
 
   const { trend } = data;
+
+  // Check if PC
+  useEffect(() => {
+    setIsPc(window.innerWidth >= 1024);
+  }, []);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    };
+  }, []);
 
   // 记录页面访问埋点
   useEffect(() => {
@@ -55,7 +74,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     ? trend.totalDiscoverers.toLocaleString()
     : "N/A";
 
-  // Handle Loading Step
+  // Handle Loading Step (Step 3)
   useEffect(() => {
     if (step === 3) {
       const interval = setInterval(() => {
@@ -72,50 +91,33 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     }
   }, [step]);
 
-  const nextStep = () => {
-    if (step < 4) setStep((prev) => (prev + 1) as 1 | 2 | 3 | 4);
-  };
+  const startAndPoll = async () => {
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
 
-  const resetState = () => {
-    setIsConnecting(false);
-    setIsRedirected(false);
-    setTiktokToken(null);
-    setAppUserId(null);
-    // setAuthCode(null);
-  };
-
-  const handleConnect = async () => {
-    setIsConnecting(true);
-    setIsRedirected(false); // Reset redirect state
-
-    // 埋点：点击连接 TikTok
-    trackEvent({
-      event: "click",
-      type: "connect_tiktok_start",
-      uid,
-    });
+    // Reset redirectUrl to show Preparing state if retrying
+    if (redirectUrl) {
+      setRedirectUrl(null);
+    }
 
     try {
-      const { archive_job_id: jobId } = await startTikTokLink();
-      // Poll every 2 seconds
-      const pollInterval = setInterval(async () => {
+      const { archive_job_id: newJobId } = await startTikTokLink();
+      setJobId(newJobId);
+
+      pollIntervalRef.current = setInterval(async () => {
         try {
-          const statusRes = await pollTikTokRedirect(jobId);
+          const statusRes = await pollTikTokRedirect(newJobId);
           console.log("Poll status:", statusRes.status);
+
+          // 1. Ready state: We got the URL
           if (statusRes.status === "ready" && statusRes.redirect_url) {
-            // Open in new window as requested
-            setIsRedirected((prev) => {
-              if (!prev) {
-                window.location.href = statusRes.redirect_url as string;
-                return true;
-              }
-              return prev;
-            });
+            setRedirectUrl(statusRes.redirect_url);
+            // UI will automatically update to Connect state in Step 2
           }
 
+          // 2. Completed state: User finished login
           if (statusRes.status === "completed") {
-            clearInterval(pollInterval);
-            // Save credentials if returned
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+
             if (statusRes.token && statusRes.app_user_id) {
               setTiktokToken(statusRes.token);
               setAppUserId(statusRes.app_user_id);
@@ -127,27 +129,55 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
               uid,
             });
 
-            // Transition to loading step
             setStep(3);
           }
 
+          // 3. Error/Expired state: Retry
           if (
             statusRes.status === "expired" ||
             statusRes.status === "reauth_needed"
           ) {
-            clearInterval(pollInterval);
-            resetState();
-            alert("Session expired or re-auth needed. Please try again.");
+            console.log("Session expired, restarting...");
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+            startAndPoll(); // Recursive retry
           }
         } catch (error) {
           console.error("Polling error:", error);
-          resetState();
+          // Optional: retry on error?
         }
-      }, 3000);
+      }, 2000); // Poll every 2s
     } catch (error) {
-      console.error("Connection start error:", error);
-      resetState();
-      alert("Failed to start connection");
+      console.error("Failed to start:", error);
+      // Retry after delay
+      setTimeout(startAndPoll, 2000);
+    }
+  };
+
+  const handleFindOut = () => {
+    // 埋点：点击 Find Out
+    trackEvent({
+      event: "click",
+      type: "find_out_start",
+      uid,
+    });
+    setStep(2); // Immediately go to Step 2 (which shows Preparing initially)
+    startAndPoll();
+  };
+
+  const handleConnect = () => {
+    if (!redirectUrl) return;
+
+    // 埋点：点击连接 TikTok
+    trackEvent({
+      event: "click",
+      type: "connect_tiktok_click",
+      uid,
+    });
+
+    if (isPc) {
+      setShowQrModal(true);
+    } else {
+      window.location.href = redirectUrl;
     }
   };
 
@@ -219,7 +249,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
   return (
     <main
-      className="h-dvh bg-[#313131] text-white flex flex-col items-center relative overflow-hidden px-[3.2rem]"
+      className="h-dvh w-[40.2rem] mx-auto bg-[#313131] text-white flex flex-col items-center relative overflow-hidden"
       style={{
         paddingTop: `calc(env(safe-area-inset-top) + 2rem)`,
         paddingBottom: `calc(env(safe-area-inset-bottom) + 2rem)`,
@@ -236,7 +266,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
             className="w-full h-full flex-grow"
           >
             {/* Main Content Container */}
-            <div className="w-full h-full flex flex-grow flex-col items-center justify-between">
+            <div className="w-full h-full flex flex-grow flex-col items-center justify-between relative px-[3.2rem]">
               {/* Top Section */}
               <div className="flex flex-col items-center text-center w-full">
                 {/* Trend Topic */}
@@ -273,7 +303,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
                 </p>
 
                 <button
-                  onClick={nextStep}
+                  onClick={handleFindOut}
                   className="w-full h-[5.6rem] gap-[0.4rem] bg-white rounded-full flex items-center justify-center text-black font-bold text-[1.8rem] hover:bg-gray-100 transition-colors mt-[2rem]"
                 >
                   Find out
@@ -298,78 +328,137 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           </motion.div>
         )}
 
-        {/* STEP 2: Privacy / Connect */}
+        {/* STEP 2: Privacy / Connect (Includes Preparing State) */}
         {step === 2 && (
           <motion.div
             key="step2"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="w-full h-full flex flex-col items-center flex-grow relative"
+            className="w-full h-full flex flex-col items-center flex-grow "
           >
-            <div className="w-full h-full flex flex-col items-center justify-between flex-grow">
-              <h2 className="w-full text-[2.8rem] font-bold text-center leading-[1.2] pt-[5rem] relative z-[1]">
-                Your data goes in.
-                <br />
-                <span className="text-[#FF5678]">Only insights </span>
-                come out.
-              </h2>
-              <div className="pointer-events-none flex-1 w-full flex items-center justify-center absolute top-[45%] translate-y-[-50%] z-[0]">
-                <Image
-                  src={ScreenBg2}
-                  alt="Connecting"
-                  className="object-contain w-[33.5rem] h-[33.5rem]"
-                />
-              </div>
-              <div className="relative z-[1]">
-                <div className="w-full flex flex-col gap-8 pb-[2.4rem]">
-                  {/* Item 1 */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-[12px] h-[12px] rounded-full bg-[#FF5678] shrink-0" />
-                    <p className="text-[16px] leading-[1.2]">
-                      We can&apos;t post, DM, or touch your account
-                    </p>
-                  </div>
-                  {/* Item 2 */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-[12px] h-[12px] rounded-full bg-[#651AE9] shrink-0" />
-                    <p className="text-[16px] leading-[1.2]">
-                      AI processes your history data, then deletes it — no trace
-                    </p>
-                  </div>
-                  {/* Item 3 */}
-                  <div className="flex items-center gap-3">
-                    <div className="w-[12px] h-[12px] rounded-full bg-[#22C083] shrink-0" />
-                    <p className="text-[16px] leading-[1.2]">
-                      No human can see your data. Not even us
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleConnect}
-                  disabled={isConnecting}
-                  className={`w-[33.4rem] h-[5.6rem] bg-white rounded-full flex items-center justify-center gap-[0.4rem] text-black font-bold text-[1.6rem] transition-colors mt-auto ${
-                    isConnecting
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-gray-100"
-                  }`}
-                >
-                  {isConnecting ? (
-                    "Connecting..."
-                  ) : (
-                    <>
-                      <Image
-                        src={TiktokIcon}
-                        width={18}
-                        height={21}
-                        alt="TikTok"
-                      />
-                      Connect TikTok
-                    </>
-                  )}
-                </button>
-              </div>
+            {/* Background Image (Shared between Preparing and Connect) */}
+            <div className="pointer-events-none flex-1 w-full flex items-center justify-center absolute top-[45%] translate-y-[-50%] z-[0] px-[3.2rem]">
+              <Image
+                src={ScreenBg2}
+                alt="Connecting"
+                className="object-contain w-[33.5rem] h-[33.5rem]"
+              />
             </div>
+
+            {!redirectUrl ? (
+              /* PREPARING STATE UI */
+              <div className="w-full h-full flex flex-col items-center justify-center relative z-[1]">
+                <p className="text-[1.8rem] font-bold text-white mt-[20rem] animate-pulse">
+                  Preparing your experience...
+                </p>
+              </div>
+            ) : (
+              /* CONNECT STATE UI */
+              <div className="w-full h-full flex flex-col items-center justify-between flex-grow">
+                <h2 className="w-full text-[2.8rem] font-bold text-center leading-[1.2] pt-[5rem] relative z-[1]">
+                  Your data goes in.
+                  <br />
+                  <span className="text-[#FF5678]">Only insights </span>
+                  come out.
+                </h2>
+
+                <div className="relative z-[1]">
+                  <div className="w-full flex flex-col gap-8 pb-[2.4rem]">
+                    {/* Item 1 */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-[12px] h-[12px] rounded-full bg-[#FF5678] shrink-0" />
+                      <p className="text-[16px] leading-[1.2]">
+                        We can&apos;t post, DM, or touch your account
+                      </p>
+                    </div>
+                    {/* Item 2 */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-[12px] h-[12px] rounded-full bg-[#651AE9] shrink-0" />
+                      <p className="text-[16px] leading-[1.2]">
+                        AI processes your history data, then deletes it — no
+                        trace
+                      </p>
+                    </div>
+                    {/* Item 3 */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-[12px] h-[12px] rounded-full bg-[#22C083] shrink-0" />
+                      <p className="text-[16px] leading-[1.2]">
+                        No human can see your data. Not even us
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleConnect}
+                    className="w-[33.4rem] h-[5.6rem] bg-white rounded-full flex items-center justify-center gap-[0.4rem] text-black font-bold text-[1.6rem] transition-colors mt-auto hover:bg-gray-100"
+                  >
+                    <Image
+                      src={TiktokIcon}
+                      width={18}
+                      height={21}
+                      alt="TikTok"
+                    />
+                    Connect TikTok
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* PC QR Code Modal */}
+            <AnimatePresence>
+              {showQrModal && redirectUrl && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                  onClick={() => setShowQrModal(false)}
+                >
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    className="bg-white rounded-3xl p-8 flex flex-col items-center gap-6 max-w-md w-full relative"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      onClick={() => setShowQrModal(false)}
+                      className="absolute top-4 right-4 text-black/50 hover:text-black transition-colors"
+                    >
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+
+                    <h3 className="text-[2.4rem] font-bold text-black text-center leading-tight">
+                      Scan to Connect
+                    </h3>
+
+                    <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                      <QRCodeSVG
+                        value={redirectUrl}
+                        size={240}
+                        level="H"
+                        includeMargin={true}
+                      />
+                    </div>
+
+                    <p className="text-[1.6rem] text-center text-gray-600">
+                      Open your camera app to scan this code and connect your
+                      TikTok account.
+                    </p>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
 
@@ -380,9 +469,9 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="w-full h-full flex flex-col items-center justify-center relative"
+            className="w-full h-full"
           >
-            <div className="flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center justify-center relative px-[3.2rem]">
               <p className="text-[2.4rem] font-bold text-center">
                 Reading your watch history...
               </p>
@@ -406,9 +495,9 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
             key="step4"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full h-full flex flex-col items-center flex-grow"
+            className="w-full h-full"
           >
-            <div className="w-full flex flex-col items-center pt-[5rem] z-10 h-full justify-between flex-grow">
+            <div className="w-full flex flex-col items-center pt-[5rem] z-10 h-full justify-between flex-grow relative px-[3.2rem]">
               <div className="flex flex-col items-center gap-[2rem] text-center relative z-[1]">
                 <h2 className="text-[3.2rem] font-bold text-[#FF5678]">
                   You&apos;re in!
