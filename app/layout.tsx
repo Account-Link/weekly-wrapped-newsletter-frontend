@@ -1,6 +1,9 @@
 // 文件功能：应用根布局与基础元信息，处于 Next App 的入口层
 // 方法概览：根布局组件
 import "./globals.css";
+import { ToastProvider } from "@/context/ToastContext";
+import VConsoleComponent from "@/components/debug/VConsole";
+
 export const metadata = {
   title: "FTikTok Weekly FYP Scout",
   description: "TikTok Weekly FYP Scout",
@@ -23,7 +26,12 @@ export default function RootLayout({
         name="apple-mobile-web-app-status-bar-style"
         content="black-translucent"
       />
-      <body className="bg-[#313131]">{children}</body>
+      <body className="bg-[#313131]">
+        <ToastProvider>
+          {children}
+          <VConsoleComponent />
+        </ToastProvider>
+      </body>
     </html>
   );
 }

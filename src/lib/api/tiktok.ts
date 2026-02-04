@@ -57,7 +57,62 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+// Response Interceptor: Handle errors and 410 status
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => {
+    if (axios.isAxiosError(error)) {
+      // Network error (no response)
+      if (!error.response) {
+        const isTimeout = error.code === 'ECONNABORTED';
+        const message = isTimeout ? 'Request timed out' : 'Network error';
+        throw new ApiRequestError(message, 0, isTimeout ? 'timeout_error' : 'network_error', true);
+      }
+
+      // HTTP error response
+      const status = error.response.status;
+      const errorData = error.response.data as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+      // Handle 410 expired status: if response contains status field, treat as valid response
+      if (status === 410 && errorData && typeof errorData === 'object' && 'status' in errorData) {
+        return {
+          ...error.response,
+          data: errorData,
+          status: 200, // Treat as success
+          statusText: 'OK',
+        };
+      }
+
+      // Extract error message
+      const message = errorData.message || errorData.error || 'Unknown error occurred';
+      const code = errorData.error || 'server_error';
+      
+      throw new ApiRequestError(message, status, code);
+    }
+
+    // Unknown error
+    const message = error instanceof Error ? error.message : 'Unknown error occurred';
+    throw new ApiRequestError(message, 0, 'unknown_error');
+  }
+);
+
 // --- Types ---
+
+export class ApiRequestError extends Error {
+  status: number;
+  code: string;
+  isNetworkError: boolean;
+  isServerError: boolean;
+
+  constructor(message: string, status: number, code: string = 'unknown_error', isNetworkError = false) {
+    super(message);
+    this.name = 'ApiRequestError';
+    this.status = status;
+    this.code = code;
+    this.isNetworkError = isNetworkError;
+    this.isServerError = status >= 500 && status < 600;
+  }
+}
 
 export interface TikTokRedirectResponse {
   status: "pending" | "ready" | "completed" | "error" | "expired" | "reauth_needed";

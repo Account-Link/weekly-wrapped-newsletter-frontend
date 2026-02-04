@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { startTikTokLink, pollTikTokRedirect } from "@/lib/api/tiktok";
 import { FeedlingState } from "@/domain/report/types";
+import { useToast } from "@/context/ToastContext";
 
 import TiktokIcon from "@/assets/figma/invite/tiktok-icon.svg";
 import ScreenBg1 from "@/assets/figma/invite/screen-bg_1.gif";
@@ -26,6 +27,7 @@ type InviteFlowProps = {
 export default function InviteFlow({ data }: InviteFlowProps) {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [progress, setProgress] = useState(0);
+  const { showToast } = useToast();
 
   // TikTok Connect State
   const [isConnecting, setIsConnecting] = useState(false);
@@ -80,12 +82,12 @@ export default function InviteFlow({ data }: InviteFlowProps) {
       const pollInterval = setInterval(async () => {
         try {
           const statusRes = await pollTikTokRedirect(jobId);
-
+          console.log("Poll status:", statusRes.status);
           if (statusRes.status === "ready" && statusRes.redirect_url) {
             // Open in new window as requested
             setIsRedirected((prev) => {
               if (!prev) {
-                window.open(statusRes.redirect_url, "_blank");
+                window.location.href = statusRes.redirect_url as string;
                 return true;
               }
               return prev;
@@ -99,6 +101,8 @@ export default function InviteFlow({ data }: InviteFlowProps) {
               setTiktokToken(statusRes.token);
               setAppUserId(statusRes.app_user_id);
             }
+            // Transition to loading step
+            setStep(3);
           }
 
           if (
@@ -118,6 +122,64 @@ export default function InviteFlow({ data }: InviteFlowProps) {
       console.error("Connection start error:", error);
       resetState();
       alert("Failed to start connection");
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    // Try navigator.clipboard API first (if available and secure context)
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (err) {
+        console.warn("Clipboard API failed, falling back...", err);
+      }
+    }
+
+    // Fallback for older browsers / non-secure contexts
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+
+      // Ensure it's not visible but part of the DOM
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
+      document.body.appendChild(textArea);
+
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      return successful;
+    } catch (err) {
+      console.error("Fallback copy failed", err);
+      return false;
+    }
+  };
+
+  const handleInvite = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "FYP Scout",
+          text: "Check out my TikTok Wrapped!",
+          url: url,
+        });
+        return;
+      } catch (error) {
+        console.log("Share failed or cancelled", error);
+      }
+    }
+
+    const success = await copyToClipboard(url);
+    if (success) {
+      showToast("Link copied to clipboard!");
+    } else {
+      showToast("Failed to copy link");
     }
   };
 
@@ -178,7 +240,7 @@ export default function InviteFlow({ data }: InviteFlowProps) {
 
                 <button
                   onClick={nextStep}
-                  className="w-full h-[5.6rem] bg-white rounded-full flex items-center justify-center text-black font-bold text-[1.8rem] hover:bg-gray-100 transition-colors mt-[2rem]"
+                  className="w-full h-[5.6rem] gap-[0.4rem] bg-white rounded-full flex items-center justify-center text-black font-bold text-[1.8rem] hover:bg-gray-100 transition-colors mt-[2rem]"
                 >
                   Find out
                   <svg
@@ -341,7 +403,10 @@ export default function InviteFlow({ data }: InviteFlowProps) {
                   We&apos;ll handle the rest.
                 </p>
 
-                <button className="w-[33.4rem] h-[5.6rem] bg-white rounded-full flex items-center justify-center gap-2 text-black font-bold text-[1.6rem] hover:bg-gray-100 transition-colors">
+                <button
+                  onClick={handleInvite}
+                  className="w-[33.4rem] h-[5.6rem] bg-white gap-[0.4rem] rounded-full flex items-center justify-center text-black font-bold text-[1.6rem] hover:bg-gray-100 transition-colors"
+                >
                   Invite your friends?
                 </button>
               </div>

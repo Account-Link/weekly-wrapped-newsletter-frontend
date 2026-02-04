@@ -7,6 +7,7 @@ import TopicIcon from "./images/topic.png";
 import BannedIcon from "./images/banned.png";
 import CatIcon from "./images/cat.gif";
 import { unsubscribe, resubscribe } from "@/lib/api/report";
+import { useToast } from "@/context/ToastContext";
 
 type UnsubscribeState = "confirm" | "unsubscribed" | "subscribed";
 
@@ -27,7 +28,7 @@ const resolveState = (value?: string | null): UnsubscribeState => {
 export default function UnsubscribeClient() {
   const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const { showToast } = useToast();
   const uid = searchParams.get("uid") ?? "";
 
   const [state, setState] = useState<UnsubscribeState>(() =>
@@ -36,22 +37,21 @@ export default function UnsubscribeClient() {
 
   const handleUnsubscribe = async () => {
     if (!uid) {
-      setErrorMessage("Missing uid. Please open this page from the email.");
+      showToast("Missing uid. Please open this page from the email.");
       return;
     }
 
     setIsSubmitting(true);
-    setErrorMessage("");
 
     try {
       const { success } = await unsubscribe(uid);
       if (!success) {
-        setErrorMessage("Unsubscribe failed. Please try again.");
+        showToast("Unsubscribe failed. Please try again.");
         return;
       }
       setState("unsubscribed");
     } catch {
-      setErrorMessage("Unsubscribe failed. Please try again.");
+      showToast("Unsubscribe failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -59,22 +59,21 @@ export default function UnsubscribeClient() {
 
   const handleResubscribe = async () => {
     if (!uid) {
-      setErrorMessage("Missing uid. Please open this page from the email.");
+      showToast("Missing uid. Please open this page from the email.");
       return;
     }
 
     setIsSubmitting(true);
-    setErrorMessage("");
 
     try {
       const { success } = await resubscribe(uid);
       if (!success) {
-        setErrorMessage("Re-subscribe failed. Please try again.");
+        showToast("Re-subscribe failed. Please try again.");
         return;
       }
       setState("subscribed");
     } catch {
-      setErrorMessage("Re-subscribe failed. Please try again.");
+      showToast("Re-subscribe failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -166,11 +165,6 @@ export default function UnsubscribeClient() {
             >
               Re-subscribe
             </button>
-            {errorMessage ? (
-              <p className="text-[1.4rem] text-[#FF4F7A] mt-[1.2rem]">
-                {errorMessage}
-              </p>
-            ) : null}
           </div>
         </div>
       </div>
