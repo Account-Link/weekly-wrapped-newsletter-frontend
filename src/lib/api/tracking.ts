@@ -9,16 +9,23 @@ export type TrackEventPayload = {
 };
 
 export async function trackEvent(payload: TrackEventPayload): Promise<void> {
-  const response = await fetch("/api/track", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  try {
+    const response = await fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      keepalive: true, // 防止页面跳转打断
+    });
 
-  if (!response.ok) {
-    // Silently fail or log to console in development
+    if (!response.ok) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Tracking failed:", await response.text());
+      }
+    }
+  } catch (error) {
+    // Silently catch all errors to prevent blocking flow
     if (process.env.NODE_ENV === "development") {
-      console.error("Tracking failed:", await response.text());
+      console.error("Tracking exception:", error);
     }
   }
 }

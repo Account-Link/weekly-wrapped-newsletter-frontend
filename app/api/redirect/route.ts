@@ -2,6 +2,7 @@
 // 方法概览：验证白名单、记录埋点、执行 307 跳转
 import { NextResponse } from "next/server";
 import { getAppBaseUrl } from "@/lib/config";
+import { waitUntil } from "@vercel/functions"; // 使用 waitUntil 确保异步任务完成
 
 // 允许的重定向白名单
 const isAllowedRedirect = (target: URL, requestOrigin: URL) => {
@@ -36,9 +37,7 @@ export async function GET(request: Request) {
   }
 
   // 1. 记录埋点 (异步调用纯埋点接口，不阻塞跳转)
-  // 注意：在 Serverless 环境下，fire-and-forget 可能不可靠，最好 await。
-  // 但为了跳转速度，这里我们假设 /api/track 响应很快，或者接受极小概率丢失。
-  // 更稳妥的方式是直接在这里调 DB，但为了解耦，我们调用内部 API。
+  // 使用 waitUntil 确保在 Response 返回后，Serverless 函数不会立即被冻结，而是等待 Promise 完成
 
   // 确保 targetUrl 放入 extraData
   if (targetUrlStr) {
@@ -55,17 +54,15 @@ export async function GET(request: Request) {
     extraData: Object.keys(extraData).length > 0 ? extraData : undefined,
   };
 
-  // 这里我们选择直接调用 trackEvent (它是 fetch 调用)
-
-  // 为了性能，不 await 它的完全完成，但在 Vercel 等平台可能需要在 response 前完成。
-  // 权衡：为了解耦和复用 /api/track 的逻辑，我们发起一个 fetch。
-  // 如果追求极致性能，可以将 recordEvent 逻辑抽取到 lib/analytics.ts 中共享。
+  // 这里的 fetch 可能会比较慢，使用 waitUntil 包裹
   const appBaseUrl = getAppBaseUrl();
-  fetch(`${appBaseUrl}/api/track`, {
+  const trackPromise = fetch(`${appBaseUrl}/api/track`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(trackPayload),
   }).catch((err) => console.error("Redirect tracking failed:", err));
+
+  waitUntil(trackPromise);
 
   // 2. 处理重定向
   if (targetUrlStr) {

@@ -3,6 +3,7 @@
 import admin from "firebase-admin";
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { waitUntil } from "@vercel/functions";
 
 const transparentGif = Buffer.from(
   "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
@@ -20,24 +21,44 @@ type TrackEventPayload = {
   extraData?: Record<string, unknown>;
 };
 
+// 定义输入接口，涵盖 URL 参数和 JSON Body 的可能字段
+type TrackEventInput = {
+  event?: string;
+  type?: string;
+  uid?: string;
+  eid?: string;
+  email_id?: string;
+  weekStart?: string;
+  action?: string;
+  source?: string;
+  targetUrl?: string;
+  url?: string;
+  extraData?: string | Record<string, unknown>;
+  [key: string]: unknown;
+};
+
 // 规范化 Payload：处理字段映射与迁移
-function normalizePayload(input: Record<string, any>): TrackEventPayload {
-  const extraData = input.extraData ? { ...input.extraData } : {};
+function normalizePayload(input: TrackEventInput): TrackEventPayload {
+  let extraData: Record<string, unknown> = {};
+
+  // 处理 extraData: 可能是 JSON 对象 (POST body) 或 JSON 字符串 (URL params)
+  if (typeof input.extraData === "string") {
+    try {
+      const parsed = JSON.parse(input.extraData);
+      if (typeof parsed === "object" && parsed !== null) {
+        extraData = parsed;
+      }
+    } catch {
+      // ignore
+    }
+  } else if (typeof input.extraData === "object" && input.extraData !== null) {
+    extraData = { ...(input.extraData as Record<string, unknown>) };
+  }
 
   // 1. 迁移 targetUrl 到 extraData
   const targetUrl = input.targetUrl || input.url;
   if (targetUrl) {
     extraData.targetUrl = targetUrl;
-  }
-
-  // 2. 解析 extraData 字符串 (如果是来自 URL 参数)
-  if (typeof input.extraData === "string") {
-    try {
-      const parsed = JSON.parse(input.extraData);
-      Object.assign(extraData, parsed);
-    } catch {
-      // ignore
-    }
   }
 
   return {
@@ -55,7 +76,7 @@ function normalizePayload(input: Record<string, any>): TrackEventPayload {
 function buildPayloadFromSearchParams(
   params: URLSearchParams,
 ): TrackEventPayload {
-  const input: Record<string, any> = {};
+  const input: TrackEventInput = {};
   params.forEach((value, key) => {
     input[key] = value;
   });
@@ -71,7 +92,10 @@ async function recordEvent(
 
   // 移除 undefined 字段，防止 Firestore 报错
   const cleanPayload = JSON.parse(JSON.stringify(payload));
-  if (cleanPayload.extraData && cleanPayload.extraData.targetUrl === undefined) {
+  if (
+    cleanPayload.extraData &&
+    cleanPayload.extraData.targetUrl === undefined
+  ) {
     delete cleanPayload.extraData.targetUrl;
   }
 
@@ -84,14 +108,17 @@ async function recordEvent(
   const docId = `${uidPart}_${eidPart}_${payload.event}_${typePart}_${actionPart}_${timestamp}`;
 
   try {
-    await adminDb.collection("analytics_logs").doc(docId).set({
-      ...cleanPayload,
-      userAgent: request.headers.get("user-agent"),
-      ip:
-        request.headers.get("x-forwarded-for") ??
-        request.headers.get("x-real-ip"),
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    await adminDb
+      .collection("analytics_logs")
+      .doc(docId)
+      .set({
+        ...cleanPayload,
+        userAgent: request.headers.get("user-agent"),
+        ip:
+          request.headers.get("x-forwarded-for") ??
+          request.headers.get("x-real-ip"),
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
   } catch (error) {
     console.error("Firestore write failed:", error);
   }
@@ -101,8 +128,8 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const payload = buildPayloadFromSearchParams(url.searchParams);
 
-  // 1. 记录埋点
-  await recordEvent(payload, request);
+  // 1. 记录埋点 (使用 waitUntil 异步写入，快速响应)
+  waitUntil(recordEvent(payload, request));
 
   // 2. 默认返回透明像素 (用于 open tracking 或纯埋点请求)
   return new NextResponse(transparentGif, {
@@ -118,7 +145,10 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const payload = normalizePayload(body);
-    await recordEvent(payload, request);
+
+    // 使用 waitUntil 异步写入，快速响应
+    waitUntil(recordEvent(payload, request));
+
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });

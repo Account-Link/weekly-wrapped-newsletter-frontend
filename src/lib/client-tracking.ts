@@ -10,18 +10,20 @@ export type TrackEventPayload = {
 
 export const trackEvent = async (payload: TrackEventPayload) => {
   try {
-    // 使用相对路径，自动适配当前域名
+    // 使用 keepalive: true 防止页面跳转打断请求
     const res = await fetch("/api/track", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
+      keepalive: true,
     });
     if (!res.ok) {
       console.error("Tracking failed:", res.statusText);
     }
   } catch (error) {
+    // 确保埋点错误绝对不影响主流程
     console.error("Tracking error:", error);
   }
 };
