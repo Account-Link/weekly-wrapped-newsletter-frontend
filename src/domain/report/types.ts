@@ -158,3 +158,86 @@ export interface WeeklyReportData {
     text?: string;
   };
 }
+
+// ===== 业务类型定义 (View Models) =====
+
+export interface WeeklyOpening {
+  title: string;
+  subtitle: string;
+  dateRange: string;
+}
+
+export interface WeeklyTrend {
+  topic: string;
+  statusText: string;
+  discoveryText: string;
+  rank: number | null;
+  totalDiscoverers: number;
+  startTag: string;
+  startPercent: string;
+  endTag: string;
+  endPercent: string;
+  trendProgress: number; // 0-100
+  type?: TrendType;
+  ctaLabel: string;
+  progressImageUrl?: string;
+  shareUrl?: string;
+}
+
+export interface WeeklyDiagnosis {
+  title: string;
+  totalVideosValue: string;
+  totalVideosUnit: string;
+  totalTimeValue: string;
+  totalTimeUnit: string;
+  comparisonDiff: string | null;
+  comparisonText: string;
+  miles: number;
+  milesComment: string;
+  thisWeekLabel: string;
+  lastWeekLabel: string;
+  thisWeekValue: number; // 0-100
+  lastWeekValue: number; // 0-100
+  barChartImageUrl?: string;
+  shareUrl?: string;
+}
+
+export interface WeeklyNewContent {
+  label: string;
+  stickerUrl: string;
+}
+
+export interface WeeklyRabbitHole {
+  timeLabel: string;
+  description: string;
+  imageUrl: string;
+}
+
+export interface WeeklyNudge {
+  title: string;
+  message: string;
+  ctaLabel: string;
+  linkUrl?: string;
+}
+
+export interface WeeklyFooter {
+  tiktokUrl: string;
+}
+
+export interface WeeklyData {
+  uid: string;
+  assetBaseUrl: string;
+  weekStart: string; // ISO date string
+  weekEnd: string; // ISO date string
+  trackingBaseUrl: string;
+  feedlingState: FeedlingState;
+  opening: WeeklyOpening;
+  trend: WeeklyTrend;
+  diagnosis: WeeklyDiagnosis;
+  newContents: WeeklyNewContent[];
+  rabbitHole: WeeklyRabbitHole;
+  weeklyNudge: WeeklyNudge;
+  footer: WeeklyFooter;
+  period_start?: string;
+  period_end?: string;
+}

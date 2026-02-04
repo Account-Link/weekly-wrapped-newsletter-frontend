@@ -1,6 +1,6 @@
 import React from "react";
 import { isAxiosError } from "axios";
-import { getWeeklyData } from "@/lib/firebase-admin";
+import { getWeeklyData } from "@/domain/report/service";
 import InviteFlow from "./InviteFlow";
 
 export default async function InvitePage({

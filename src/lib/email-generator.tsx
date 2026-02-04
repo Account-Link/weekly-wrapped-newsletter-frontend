@@ -7,7 +7,7 @@ import {
 import { mockReports } from "@/domain/report/mock";
 import crypto from "node:crypto";
 import type { WeeklyData } from "@/lib/firebase-admin";
-import { getWeeklyData } from "@/lib/firebase-admin";
+import { getWeeklyData } from "@/domain/report/service";
 import type { WeeklyReportApiResponse } from "@/domain/report/types";
 import { ReportPipeline } from "@/core/pipeline/report-pipeline";
 import type { AssetKeySet } from "@/core/pipeline/types";

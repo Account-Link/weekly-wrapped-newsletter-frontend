@@ -41,7 +41,8 @@ export async function GET(request: Request) {
       if (!uid) {
         return NextResponse.json({ error: "Missing uid" }, { status: 400 });
       }
-      const { getWeeklyData } = await import("../../../src/lib/firebase-admin");
+      const { getWeeklyData } =
+        await import("../../../src/domain/report/service");
       weeklyData = await getWeeklyData(uid);
       console.log("weeklyData", weeklyData);
     }
@@ -84,8 +85,9 @@ export async function POST(request: Request) {
       if (!body?.uid) {
         return NextResponse.json({ error: "Missing uid" }, { status: 400 });
       }
-      const { adminDb, getWeeklyData } =
-        await import("../../../src/lib/firebase-admin");
+      const { adminDb } = await import("../../../src/lib/firebase-admin");
+      const { getWeeklyData } =
+        await import("../../../src/domain/report/service");
       const shouldCheckAdmin = process.env.FIREBASE_ADMIN_CHECK === "true";
       if (!shouldCheckAdmin || !adminDb) {
       } else {

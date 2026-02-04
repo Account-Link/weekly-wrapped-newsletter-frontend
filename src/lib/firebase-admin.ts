@@ -1,12 +1,6 @@
-// 文件功能：初始化 Firebase Admin 并定义周报数据类型与获取方法
-// 方法概览：Admin 单例初始化、类型定义、周报数据拉取与映射
+// 文件功能：初始化 Firebase Admin
+// 方法概览：Admin 单例初始化
 import admin from "firebase-admin";
-import { getWeeklyData as fetchWeeklyReport } from "@/lib/api/report";
-import type {
-  WeeklyReportApiResponse,
-  FeedlingState,
-  TrendType,
-} from "@/domain/report/types";
 
 // 方法功能：Admin 单例初始化，避免重复初始化导致报错
 // 重要逻辑：God Mode 单例初始化，防止重复初始化导致报错
@@ -77,124 +71,7 @@ initAdminSingleton();
 
 // 方法功能：导出 Firestore 与 Cloud Storage 客户端
 export const adminDb = admin.apps.length > 0 ? admin.firestore() : null;
-export const adminStorage = admin.apps.length > 0 ? admin.storage() : null;
+// export const adminStorage = admin.apps.length > 0 ? admin.storage() : null; // 未使用，已注释
 
-// ===== 业务类型定义 =====
-// WeeklyHero has been removed
-
-export interface WeeklyOpening {
-  title: string;
-  subtitle: string;
-  dateRange: string;
-}
-
-export interface WeeklyTrend {
-  topic: string;
-  statusText: string;
-  discoveryText: string;
-  rank: number | null;
-  totalDiscoverers: number;
-  startTag: string;
-  startPercent: string;
-  endTag: string;
-  endPercent: string;
-  trendProgress: number; // 0-100
-  type?: TrendType;
-  ctaLabel: string;
-  progressImageUrl?: string;
-  shareUrl?: string;
-}
-
-export interface WeeklyDiagnosis {
-  title: string;
-  totalVideosValue: string;
-  totalVideosUnit: string;
-  totalTimeValue: string;
-  totalTimeUnit: string;
-  comparisonDiff: string | null;
-  comparisonText: string;
-  miles: number;
-  milesComment: string;
-  thisWeekLabel: string;
-  lastWeekLabel: string;
-  thisWeekValue: number; // 0-100
-  lastWeekValue: number; // 0-100
-  barChartImageUrl?: string;
-  shareUrl?: string;
-}
-
-export interface WeeklyNewContent {
-  label: string;
-  stickerUrl: string;
-}
-
-export interface WeeklyRabbitHole {
-  timeLabel: string;
-  description: string;
-  imageUrl: string;
-}
-
-export interface WeeklyNudge {
-  title: string;
-  message: string;
-  ctaLabel: string;
-  linkUrl?: string;
-}
-
-export interface WeeklyFooter {
-  tiktokUrl: string;
-}
-
-export interface WeeklyData {
-  uid: string;
-  assetBaseUrl: string;
-  weekStart: string; // ISO date string
-  weekEnd: string; // ISO date string
-  trackingBaseUrl: string;
-  feedlingState: FeedlingState;
-  opening: WeeklyOpening;
-  trend: WeeklyTrend;
-  diagnosis: WeeklyDiagnosis;
-  newContents: WeeklyNewContent[];
-  rabbitHole: WeeklyRabbitHole;
-  weeklyNudge: WeeklyNudge;
-  footer: WeeklyFooter;
-  period_start?: string;
-  period_end?: string;
-}
-
-// 方法功能：拉取周报数据并映射为 WeeklyData
-// 重要逻辑：请求后端接口并统一映射，保证模板可直接使用
-export async function getWeeklyData(
-  uid: string,
-  period_start?: string,
-  period_end?: string,
-): Promise<WeeklyData> {
-  const apiReport = await fetchWeeklyReport(uid, period_start, period_end);
-
-  const { mapApiReportToWeeklyReportData, mapReportToWeeklyData } =
-    await import("@/domain/report/adapter");
-  const report = mapApiReportToWeeklyReportData(apiReport);
-  const assetBaseUrl =
-    process.env.EMAIL_ASSET_BASE_URL ||
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
-  const weeklyData = mapReportToWeeklyData(
-    apiReport.app_user_id || uid,
-    report,
-    {
-      assetBaseUrl,
-      trackingBaseUrl: assetBaseUrl,
-    },
-  );
-
-  if (period_start) {
-    weeklyData.period_start = period_start;
-  }
-  if (period_end) {
-    weeklyData.period_end = period_end;
-  }
-
-  return weeklyData;
-}
+// Re-export all types
+export * from "@/domain/report/types";

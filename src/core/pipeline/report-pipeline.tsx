@@ -22,41 +22,42 @@ const bufferToDataUrl = (buffer: Buffer) =>
   `data:image/png;base64,${buffer.toString("base64")}`;
 
 async function renderShareCardPngs(data: WeeklyData) {
-  const trendCardPng = await renderTrendShareCardImage({
-    topicTitle: data.trend.topic.replace(/“|”/g, ""),
-    topicSubtitle: data.trend.statusText,
-    discoveryRank: data.trend.rank ?? 0,
-    totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
-    progress: data.trend.trendProgress,
-    hashtag: data.trend.startTag,
-    hashtagPercent: data.trend.startPercent,
-    endTag: data.trend.endTag,
-    globalPercent: data.trend.endPercent,
-    width: 390,
-    height: 693,
-    trendType: data.trend.type,
-  });
-
-  const statsCardPng = await renderStatsShareCardImage({
-    totalVideos: data.diagnosis.totalVideosValue,
-    totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
-    miles: `${data.diagnosis.miles}`,
-    comparisonDiff: data.diagnosis.comparisonDiff,
-    comparisonText: data.diagnosis.comparisonText,
-    milesComment: data.diagnosis.milesComment,
-    barChartData: {
-      lastWeekLabel: data.diagnosis.lastWeekLabel,
-      thisWeekLabel: data.diagnosis.thisWeekLabel,
-      lastWeekValue: data.diagnosis.lastWeekValue,
-      thisWeekValue: data.diagnosis.thisWeekValue,
-    },
-    contents: data.newContents.slice(0, 3).map((content) => ({
-      label: content.label,
-      iconUrl: content.stickerUrl,
-    })),
-    width: 390,
-    height: 960,
-  });
+  const [trendCardPng, statsCardPng] = await Promise.all([
+    renderTrendShareCardImage({
+      topicTitle: data.trend.topic.replace(/“|”/g, ""),
+      topicSubtitle: data.trend.statusText,
+      discoveryRank: data.trend.rank ?? 0,
+      totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
+      progress: data.trend.trendProgress,
+      hashtag: data.trend.startTag,
+      hashtagPercent: data.trend.startPercent,
+      endTag: data.trend.endTag,
+      globalPercent: data.trend.endPercent,
+      width: 390,
+      height: 693,
+      trendType: data.trend.type,
+    }),
+    renderStatsShareCardImage({
+      totalVideos: data.diagnosis.totalVideosValue,
+      totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
+      miles: `${data.diagnosis.miles}`,
+      comparisonDiff: data.diagnosis.comparisonDiff,
+      comparisonText: data.diagnosis.comparisonText,
+      milesComment: data.diagnosis.milesComment,
+      barChartData: {
+        lastWeekLabel: data.diagnosis.lastWeekLabel,
+        thisWeekLabel: data.diagnosis.thisWeekLabel,
+        lastWeekValue: data.diagnosis.lastWeekValue,
+        thisWeekValue: data.diagnosis.thisWeekValue,
+      },
+      contents: data.newContents.slice(0, 3).map((content) => ({
+        label: content.label,
+        iconUrl: content.stickerUrl,
+      })),
+      width: 390,
+      height: 960,
+    }),
+  ]);
 
   return { trendCardPng, statsCardPng };
 }
@@ -68,35 +69,37 @@ async function attachBasicChartAssets(
 ) {
   // 重要逻辑：先生成基础图表，再统一回填到 WeeklyData 的可渲染字段
   const { useUploads = true, uploadTarget = "api" } = options;
-  // 重要逻辑：进度条图作为 hero 区块视觉主图
-  const progressPng = await renderTrendProgressImage({
-    progress: data.trend.trendProgress,
-    width: 520,
-    height: 64,
-  });
-
-  // 重要逻辑：诊断柱状图作为统计模块核心图表
-  const barChartPng = await renderDiagnosisBarChartImage({
-    lastWeekLabel: data.diagnosis.lastWeekLabel,
-    thisWeekLabel: data.diagnosis.thisWeekLabel,
-    lastWeekValue: data.diagnosis.lastWeekValue,
-    thisWeekValue: data.diagnosis.thisWeekValue,
-    width: 520,
-    height: 265,
-  });
+  
+  // 重要逻辑：并行生成基础图表
+  const [progressPng, barChartPng] = await Promise.all([
+    renderTrendProgressImage({
+      progress: data.trend.trendProgress,
+      width: 520,
+      height: 64,
+    }),
+    renderDiagnosisBarChartImage({
+      lastWeekLabel: data.diagnosis.lastWeekLabel,
+      thisWeekLabel: data.diagnosis.thisWeekLabel,
+      lastWeekValue: data.diagnosis.lastWeekValue,
+      thisWeekValue: data.diagnosis.thisWeekValue,
+      width: 520,
+      height: 265,
+    }),
+  ]);
 
   if (useUploads) {
     // 重要逻辑：上传后写回 URL，供邮件模板渲染图片版本
     const uploadFn =
       uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
-    data.trend.progressImageUrl = await uploadFn(
-      progressPng,
-      options.progressKey,
-    );
-    data.diagnosis.barChartImageUrl = await uploadFn(
-      barChartPng,
-      options.barsKey,
-    );
+    
+    // 重要逻辑：并行上传基础图表
+    const [progressImageUrl, barChartImageUrl] = await Promise.all([
+      uploadFn(progressPng, options.progressKey),
+      uploadFn(barChartPng, options.barsKey),
+    ]);
+    
+    data.trend.progressImageUrl = progressImageUrl;
+    data.diagnosis.barChartImageUrl = barChartImageUrl;
     return;
   }
 
@@ -119,9 +122,11 @@ async function attachShareAssetsAndLinks(
   // 重要逻辑：趋势分享图用于社交传播卡片
   const { trendCardPng, statsCardPng } = await renderShareCardPngs(data);
 
-  // 重要逻辑：上传分享图并获取对外 URL
-  const trendCardUrl = await uploadFn(trendCardPng, options.shareTrendKey);
-  const statsCardUrl = await uploadFn(statsCardPng, options.shareStatsKey);
+  // 重要逻辑：并行上传分享图并获取对外 URL
+  const [trendCardUrl, statsCardUrl] = await Promise.all([
+    uploadFn(trendCardPng, options.shareTrendKey),
+    uploadFn(statsCardPng, options.shareStatsKey),
+  ]);
 
   // 重要逻辑：构建可追踪的下载链接，带上用户与周期参数
   const encodedUid = encodeURIComponent(data.uid);
