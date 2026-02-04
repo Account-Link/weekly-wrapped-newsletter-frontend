@@ -142,9 +142,9 @@ export default function InviteFlow({ data }: InviteFlowProps) {
             {/* Main Content Container */}
             <div className="w-full h-full flex flex-grow flex-col items-center justify-between">
               {/* Top Section */}
-              <div className="flex flex-col items-center text-center relative w-full">
+              <div className="flex flex-col items-center text-center w-full">
                 {/* Trend Topic */}
-                <div className="relative mt-[4.5rem] transform -rotate-6">
+                <div className="relative mt-[4.5rem] transform -rotate-6 z-[1]">
                   <h2 className="text-[4rem] leading-[1.1] font-bold text-[#FF5678] drop-shadow-lg">
                     {trend.topic}
                   </h2>
@@ -154,7 +154,7 @@ export default function InviteFlow({ data }: InviteFlowProps) {
                 </div>
 
                 {/* Cat Image */}
-                <div className="relative w-[40.2rem] h-[34rem] mt-[4rem]">
+                <div className="w-[40.2rem] h-[34rem] mt-[4rem] absolute right-0 top-[9rem] z-[0]">
                   <Image
                     src={ScreenBg1}
                     alt="Find-Out"
@@ -166,7 +166,7 @@ export default function InviteFlow({ data }: InviteFlowProps) {
               </div>
 
               {/* Bottom Section */}
-              <div className="w-full flex flex-col items-center">
+              <div className="w-full flex flex-col items-center relative z-[1]">
                 <p className="text-[2.4rem] leading-[1.2] font-bold text-center text-white">
                   Your friend was{" "}
                   <span className="text-[#FF5678]">#{rankStr}</span> to discover
@@ -211,66 +211,68 @@ export default function InviteFlow({ data }: InviteFlowProps) {
             exit={{ opacity: 0, x: -20 }}
             className="w-full h-full flex flex-col items-center flex-grow relative"
           >
-            <div className="w-full h-full  flex flex-col items-center z-10 justify-between flex-grow">
-              <h2 className="w-full text-[2.8rem] font-bold text-center leading-[1.2] pt-[5rem]">
+            <div className="w-full h-full flex flex-col items-center justify-between flex-grow">
+              <h2 className="w-full text-[2.8rem] font-bold text-center leading-[1.2] pt-[5rem] relative z-[1]">
                 Your data goes in.
                 <br />
                 <span className="text-[#FF5678]">Only insights </span>
                 come out.
               </h2>
-              <div className="pointer-events-none flex-1 w-full flex items-center justify-center">
+              <div className="pointer-events-none flex-1 w-full flex items-center justify-center absolute top-[45%] translate-y-[-50%] z-[0]">
                 <Image
                   src={ScreenBg2}
                   alt="Connecting"
                   className="object-contain w-[33.5rem] h-[33.5rem]"
                 />
               </div>
-              <div className="w-full flex flex-col gap-8 pb-[2.4rem]">
-                {/* Item 1 */}
-                <div className="flex items-center gap-3">
-                  <div className="w-[12px] h-[12px] rounded-full bg-[#FF5678] shrink-0" />
-                  <p className="text-[16px] leading-[1.2]">
-                    We can&apos;t post, DM, or touch your account
-                  </p>
+              <div className="relative z-[1]">
+                <div className="w-full flex flex-col gap-8 pb-[2.4rem]">
+                  {/* Item 1 */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-[12px] h-[12px] rounded-full bg-[#FF5678] shrink-0" />
+                    <p className="text-[16px] leading-[1.2]">
+                      We can&apos;t post, DM, or touch your account
+                    </p>
+                  </div>
+                  {/* Item 2 */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-[12px] h-[12px] rounded-full bg-[#651AE9] shrink-0" />
+                    <p className="text-[16px] leading-[1.2]">
+                      AI processes your history data, then deletes it — no trace
+                    </p>
+                  </div>
+                  {/* Item 3 */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-[12px] h-[12px] rounded-full bg-[#22C083] shrink-0" />
+                    <p className="text-[16px] leading-[1.2]">
+                      No human can see your data. Not even us
+                    </p>
+                  </div>
                 </div>
-                {/* Item 2 */}
-                <div className="flex items-center gap-3">
-                  <div className="w-[12px] h-[12px] rounded-full bg-[#651AE9] shrink-0" />
-                  <p className="text-[16px] leading-[1.2]">
-                    AI processes your history data, then deletes it — no trace
-                  </p>
-                </div>
-                {/* Item 3 */}
-                <div className="flex items-center gap-3">
-                  <div className="w-[12px] h-[12px] rounded-full bg-[#22C083] shrink-0" />
-                  <p className="text-[16px] leading-[1.2]">
-                    No human can see your data. Not even us
-                  </p>
-                </div>
+                <button
+                  onClick={handleConnect}
+                  disabled={isConnecting}
+                  className={`w-[33.4rem] h-[5.6rem] bg-white rounded-full flex items-center justify-center gap-[0.4rem] text-black font-bold text-[1.6rem] transition-colors mt-auto ${
+                    isConnecting
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-gray-100"
+                  }`}
+                >
+                  {isConnecting ? (
+                    "Connecting..."
+                  ) : (
+                    <>
+                      <Image
+                        src={TiktokIcon}
+                        width={18}
+                        height={21}
+                        alt="TikTok"
+                      />
+                      Connect TikTok
+                    </>
+                  )}
+                </button>
               </div>
-              <button
-                onClick={handleConnect}
-                disabled={isConnecting}
-                className={`w-[33.4rem] h-[5.6rem] bg-white rounded-full flex items-center justify-center gap-2 text-black font-bold text-[16px] transition-colors mt-auto ${
-                  isConnecting
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                {isConnecting ? (
-                  "Connecting..."
-                ) : (
-                  <>
-                    <Image
-                      src={TiktokIcon}
-                      width={18}
-                      height={21}
-                      alt="TikTok"
-                    />
-                    Connect TikTok
-                  </>
-                )}
-              </button>
             </div>
           </motion.div>
         )}
