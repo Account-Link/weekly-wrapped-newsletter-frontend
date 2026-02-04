@@ -8,7 +8,7 @@ if (!BASE_URL) {
 }
 
 const reportClient = axios.create({
-  timeout: 10000,
+  timeout: 15000,
   baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
