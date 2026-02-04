@@ -26,12 +26,15 @@ export default function RedirectContent() {
 
     // 重要逻辑：跳转前先写入埋点，保证可追踪
     trackEvent({
-      event: "email_button_click",
-      type,
+      event: "click",
+      type, // 埋点 code
+      action: "redirect", // 具体交互动作
       uid,
       eid: weekStart || null,
       source: "email",
-      targetUrl: url,
+      extraData: {
+        targetUrl: url,
+      },
     }).catch(() => null);
 
     // 重要逻辑：处理 URL 参数传递

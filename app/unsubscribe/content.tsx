@@ -42,7 +42,7 @@ export default function UnsubscribeClient() {
     if (!uid) return;
     trackEvent({
       event: "page_view",
-      type: "unsubscribe_page",
+      type: "unsubscribe_flow",
       uid,
       eid: emailId,
       source: "email_redirect",
@@ -59,7 +59,8 @@ export default function UnsubscribeClient() {
 
     trackEvent({
       event: "click",
-      type: "unsubscribe_confirm",
+      type: "unsubscribe_flow",
+      action: "unsubscribe_confirm",
       uid,
       eid: emailId,
     });
@@ -70,6 +71,12 @@ export default function UnsubscribeClient() {
         showToast("Unsubscribe failed. Please try again.");
         return;
       }
+      trackEvent({
+        event: "unsubscribe_success",
+        type: "unsubscribe_flow",
+        uid,
+        eid: emailId,
+      });
       setState("unsubscribed");
     } catch {
       showToast("Unsubscribe failed. Please try again.");
@@ -88,7 +95,8 @@ export default function UnsubscribeClient() {
 
     trackEvent({
       event: "click",
-      type: "resubscribe",
+      type: "unsubscribe_flow",
+      action: "resubscribe",
       uid,
       eid: emailId,
     });
@@ -99,6 +107,12 @@ export default function UnsubscribeClient() {
         showToast("Re-subscribe failed. Please try again.");
         return;
       }
+      trackEvent({
+        event: "resubscribe_success",
+        type: "unsubscribe_flow",
+        uid,
+        eid: emailId,
+      });
       setState("subscribed");
     } catch {
       showToast("Re-subscribe failed. Please try again.");
@@ -145,7 +159,16 @@ export default function UnsubscribeClient() {
               </button>
               <button
                 type="button"
-                onClick={() => setState("subscribed")}
+                onClick={() => {
+                  trackEvent({
+                    event: "click",
+                    type: "unsubscribe_flow",
+                    action: "keep_subscription",
+                    uid,
+                    eid: emailId,
+                  });
+                  setState("subscribed");
+                }}
                 disabled={!uid}
                 className={`block w-[33.4rem] h-[5.2rem] rounded-full text-[1.6rem] font-bold transition-opacity ${
                   uid ? "hover:opacity-90" : "opacity-60 cursor-not-allowed"

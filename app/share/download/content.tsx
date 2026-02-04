@@ -36,12 +36,12 @@ export default function DownloadContent() {
 
     trackEvent({
       event: "page_view",
-      type: "download_page",
+      type: "download_page", // 埋点 code
       uid,
       eid: emailId,
       source: "email",
-      targetUrl: url,
       extraData: {
+        targetUrl: url,
         theme,
         filename,
       },
@@ -59,12 +59,13 @@ export default function DownloadContent() {
       // 记录下载行为埋点
       trackEvent({
         event: "click",
-        type: "download",
+        type: "download_page", // 埋点 code
+        action: "download", // 具体动作
         uid,
         eid: emailId,
-        action: resolveShareAction(type),
-        targetUrl: url,
         extraData: {
+          shareAction: resolveShareAction(type),
+          targetUrl: url,
           filename,
         },
       });

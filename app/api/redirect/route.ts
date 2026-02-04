@@ -1,7 +1,6 @@
 // 文件功能：重定向服务 API，负责记录点击并跳转
 // 方法概览：验证白名单、记录埋点、执行 307 跳转
 import { NextResponse } from "next/server";
-import { trackEvent } from "@/lib/api/tracking";
 import { getAppBaseUrl } from "@/lib/config";
 
 // 允许的重定向白名单
@@ -23,6 +22,7 @@ export async function GET(request: Request) {
   const uid = params.get("uid");
   const emailId = params.get("eid") || params.get("email_id");
   const action = params.get("action");
+  const type = params.get("type"); // 支持 type 参数
 
   // 解析 extraData (JSON 字符串)
   let extraData: Record<string, unknown> = {};
@@ -39,15 +39,20 @@ export async function GET(request: Request) {
   // 注意：在 Serverless 环境下，fire-and-forget 可能不可靠，最好 await。
   // 但为了跳转速度，这里我们假设 /api/track 响应很快，或者接受极小概率丢失。
   // 更稳妥的方式是直接在这里调 DB，但为了解耦，我们调用内部 API。
+
+  // 确保 targetUrl 放入 extraData
+  if (targetUrlStr) {
+    extraData.targetUrl = targetUrlStr;
+  }
+
   const trackPayload = {
     event: "click",
-    type: "redirect",
+    type: type || undefined, // 传递 type
     uid: uid || undefined,
     eid: emailId || undefined, // 统一使用 eid
     action: action || undefined,
-    targetUrl: targetUrlStr || undefined,
     source: "email_redirect",
-    extraData,
+    extraData: Object.keys(extraData).length > 0 ? extraData : undefined,
   };
 
   // 这里我们选择直接调用 trackEvent (它是 fetch 调用)

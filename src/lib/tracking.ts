@@ -19,6 +19,7 @@ export type ClickTrackingOptions = {
   uid: string;
   emailId: string;
   action: ClickAction;
+  type?: string; // 埋点 code
   targetUrl?: string;
   extraData?: Record<string, unknown>;
 };
@@ -28,6 +29,7 @@ export const getClickTrackingUrl = ({
   uid,
   emailId,
   action,
+  type,
   targetUrl,
   extraData,
 }: ClickTrackingOptions) => {
@@ -38,6 +40,9 @@ export const getClickTrackingUrl = ({
   params.set("uid", uid);
   params.set("eid", emailId);
   params.set("action", action);
+  if (type) {
+    params.set("type", type);
+  }
 
   if (targetUrl) {
     try {

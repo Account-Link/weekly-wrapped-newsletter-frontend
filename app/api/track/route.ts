@@ -12,40 +12,54 @@ const transparentGif = Buffer.from(
 // 统一的埋点 Payload 接口
 type TrackEventPayload = {
   event: string; // 必填：事件名，如 "click", "open", "page_view"
-  type?: string | null; // 二级分类，如 "share_week", "invite_page"
+  type?: string | null; // 埋点 code
   uid?: string | null;
   eid?: string | null; // 对应之前的 eid/weekStart
-  action?: string | null; // 具体动作，如 "share_stats", "unsubscribe"
+  action?: string | null; // 具体动作
   source?: string | null; // 来源，如 "email", "web"
-  targetUrl?: string | null; // 跳转目标
   extraData?: Record<string, unknown>;
 };
 
-// 构建 Payload
-function buildPayloadFromSearchParams(
-  params: URLSearchParams,
-): TrackEventPayload {
-  let extraData: Record<string, unknown> | undefined;
-  const extraDataStr = params.get("extraData");
-  if (extraDataStr) {
+// 规范化 Payload：处理字段映射与迁移
+function normalizePayload(input: Record<string, any>): TrackEventPayload {
+  const extraData = input.extraData ? { ...input.extraData } : {};
+
+  // 1. 迁移 targetUrl 到 extraData
+  const targetUrl = input.targetUrl || input.url;
+  if (targetUrl) {
+    extraData.targetUrl = targetUrl;
+  }
+
+  // 2. 解析 extraData 字符串 (如果是来自 URL 参数)
+  if (typeof input.extraData === "string") {
     try {
-      extraData = JSON.parse(extraDataStr);
+      const parsed = JSON.parse(input.extraData);
+      Object.assign(extraData, parsed);
     } catch {
       // ignore
     }
   }
 
   return {
-    event: params.get("event") || "unknown",
-    type: params.get("type"),
-    uid: params.get("uid"),
-    eid:
-      params.get("eid") || params.get("email_id") || params.get("weekStart"),
-    action: params.get("action"),
-    source: params.get("source"),
-    targetUrl: params.get("url") || params.get("targetUrl"), // 兼容 url 参数
-    extraData,
+    event: input.event || "unknown",
+    type: input.type,
+    uid: input.uid,
+    eid: input.eid || input.email_id || input.weekStart,
+    action: input.action,
+    source: input.source,
+    extraData: Object.keys(extraData).length > 0 ? extraData : undefined,
   };
+}
+
+// 从 URL 参数构建 (复用 normalizePayload)
+function buildPayloadFromSearchParams(
+  params: URLSearchParams,
+): TrackEventPayload {
+  const input: Record<string, any> = {};
+  params.forEach((value, key) => {
+    input[key] = value;
+  });
+  return normalizePayload(input);
 }
 
 // 写入 Firestore
@@ -55,16 +69,32 @@ async function recordEvent(
 ): Promise<void> {
   if (!adminDb || !payload.event) return;
 
-  // 使用 event + uid + eid + action + timestamp(day) 作为去重键（可选优化）
-  // 目前保持追加模式，但统一集合
-  await adminDb.collection("analytics_logs").add({
-    ...payload,
-    userAgent: request.headers.get("user-agent"),
-    ip:
-      request.headers.get("x-forwarded-for") ??
-      request.headers.get("x-real-ip"),
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
+  // 移除 undefined 字段，防止 Firestore 报错
+  const cleanPayload = JSON.parse(JSON.stringify(payload));
+  if (cleanPayload.extraData && cleanPayload.extraData.targetUrl === undefined) {
+    delete cleanPayload.extraData.targetUrl;
+  }
+
+  // 构造文档 ID: uid_eid_event_type_action_timestamp
+  const uidPart = payload.uid || "anon";
+  const eidPart = payload.eid || "no_eid";
+  const typePart = payload.type || "no_type";
+  const actionPart = payload.action || "no_action";
+  const timestamp = Date.now();
+  const docId = `${uidPart}_${eidPart}_${payload.event}_${typePart}_${actionPart}_${timestamp}`;
+
+  try {
+    await adminDb.collection("analytics_logs").doc(docId).set({
+      ...cleanPayload,
+      userAgent: request.headers.get("user-agent"),
+      ip:
+        request.headers.get("x-forwarded-for") ??
+        request.headers.get("x-real-ip"),
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Firestore write failed:", error);
+  }
 }
 
 export async function GET(request: Request) {
@@ -86,8 +116,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as TrackEventPayload;
-    await recordEvent(body, request);
+    const body = await request.json();
+    const payload = normalizePayload(body);
+    await recordEvent(payload, request);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });

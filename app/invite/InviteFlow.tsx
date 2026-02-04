@@ -8,12 +8,15 @@ import { startTikTokLink, pollTikTokRedirect } from "@/lib/api/tiktok";
 import { FeedlingState } from "@/domain/report/types";
 import { useToast } from "@/context/ToastContext";
 import { trackEvent } from "@/lib/client-tracking";
+import { getUserTimezone, isUSTimezone } from "@/lib/timezone";
 
 import TiktokIcon from "@/assets/figma/invite/tiktok-icon.svg";
 import ScreenBg1 from "@/assets/figma/invite/screen-bg_1.gif";
 import ScreenBg2 from "@/assets/figma/invite/screen-bg_2.gif";
 import ScreenBg3 from "@/assets/figma/invite/screen-bg_3.gif";
 import ScreenBg4 from "@/assets/figma/invite/screen-bg_4.gif";
+
+const JOB_ID_KEY = "tiktok_auth_job_id";
 
 type InviteFlowProps = {
   uid: string;
@@ -43,6 +46,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   // PC QR Code State
   const [isPc, setIsPc] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showGeoModal, setShowGeoModal] = useState(false);
 
   const { trend } = data;
 
@@ -62,11 +66,141 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   useEffect(() => {
     trackEvent({
       event: "page_view",
-      type: "invite_page",
+      type: "invite_flow",
       uid,
       source: "web",
     });
   }, [uid]);
+
+  const checkGeoLocation = async () => {
+    try {
+      // 1. Check Timezone
+      let timezoneIsUS = true; // Default to true (fail open)
+      try {
+        const timezone = getUserTimezone();
+        timezoneIsUS = isUSTimezone(timezone);
+        console.log("Timezone check:", { timezone, isUS: timezoneIsUS });
+      } catch (err) {
+        console.warn("Error checking timezone:", err);
+      }
+
+      // 2. Check Geo API (IP-based)
+      let geoIsUS = true; // Default to true (fail open)
+      try {
+        const res = await fetch("/api/geo");
+        if (res.ok) {
+          const data = await res.json();
+          geoIsUS = data.isUS ?? true;
+        } else {
+          console.error("Geo API request failed:", res.status);
+        }
+      } catch (e) {
+        console.error("Geo check failed", e);
+      }
+
+      const isInUS = timezoneIsUS || geoIsUS;
+      console.log("Combined check result:", { timezoneIsUS, geoIsUS, isInUS });
+
+      return isInUS;
+    } catch (e) {
+      console.error("Geo check fatal error", e);
+      return true; // Fail open
+    }
+  };
+
+  const startPolling = (currentJobId: string) => {
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+
+    pollIntervalRef.current = setInterval(async () => {
+      try {
+        const statusRes = await pollTikTokRedirect(currentJobId);
+        console.log("Poll status:", statusRes.status);
+
+        // 1. Ready state: We got the URL
+        if (statusRes.status === "ready" && statusRes.redirect_url) {
+          setRedirectUrl(statusRes.redirect_url);
+        }
+
+        // 2. Completed state: User finished login
+        if (statusRes.status === "completed") {
+          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+
+          if (statusRes.token && statusRes.app_user_id) {
+            setTiktokToken(statusRes.token);
+            setAppUserId(statusRes.app_user_id);
+          }
+
+          // Clear saved job_id
+          localStorage.removeItem(JOB_ID_KEY);
+
+          // 埋点：连接成功
+          trackEvent({
+            event: "connect_tiktok_success",
+            type: "invite_flow",
+            uid,
+          });
+
+          // Check Geo Location
+          const isUS = await checkGeoLocation();
+          if (isUS) {
+            setStep(3);
+          } else {
+            trackEvent({
+              event: "view",
+              type: "geo_warning_modal",
+              uid,
+            });
+            setShowGeoModal(true);
+          }
+        }
+
+        // 3. Error/Expired state: Retry
+        if (
+          statusRes.status === "expired" ||
+          statusRes.status === "reauth_needed"
+        ) {
+          console.log("Session expired, restarting...");
+          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+          localStorage.removeItem(JOB_ID_KEY);
+          startAndPoll(); // Recursive retry with new job
+        }
+      } catch (error) {
+        console.error("Polling error:", error);
+      }
+    }, 2000); // Poll every 2s
+  };
+
+  const startAndPoll = async () => {
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+
+    // Reset redirectUrl to show Preparing state if retrying
+    if (redirectUrl) {
+      setRedirectUrl(null);
+    }
+
+    try {
+      const { archive_job_id: newJobId } = await startTikTokLink();
+      setJobId(newJobId);
+      localStorage.setItem(JOB_ID_KEY, newJobId);
+
+      startPolling(newJobId);
+    } catch (error) {
+      console.error("Failed to start:", error);
+      // Retry after delay
+      setTimeout(startAndPoll, 2000);
+    }
+  };
+
+  // Resume polling if job_id exists in localStorage
+  useEffect(() => {
+    const savedJobId = localStorage.getItem(JOB_ID_KEY);
+    if (savedJobId) {
+      setStep(2); // Go to Connect/Preparing step
+      setJobId(savedJobId);
+      startPolling(savedJobId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Format numbers
   const rankStr = trend.rank ? trend.rank.toLocaleString() : "N/A";
@@ -91,73 +225,12 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     }
   }, [step]);
 
-  const startAndPoll = async () => {
-    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-
-    // Reset redirectUrl to show Preparing state if retrying
-    if (redirectUrl) {
-      setRedirectUrl(null);
-    }
-
-    try {
-      const { archive_job_id: newJobId } = await startTikTokLink();
-      setJobId(newJobId);
-
-      pollIntervalRef.current = setInterval(async () => {
-        try {
-          const statusRes = await pollTikTokRedirect(newJobId);
-          console.log("Poll status:", statusRes.status);
-
-          // 1. Ready state: We got the URL
-          if (statusRes.status === "ready" && statusRes.redirect_url) {
-            setRedirectUrl(statusRes.redirect_url);
-            // UI will automatically update to Connect state in Step 2
-          }
-
-          // 2. Completed state: User finished login
-          if (statusRes.status === "completed") {
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-
-            if (statusRes.token && statusRes.app_user_id) {
-              setTiktokToken(statusRes.token);
-              setAppUserId(statusRes.app_user_id);
-            }
-
-            // 埋点：连接成功
-            trackEvent({
-              event: "connect_tiktok_success",
-              uid,
-            });
-
-            setStep(3);
-          }
-
-          // 3. Error/Expired state: Retry
-          if (
-            statusRes.status === "expired" ||
-            statusRes.status === "reauth_needed"
-          ) {
-            console.log("Session expired, restarting...");
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-            startAndPoll(); // Recursive retry
-          }
-        } catch (error) {
-          console.error("Polling error:", error);
-          // Optional: retry on error?
-        }
-      }, 2000); // Poll every 2s
-    } catch (error) {
-      console.error("Failed to start:", error);
-      // Retry after delay
-      setTimeout(startAndPoll, 2000);
-    }
-  };
-
   const handleFindOut = () => {
     // 埋点：点击 Find Out
     trackEvent({
       event: "click",
-      type: "find_out_start",
+      type: "invite_flow",
+      action: "find_out_start",
       uid,
     });
     setStep(2); // Immediately go to Step 2 (which shows Preparing initially)
@@ -170,7 +243,8 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     // 埋点：点击连接 TikTok
     trackEvent({
       event: "click",
-      type: "connect_tiktok_click",
+      type: "invite_flow",
+      action: "connect_tiktok_click",
       uid,
     });
 
@@ -222,7 +296,8 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     // 埋点：点击邀请/分享
     trackEvent({
       event: "click",
-      type: "invite_share",
+      type: "invite_flow",
+      action: "invite_share",
       uid,
     });
 
@@ -295,7 +370,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
               <div className="w-full flex flex-col items-center relative z-[1]">
                 <p className="text-[2.4rem] leading-[1.2] font-bold text-center text-white">
                   Your friend was{" "}
-                  <span className="text-[#FF5678]">#{rankStr}</span> to discover
+                  <span className="text-[#FF5678]">{rankStr}</span> to discover
                   out of <span className="text-[#FF5678]">{totalStr}</span>{" "}
                   people.
                   <br />
@@ -455,6 +530,61 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
                       Open your camera app to scan this code and connect your
                       TikTok account.
                     </p>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Geo Warning Modal */}
+            <AnimatePresence>
+              {showGeoModal && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                  onClick={() => {}}
+                >
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    className="bg-white rounded-3xl p-8 flex flex-col items-center gap-6 max-w-md w-full relative"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
+                      <svg
+                        width="32"
+                        height="32"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                    </div>
+
+                    <h3 className="text-[2.4rem] font-bold text-black text-center leading-tight">
+                      Region Not Supported
+                    </h3>
+
+                    <p className="text-[1.6rem] text-center text-gray-600">
+                      Sorry, this experience is currently available only for
+                      users in the United States.
+                    </p>
+
+                    <button
+                      onClick={() => setShowGeoModal(false)}
+                      className="w-full h-[4.8rem] bg-black text-white rounded-full font-bold text-[1.6rem] mt-2"
+                    >
+                      Got it
+                    </button>
                   </motion.div>
                 </motion.div>
               )}

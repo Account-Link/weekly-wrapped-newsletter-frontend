@@ -1,9 +1,8 @@
 export type TrackEventPayload = {
   event: string;
-  type?: string;
+  type?: string; // 埋点 code
   uid?: string;
   source?: string;
-  targetUrl?: string;
   eid?: string | null;
   action?: string;
   extraData?: Record<string, unknown>;

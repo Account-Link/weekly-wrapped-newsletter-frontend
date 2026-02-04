@@ -160,6 +160,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     ? getClickTrackingUrl({
         uid: data.uid,
         emailId,
+        type: "redirect",
         action: "share_week",
         targetUrl: appendParams(data.trend.shareUrl),
         extraData: {
@@ -172,6 +173,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     ? getClickTrackingUrl({
         uid: data.uid,
         emailId,
+        type: "redirect",
         action: "share_stats",
         targetUrl: appendParams(data.diagnosis.shareUrl),
         extraData: {
@@ -183,6 +185,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   const inviteTrackingUrl = getClickTrackingUrl({
     uid: data.uid,
     emailId,
+    type: "redirect",
     action: "invite_click",
     targetUrl: `/invite?${paramsString}`,
     extraData: {
@@ -193,6 +196,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   const unsubscribeTrackingUrl = getClickTrackingUrl({
     uid: data.uid,
     emailId,
+    type: "redirect",
     action: "unsubscribe",
     targetUrl: `/unsubscribe?${paramsString}`,
     extraData: {

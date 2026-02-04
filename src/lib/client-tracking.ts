@@ -1,11 +1,10 @@
 export type TrackEventPayload = {
   event: string;
-  type?: string;
+  type?: string; // 埋点 code
   uid?: string;
   eid?: string; // Renamed from email_id
-  action?: string;
+  action?: string; // 具体交互动作
   source?: string;
-  targetUrl?: string;
   extraData?: Record<string, unknown>; // Renamed from metadata
 };
 
