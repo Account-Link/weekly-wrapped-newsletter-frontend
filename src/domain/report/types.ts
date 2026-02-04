@@ -229,7 +229,6 @@ export interface WeeklyData {
   assetBaseUrl: string;
   weekStart: string; // ISO date string
   weekEnd: string; // ISO date string
-  trackingBaseUrl: string;
   feedlingState: FeedlingState;
   opening: WeeklyOpening;
   trend: WeeklyTrend;

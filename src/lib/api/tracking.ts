@@ -4,8 +4,9 @@ export type TrackEventPayload = {
   uid?: string;
   source?: string;
   targetUrl?: string;
-  weekStart?: string | null;
-  metadata?: Record<string, unknown>;
+  eid?: string | null;
+  action?: string;
+  extraData?: Record<string, unknown>;
 };
 
 export async function trackEvent(payload: TrackEventPayload): Promise<void> {

@@ -4,7 +4,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { trackShareSaved } from "@/lib/client-analytics";
+import { trackEvent } from "@/lib/client-tracking";
 
 // 方法功能：渲染分享下载页面内容
 export default function DownloadContent() {
@@ -29,24 +29,24 @@ export default function DownloadContent() {
   const emailId = weekStart || "unknown";
 
   useEffect(() => {
-    // 重要逻辑：打开下载页即上报点击埋点
+    // 重要逻辑：打开下载页即上报埋点
     if (!url) {
       return;
     }
 
-    fetch("/api/track", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        event: "email_button_click",
-        type,
-        uid,
-        weekStart: weekStart || null,
-        source: "email",
-        targetUrl: url,
-      }),
-    }).catch(() => null);
-  }, [type, url, uid, weekStart]);
+    trackEvent({
+      event: "page_view",
+      type: "download_page",
+      uid,
+      eid: emailId,
+      source: "email",
+      targetUrl: url,
+      extraData: {
+        theme,
+        filename,
+      },
+    });
+  }, [type, url, uid, emailId, theme, filename]);
 
   const handleDownload = async () => {
     if (!url || isDownloading) {
@@ -56,10 +56,17 @@ export default function DownloadContent() {
     setIsDownloading(true);
 
     try {
-      void trackShareSaved({
+      // 记录下载行为埋点
+      trackEvent({
+        event: "click",
+        type: "download",
         uid,
-        emailId,
+        eid: emailId,
         action: resolveShareAction(type),
+        targetUrl: url,
+        extraData: {
+          filename,
+        },
       });
 
       const link = document.createElement("a");

@@ -24,7 +24,6 @@ import { calculateFeedlingState } from "@/domain/report/utils";
 // 方法功能：适配器配置入参定义
 export interface AdapterOptions {
   assetBaseUrl: string;
-  trackingBaseUrl: string;
 }
 
 // 方法功能：格式化周起止日期为展示字符串
@@ -256,7 +255,6 @@ export function mapReportToWeeklyData(
     assetBaseUrl,
     weekStart: report.weekRange.split(" - ")[0],
     weekEnd: report.weekRange.split(" - ")[1] || report.weekRange,
-    trackingBaseUrl: options.trackingBaseUrl,
     feedlingState,
     opening,
     trend,

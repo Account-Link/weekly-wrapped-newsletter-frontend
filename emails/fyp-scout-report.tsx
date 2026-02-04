@@ -137,62 +137,69 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     openingCopy,
     highlightTarget,
   );
+  // 辅助函数：注入通用参数到目标 URL
+  const targetParams = new URLSearchParams();
+  targetParams.set("uid", data.uid);
+  if (data.period_start) targetParams.set("period_start", data.period_start);
+  if (data.period_end) targetParams.set("period_end", data.period_end);
+  const paramsString = targetParams.toString();
+
+  const appendParams = (url: string) => {
+    if (!url) return "";
+    const hasQuery = url.includes("?");
+    return `${url}${hasQuery ? "&" : "?"}${paramsString}`;
+  };
+
   // 重要逻辑：使用 weekStart 作为 emailId，保证同一封邮件的去重一致
   const emailId = data.weekStart;
+
   // 重要逻辑：生成打开埋点像素 URL
-  const trackingPixelUrl = getOpenPixelUrl(
-    data.uid,
-    emailId,
-    data.trackingBaseUrl,
-  );
+  const trackingPixelUrl = getOpenPixelUrl(data.uid, emailId);
   // 重要逻辑：构建点击追踪 URL，避免邮件内直连造成丢失统计
-  const trendShareTrackingUrl =
-    data.trend.shareUrl && data.trackingBaseUrl
-      ? getClickTrackingUrl(
-          data.uid,
-          emailId,
-          "share_week",
-          data.trend.shareUrl,
-          data.trackingBaseUrl,
-          data.period_start,
-          data.period_end,
-        )
-      : data.trend.shareUrl || "";
-  const statsShareTrackingUrl =
-    data.diagnosis.shareUrl && data.trackingBaseUrl
-      ? getClickTrackingUrl(
-          data.uid,
-          emailId,
-          "share_stats",
-          data.diagnosis.shareUrl,
-          data.trackingBaseUrl,
-          data.period_start,
-          data.period_end,
-        )
-      : data.diagnosis.shareUrl || "";
-  const inviteTrackingUrl =
-    data.weeklyNudge.linkUrl && data.trackingBaseUrl
-      ? getClickTrackingUrl(
-          data.uid,
-          emailId,
-          "invite_click",
-          data.weeklyNudge.linkUrl,
-          data.trackingBaseUrl,
-          data.period_start,
-          data.period_end,
-        )
-      : data.weeklyNudge.linkUrl || "";
-  const unsubscribeTrackingUrl = data.trackingBaseUrl
-    ? getClickTrackingUrl(
-        data.uid,
+  const trendShareTrackingUrl = data.trend.shareUrl
+    ? getClickTrackingUrl({
+        uid: data.uid,
         emailId,
-        "unsubscribe",
-        undefined,
-        data.trackingBaseUrl,
-        data.period_start,
-        data.period_end,
-      )
-    : "";
+        action: "share_week",
+        targetUrl: appendParams(data.trend.shareUrl),
+        extraData: {
+          period_start: data.period_start,
+          period_end: data.period_end,
+        },
+      })
+    : data.trend.shareUrl || "";
+  const statsShareTrackingUrl = data.diagnosis.shareUrl
+    ? getClickTrackingUrl({
+        uid: data.uid,
+        emailId,
+        action: "share_stats",
+        targetUrl: appendParams(data.diagnosis.shareUrl),
+        extraData: {
+          period_start: data.period_start,
+          period_end: data.period_end,
+        },
+      })
+    : data.diagnosis.shareUrl || "";
+  const inviteTrackingUrl = getClickTrackingUrl({
+    uid: data.uid,
+    emailId,
+    action: "invite_click",
+    targetUrl: `/invite?${paramsString}`,
+    extraData: {
+      period_start: data.period_start,
+      period_end: data.period_end,
+    },
+  });
+  const unsubscribeTrackingUrl = getClickTrackingUrl({
+    uid: data.uid,
+    emailId,
+    action: "unsubscribe",
+    targetUrl: `/unsubscribe?${paramsString}`,
+    extraData: {
+      period_start: data.period_start,
+      period_end: data.period_end,
+    },
+  });
   const tailwindConfig = {
     theme: {
       spacing: {},

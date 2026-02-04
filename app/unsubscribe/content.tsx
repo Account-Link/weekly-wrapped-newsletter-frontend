@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +9,7 @@ import BannedIcon from "./images/banned.png";
 import CatIcon from "./images/cat.gif";
 import { unsubscribe, resubscribe } from "@/lib/api/report";
 import { useToast } from "@/context/ToastContext";
+import { trackEvent } from "@/lib/client-tracking";
 
 type UnsubscribeState = "confirm" | "unsubscribed" | "subscribed";
 
@@ -31,10 +32,22 @@ export default function UnsubscribeClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showToast } = useToast();
   const uid = searchParams.get("uid") ?? "";
+  const emailId = searchParams.get("eid") || searchParams.get("email_id") || "";
 
   const [state, setState] = useState<UnsubscribeState>(() =>
     resolveState(searchParams.get("state")),
   );
+
+  useEffect(() => {
+    if (!uid) return;
+    trackEvent({
+      event: "page_view",
+      type: "unsubscribe_page",
+      uid,
+      eid: emailId,
+      source: "email_redirect",
+    });
+  }, [uid, emailId]);
 
   const handleUnsubscribe = async () => {
     if (!uid) {
@@ -43,6 +56,13 @@ export default function UnsubscribeClient() {
     }
 
     setIsSubmitting(true);
+
+    trackEvent({
+      event: "click",
+      type: "unsubscribe_confirm",
+      uid,
+      eid: emailId,
+    });
 
     try {
       const { success } = await unsubscribe(uid);
@@ -65,6 +85,13 @@ export default function UnsubscribeClient() {
     }
 
     setIsSubmitting(true);
+
+    trackEvent({
+      event: "click",
+      type: "resubscribe",
+      uid,
+      eid: emailId,
+    });
 
     try {
       const { success } = await resubscribe(uid);

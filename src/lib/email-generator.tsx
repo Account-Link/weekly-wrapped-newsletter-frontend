@@ -11,12 +11,7 @@ import { getWeeklyData } from "@/domain/report/service";
 import type { WeeklyReportApiResponse } from "@/domain/report/types";
 import { ReportPipeline } from "@/core/pipeline/report-pipeline";
 import type { AssetKeySet } from "@/core/pipeline/types";
-
-const assetBaseUrl =
-  process.env.EMAIL_ASSET_BASE_URL ||
-  (process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000");
+import { getAssetBaseUrl, getTrackingBaseUrl } from "@/lib/config";
 
 type GenerateEmailOptions = {
   uidOverride?: string;
@@ -31,7 +26,6 @@ export function buildWeeklyDataFromApiReport(
   apiReport: WeeklyReportApiResponse,
   options: {
     assetBaseUrl: string;
-    trackingBaseUrl: string;
     uidOverride?: string;
   },
 ): WeeklyData {
@@ -40,7 +34,6 @@ export function buildWeeklyDataFromApiReport(
   const resolvedUid = options.uidOverride || apiReport.app_user_id || "preview";
   return mapReportToWeeklyData(resolvedUid, report, {
     assetBaseUrl: options.assetBaseUrl,
-    trackingBaseUrl: options.trackingBaseUrl,
   });
 }
 
@@ -54,7 +47,6 @@ export function buildWeeklyDataFromMock(
   const apiReport = mockReports[caseKey] ?? mockReports.curious;
   return buildWeeklyDataFromApiReport(apiReport, {
     assetBaseUrl: baseUrl,
-    trackingBaseUrl: baseUrl,
     uidOverride,
   });
 }
@@ -115,7 +107,7 @@ export async function generateEmailHtml(
     // 如果指定使用真实数据且有 uid，则从 API 拉取
     data = await getWeeklyData(uidOverride);
   } else {
-    data = buildWeeklyDataFromMock(caseKey, assetBaseUrl, uidOverride);
+    data = buildWeeklyDataFromMock(caseKey, getAssetBaseUrl(), uidOverride);
   }
 
   // 重要逻辑：生成唯一资源 key，避免覆盖历史资产
@@ -127,7 +119,7 @@ export async function generateEmailHtml(
 
   const { html } = await ReportPipeline.run({
     data,
-    assetBaseUrl,
+    assetBaseUrl: getAssetBaseUrl(),
     useUploads,
     assetKeys,
   });

@@ -14,18 +14,14 @@ export async function getWeeklyData(
 
   const { mapApiReportToWeeklyReportData, mapReportToWeeklyData } =
     await import("@/domain/report/adapter");
+  const { getAssetBaseUrl } = await import("@/lib/config");
   const report = mapApiReportToWeeklyReportData(apiReport);
-  const assetBaseUrl =
-    process.env.EMAIL_ASSET_BASE_URL ||
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
+  const assetBaseUrl = getAssetBaseUrl();
   const weeklyData = mapReportToWeeklyData(
     apiReport.app_user_id || uid,
     report,
     {
       assetBaseUrl,
-      trackingBaseUrl: assetBaseUrl,
     },
   );
 

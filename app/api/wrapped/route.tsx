@@ -8,6 +8,7 @@ import {
   buildWeeklyDataFromApiReport,
   type UploadTarget,
 } from "../../../src/lib/email-generator";
+import { getAssetBaseUrl, getTrackingBaseUrl } from "@/lib/config";
 import type { WeeklyReportApiResponse } from "../../../src/domain/report/types";
 import crypto from "node:crypto";
 import { ReportPipeline } from "@/core/pipeline";
@@ -27,14 +28,14 @@ export async function GET(request: Request) {
     const mockParam = url.searchParams.get("mock");
     const caseKey = url.searchParams.get("case");
     const useMock = mockParam === "true" || Boolean(caseKey);
-    const assetBaseUrl = process.env.EMAIL_ASSET_BASE_URL || url.origin;
+    const assetBaseUrl = getAssetBaseUrl();
+    const trackingBaseUrl = getTrackingBaseUrl();
     let weeklyData;
     if (useMock) {
       const mockCase = caseKey ?? "curious";
       const apiReport = mockReports[mockCase] ?? mockReports.curious;
       weeklyData = buildWeeklyDataFromApiReport(apiReport, {
         assetBaseUrl,
-        trackingBaseUrl: assetBaseUrl,
       });
     } else {
       const uid = url.searchParams.get("uid");
@@ -72,13 +73,12 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as WrappedRequestBody;
     const enableUidFetch = process.env.WRAPPED_UID_FETCH_ENABLED === "true";
-    const assetBaseUrl =
-      process.env.EMAIL_ASSET_BASE_URL || new URL(request.url).origin;
+    const assetBaseUrl = getAssetBaseUrl();
+    const trackingBaseUrl = getTrackingBaseUrl();
     let weeklyData;
     if (body?.params) {
       weeklyData = buildWeeklyDataFromApiReport(body.params, {
         assetBaseUrl,
-        trackingBaseUrl: assetBaseUrl,
         uidOverride: body.uid,
       });
     } else if (enableUidFetch) {

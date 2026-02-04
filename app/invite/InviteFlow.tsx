@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { startTikTokLink, pollTikTokRedirect } from "@/lib/api/tiktok";
 import { FeedlingState } from "@/domain/report/types";
 import { useToast } from "@/context/ToastContext";
+import { trackEvent } from "@/lib/client-tracking";
 
 import TiktokIcon from "@/assets/figma/invite/tiktok-icon.svg";
 import ScreenBg1 from "@/assets/figma/invite/screen-bg_1.gif";
@@ -14,6 +15,7 @@ import ScreenBg3 from "@/assets/figma/invite/screen-bg_3.gif";
 import ScreenBg4 from "@/assets/figma/invite/screen-bg_4.gif";
 
 type InviteFlowProps = {
+  uid: string;
   data: {
     trend: {
       topic: string;
@@ -24,7 +26,7 @@ type InviteFlowProps = {
   };
 };
 
-export default function InviteFlow({ data }: InviteFlowProps) {
+export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [progress, setProgress] = useState(0);
   const { showToast } = useToast();
@@ -36,6 +38,16 @@ export default function InviteFlow({ data }: InviteFlowProps) {
   const [isRedirected, setIsRedirected] = useState(false);
 
   const { trend } = data;
+
+  // 记录页面访问埋点
+  useEffect(() => {
+    trackEvent({
+      event: "page_view",
+      type: "invite_page",
+      uid,
+      source: "web",
+    });
+  }, [uid]);
 
   // Format numbers
   const rankStr = trend.rank ? trend.rank.toLocaleString() : "N/A";
@@ -76,6 +88,13 @@ export default function InviteFlow({ data }: InviteFlowProps) {
     setIsConnecting(true);
     setIsRedirected(false); // Reset redirect state
 
+    // 埋点：点击连接 TikTok
+    trackEvent({
+      event: "click",
+      type: "connect_tiktok_start",
+      uid,
+    });
+
     try {
       const { archive_job_id: jobId } = await startTikTokLink();
       // Poll every 2 seconds
@@ -101,6 +120,13 @@ export default function InviteFlow({ data }: InviteFlowProps) {
               setTiktokToken(statusRes.token);
               setAppUserId(statusRes.app_user_id);
             }
+
+            // 埋点：连接成功
+            trackEvent({
+              event: "connect_tiktok_success",
+              uid,
+            });
+
             // Transition to loading step
             setStep(3);
           }
@@ -162,6 +188,14 @@ export default function InviteFlow({ data }: InviteFlowProps) {
 
   const handleInvite = async () => {
     const url = window.location.href;
+
+    // 埋点：点击邀请/分享
+    trackEvent({
+      event: "click",
+      type: "invite_share",
+      uid,
+    });
+
     if (navigator.share) {
       try {
         await navigator.share({

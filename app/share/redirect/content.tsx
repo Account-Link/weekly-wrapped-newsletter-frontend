@@ -29,7 +29,7 @@ export default function RedirectContent() {
       event: "email_button_click",
       type,
       uid,
-      weekStart: weekStart || null,
+      eid: weekStart || null,
       source: "email",
       targetUrl: url,
     }).catch(() => null);

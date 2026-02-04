@@ -33,5 +33,5 @@ export default async function InvitePage({
     );
   }
 
-  return <InviteFlow data={data} />;
+  return <InviteFlow uid={uid as string} data={data} />;
 }
