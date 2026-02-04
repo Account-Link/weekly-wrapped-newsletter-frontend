@@ -48,21 +48,6 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-export async function verifyRegion(
-  authorization?: string,
-): Promise<VerifyRegionResponse> {
-  const headers: Record<string, string> = {};
-  if (authorization) {
-    headers["Authorization"] = `Bearer ${authorization}`;
-  }
-  const response = await apiClient.post(
-    "/link/tiktok/verify-region",
-    {},
-    { headers },
-  );
-  return response.data;
-}
-
 export async function startTikTokLink(): Promise<TikTokStartResponse> {
   const response = await apiClient.post("/link/tiktok/start");
   return response.data;
