@@ -375,7 +375,7 @@ export default function InviteFlow({ data }: InviteFlowProps) {
             className="w-full h-full flex flex-col items-center flex-grow"
           >
             <div className="w-full flex flex-col items-center pt-[5rem] z-10 h-full justify-between flex-grow">
-              <div className="flex flex-col items-center gap-5 text-center">
+              <div className="flex flex-col items-center gap-[2rem] text-center relative z-[1]">
                 <h2 className="text-[3.2rem] font-bold text-[#FF5678]">
                   You&apos;re in!
                 </h2>
