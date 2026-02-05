@@ -78,7 +78,7 @@ async function renderShareCardPngs(data: WeeklyData) {
           iconUrl: content.stickerUrl,
         })),
         width: 390,
-        height: 960,
+        height: 693,
       }),
     ]);
     return { trendCardPng, statsCardPng };

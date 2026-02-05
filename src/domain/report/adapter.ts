@@ -195,15 +195,10 @@ function buildDiagnosis(report: WeeklyReportData): WeeklyDiagnosis {
 }
 
 // 方法功能：构建本周新内容模块数据
-function buildNewContents(
-  report: WeeklyReportData,
-  assetBaseUrl: string,
-): WeeklyNewContent[] {
-  return report.newTopics.slice(0, 3).map((topicItem, index) => ({
+function buildNewContents(report: WeeklyReportData): WeeklyNewContent[] {
+  return report.newTopics.slice(0, 3).map((topicItem) => ({
     label: topicItem.topic,
-    stickerUrl:
-      topicItem.picUrl ||
-      `${assetBaseUrl}/figma/content-sticker-${index + 1}.png`,
+    stickerUrl: topicItem.picUrl || "",
   }));
 }
 
@@ -254,7 +249,7 @@ export function mapReportToWeeklyData(
   const opening = buildOpening(feedlingState, report);
   const trend = buildTrend(report);
   const diagnosis = buildDiagnosis(report);
-  const newContents = buildNewContents(report, assetBaseUrl);
+  const newContents = buildNewContents(report);
   const rabbitHole = buildRabbitHole(report, assetBaseUrl);
   const weeklyNudge = buildWeeklyNudge(report, uid, assetBaseUrl);
 

@@ -43,7 +43,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
     <div
       style={{
         width: 390,
-        height: 960,
+        height: 693,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -52,7 +52,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
         color: "#FFFFFE",
         position: "relative",
         paddingTop: 40,
-        paddingBottom: 80,
+        paddingBottom: 40,
         boxSizing: "border-box",
       }}
     >
@@ -83,8 +83,12 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
         {/* Header Icon */}
         <img
           src={headerIconData}
-          width={180}
-          style={{ objectFit: "contain", marginBottom: 0 }}
+          style={{
+            objectFit: "contain",
+            marginBottom: 0,
+            width: "105px",
+            height: "95px",
+          }}
           alt="Stats"
         />
 
@@ -124,13 +128,28 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
               borderRadius: 24,
               padding: "20px 0",
               width: 155,
+              height: 71,
               boxSizing: "border-box",
             }}
           >
-            <span style={{ fontSize: 20, fontWeight: 700, color: "#FF5678" }}>
+            <span
+              style={{
+                fontSize: 20,
+                lineHeight: 1,
+                fontWeight: 700,
+                color: "#FF5678",
+              }}
+            >
               {totalVideos} Videos
             </span>
-            <span style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>
+            <span
+              style={{
+                fontSize: 12,
+                lineHeight: 1,
+                fontWeight: 700,
+                marginTop: 8,
+              }}
+            >
               Total Videos
             </span>
           </div>
@@ -146,13 +165,28 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
               borderRadius: 24,
               padding: "20px 0",
               width: 155,
+              height: 71,
               boxSizing: "border-box",
             }}
           >
-            <span style={{ fontSize: 20, fontWeight: 700, color: "#FF5678" }}>
+            <span
+              style={{
+                fontSize: 20,
+                lineHeight: 1,
+                fontWeight: 700,
+                color: "#FF5678",
+              }}
+            >
               {totalTime}
             </span>
-            <span style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>
+            <span
+              style={{
+                fontSize: 12,
+                lineHeight: 1,
+                fontWeight: 700,
+                marginTop: 8,
+              }}
+            >
               Total Time
             </span>
           </div>
@@ -166,27 +200,32 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
             fontSize: 18,
             fontWeight: 700,
             textAlign: "center",
-            lineHeight: "32px",
-            marginBottom: 20,
+            lineHeight: 1,
+            marginBottom: 16,
           }}
         >
-          <span>Your thumb ran</span>
-          <span style={{ fontSize: 20, color: "#FF5678", marginLeft: 4 }}>
-            {miles} miles
-          </span>
+          <span>Your thumb ran &nbsp;</span>
+          <span style={{ fontSize: 20, color: "#FF5678" }}>{miles} miles</span>
         </div>
 
         {/* Bar Chart Section */}
         <div
           style={{
             width: 330,
-            height: 265,
+            height: 148,
             display: "flex",
-            marginBottom: 20,
+            marginBottom: 10,
           }}
         >
           {/* 重要逻辑：使用统一柱状图组件保证对比口径一致 */}
-          <DiagnosisBarChart {...barChartData} width={330} height={265} />
+          <DiagnosisBarChart
+            {...barChartData}
+            width={330}
+            height={148}
+            axisFontSize={10}
+            valueFontSize={12}
+            barWidth={24}
+          />
         </div>
 
         {/* New Contents Section */}
@@ -198,7 +237,14 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
             width: "100%",
           }}
         >
-          <span style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>
+          <span
+            style={{
+              fontSize: 16,
+              lineHeight: 1,
+              fontWeight: 700,
+              marginBottom: 20,
+            }}
+          >
             • New contents you got into •
           </span>
           <div
@@ -215,7 +261,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 6,
                 }}
               >
                 <div
@@ -240,9 +286,19 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
                     />
                   ) : null}
                 </div>
-                <span style={{ fontSize: 12, fontWeight: 700 }}>
+                {/* 文字换行 */}
+                <div
+                  style={{
+                    fontSize: 12,
+                    lineHeight: 1.2,
+                    fontWeight: 700,
+                    textAlign: "center",
+                    width: 100,
+                    wordBreak: "break-word",
+                  }}
+                >
                   {content.label}
-                </span>
+                </div>
               </div>
             ))}
           </div>

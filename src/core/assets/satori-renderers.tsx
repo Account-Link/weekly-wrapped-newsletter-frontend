@@ -21,7 +21,7 @@ import { StatsShareCard } from "@/components/satori/StatsShareCard";
 import type { TrendType } from "@/domain/report/types";
 import { fetchImageData, loadFontData, loadImageData } from "./image-loader";
 
-const RENDER_SCALE = 4;
+const RENDER_SCALE = 2;
 const FONT_NAME = "Noto Sans";
 
 /**

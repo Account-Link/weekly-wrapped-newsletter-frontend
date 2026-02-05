@@ -6,6 +6,7 @@ import {
   buildPreviewAssetKeys,
   buildWeeklyDataFromMock,
 } from "@/lib/email-generator";
+import { loadImageData } from "@/core/assets/image-loader";
 import { DiagnosisBarChart } from "@/components/satori/DiagnosisBarChart";
 import { TrendProgress } from "@/components/satori/TrendProgress";
 import type { TrendType } from "@/domain/report/types";
@@ -58,29 +59,55 @@ export default async function SatoriPreviewPage({
   const trendShareCardUrl = assets.trendCardUrl;
   const statsShareCardUrl = assets.statsCardUrl;
 
+  // Load assets
+  const [
+    topicIconData,
+    topicIconBgData,
+    trendTopBgData,
+    fireIconData,
+    trendBottomBgData,
+    headerIconData,
+    statsTopBgData,
+    statsBottomBgData,
+  ] = await Promise.all([
+    loadImageData(getTrendIconFileName(weeklyData.trend.type)),
+    loadImageData("trend-icon-bg.png"),
+    loadImageData("trend-card-bg_top.png"),
+    loadImageData("fire.png"),
+    loadImageData("trend-card-bg_bottom.png"),
+    loadImageData("stats-icon.png"),
+    loadImageData("stats-card-bg_top.png"),
+    loadImageData("stats-card-bg_bottom.png"),
+  ]);
+
+  const contents = await Promise.all(
+    weeklyData.newContents.map(async (content, index) => ({
+      icon: await loadImageData(`content-sticker-${index + 1}.png`),
+      label: content.label,
+    })),
+  );
+
   // 重要逻辑：统一拼装卡片数据，供 HTML 组件与 PNG 预览使用
   const card = {
     trend: {
-      topicIconData: `${assetBaseUrl}/figma/${getTrendIconFileName(
-        weeklyData.trend.type,
-      )}`,
-      topicIconBgData: `${assetBaseUrl}/figma/trend-icon-bg.png`,
-      topBgData: `${assetBaseUrl}/figma/trend-card-bg_top.png`,
+      topicIconData,
+      topicIconBgData,
+      topBgData: trendTopBgData,
       topicTitle: weeklyData.trend.topic.replace(/“|”/g, ""),
       topicSubtitle: weeklyData.trend.statusText,
       discoveryRank: weeklyData.trend.rank ?? 0,
       totalDiscovery: weeklyData.trend.totalDiscoverers.toLocaleString(),
       progress: weeklyData.trend.trendProgress,
-      fireIconData: `${assetBaseUrl}/figma/fire.png`,
+      fireIconData,
       hashtag: weeklyData.trend.startTag,
       hashtagPercent: weeklyData.trend.startPercent,
       endTag: weeklyData.trend.endTag,
       globalPercent: weeklyData.trend.endPercent,
-      bottomBgData: `${assetBaseUrl}/figma/trend-card-bg_bottom.png`,
+      bottomBgData: trendBottomBgData,
     },
     stats: {
-      headerIconData: `${assetBaseUrl}/figma/stats-icon.png`,
-      topBgData: `${assetBaseUrl}/figma/stats-card-bg_top.png`,
+      headerIconData,
+      topBgData: statsTopBgData,
       totalVideos: weeklyData.diagnosis.totalVideosValue,
       totalTime: `${weeklyData.diagnosis.totalTimeValue} ${weeklyData.diagnosis.totalTimeUnit}`,
       miles: `${weeklyData.diagnosis.miles}`,
@@ -93,11 +120,8 @@ export default async function SatoriPreviewPage({
         lastWeekValue: weeklyData.diagnosis.lastWeekValue,
         thisWeekValue: weeklyData.diagnosis.thisWeekValue,
       },
-      contents: weeklyData.newContents.map((content: WeeklyNewContent) => ({
-        icon: content.stickerUrl,
-        label: content.label,
-      })),
-      bottomBgData: `${assetBaseUrl}/figma/stats-card-bg_bottom.png`,
+      contents,
+      bottomBgData: statsBottomBgData,
     },
   };
 
@@ -120,7 +144,7 @@ export default async function SatoriPreviewPage({
         gap: 24,
       }}
     >
-      <div style={moduleBoxStyle("#fffffe")}>
+      {/* <div style={moduleBoxStyle("#fffffe")}>
         <h3 style={{ fontSize: 18, marginBottom: 8 }}>TrendProgress (HTML)</h3>
         <div style={{ width: 520, height: 64 }}>
           <TrendProgress
@@ -138,7 +162,7 @@ export default async function SatoriPreviewPage({
         <div style={{ width: 520, height: 265 }}>
           <DiagnosisBarChart {...card.stats.barChartData} />
         </div>
-      </div>
+      </div> */}
 
       <div style={moduleBoxStyle("#ECECEC")}>
         <h3 style={{ fontSize: 18, marginBottom: 8 }}>TrendShareCard (HTML)</h3>
@@ -156,7 +180,7 @@ export default async function SatoriPreviewPage({
         </div>
       </div>
 
-      <div style={{ gridColumn: "1 / -1", ...moduleBoxStyle("#fffffe") }}>
+      {/* <div style={{ gridColumn: "1 / -1", ...moduleBoxStyle("#fffffe") }}>
         <h3 style={{ fontSize: 18, marginBottom: 8 }}>Generated PNGs</h3>
         <div>
           <div>
@@ -212,7 +236,7 @@ export default async function SatoriPreviewPage({
             />
           </div>
         </div>
-      </div>
+      </div> */}
     </main>
   );
 }

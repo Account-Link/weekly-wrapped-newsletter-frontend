@@ -9,6 +9,9 @@ export interface DiagnosisBarChartProps {
   thisWeekValue: number;
   width?: number;
   height?: number;
+  axisFontSize?: number;
+  valueFontSize?: number;
+  barWidth?: number;
 }
 
 // 方法功能：将分钟数格式化为小时/分钟字符串
@@ -77,6 +80,9 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
   thisWeekValue,
   width,
   height,
+  axisFontSize = 14,
+  valueFontSize = 16,
+  barWidth = 32,
 }) => {
   // 重要逻辑：计算刻度与高度比例，保证图表可读
   const maxMinutes = Math.max(lastWeekValue, thisWeekValue, 1);
@@ -167,7 +173,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
           flexDirection: "column",
           justifyContent: "space-between",
           color: "rgba(255,255,254,0.3)",
-          fontSize: 14,
+          fontSize: axisFontSize,
           fontWeight: 700,
           textAlign: "right",
           width: 34,
@@ -230,7 +236,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
         >
           <span
             style={{
-              fontSize: 16,
+              fontSize: valueFontSize,
               fontWeight: 700,
               color: "rgba(255,255,254,0.6)",
               marginBottom: 8,
@@ -240,7 +246,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
           </span>
           <div
             style={{
-              width: 32,
+              width: barWidth,
               height: `${lastHeight}%`,
               backgroundColor: "#22C083",
               borderTopLeftRadius: 25,
@@ -262,7 +268,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
         >
           <span
             style={{
-              fontSize: 16,
+              fontSize: valueFontSize,
               fontWeight: 700,
               color: "#FFFFFE",
               marginBottom: 8,
@@ -272,7 +278,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
           </span>
           <div
             style={{
-              width: 32,
+              width: barWidth,
               height: `${thisHeight}%`,
               backgroundColor: "#22C083",
               borderTopLeftRadius: 25,
@@ -300,7 +306,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
           style={{
             width: 80,
             textAlign: "center",
-            fontSize: 14,
+            fontSize: axisFontSize,
             fontWeight: 700,
             color: "rgba(255,255,254,0.2)",
           }}
@@ -311,7 +317,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
           style={{
             width: 80,
             textAlign: "center",
-            fontSize: 14,
+            fontSize: axisFontSize,
             fontWeight: 700,
             color: "#FFFFFE",
           }}
