@@ -1,7 +1,25 @@
 import React from "react";
+import type { Metadata } from "next";
 import { isAxiosError } from "axios";
 import { getWeeklyData } from "@/domain/report/service";
+import { getAppBaseUrl } from "@/lib/config";
 import InviteFlow from "./InviteFlow";
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}): Promise<Metadata> {
+  const { uid } = await searchParams;
+  const baseUrl = getAppBaseUrl();
+
+  // Invite page specific overrides: specific URL with UID
+  return {
+    openGraph: {
+      url: `${baseUrl}/invite?uid=${uid || ""}`,
+    },
+  };
+}
 
 export default async function InvitePage({
   searchParams,

@@ -3,10 +3,33 @@
 import "./globals.css";
 import { ToastProvider } from "@/context/ToastContext";
 import VConsoleComponent from "@/components/debug/VConsole";
+import { getAppBaseUrl } from "@/lib/config";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "FTikTok Weekly FYP Scout",
-  description: "TikTok Weekly FYP Scout",
+export const metadata: Metadata = {
+  title: "FYP Scout - Your TikTok Wrapped",
+  description: "Discover your TikTok persona and weekly insights!",
+  openGraph: {
+    title: "FYP Scout - Your TikTok Wrapped",
+    description: "Discover your TikTok persona and weekly insights!",
+    url: getAppBaseUrl(),
+    siteName: "FYP Scout",
+    images: [
+      {
+        url: `${getAppBaseUrl()}/images/og-image.png`,
+        width: 240,
+        height: 240,
+        alt: "FYP Scout Preview",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FYP Scout - Your TikTok Wrapped",
+    description: "Discover your TikTok persona and weekly insights!",
+    images: [`${getAppBaseUrl()}/images/og-image.png`],
+  },
 };
 
 // 方法功能：提供全局 HTML 与 body 容器
