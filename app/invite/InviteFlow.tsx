@@ -396,7 +396,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "FYP Scout",
+          title: "FYP Scout - Your TikTok Wrapped",
           text: "Check out my TikTok Wrapped!",
           url: url,
         });
