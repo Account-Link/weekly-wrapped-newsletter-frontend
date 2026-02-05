@@ -154,7 +154,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   };
 
   // 重要逻辑：使用 weekStart 作为 emailId，保证同一封邮件的去重一致
-  const emailId = data.weekStart;
+  const emailId = data.id ? String(data.id) : data.weekStart;
 
   // 重要逻辑：生成打开埋点像素 URL
   const trackingPixelUrl = getOpenPixelUrl(data.uid, emailId);

@@ -5,6 +5,7 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { trackEvent } from "@/lib/tracking";
+import { trackShareSaved } from "@/lib/client-analytics";
 
 // 方法功能：渲染分享下载页面内容
 export default function DownloadContent() {
@@ -68,6 +69,13 @@ export default function DownloadContent() {
           targetUrl: url,
           filename,
         },
+      });
+
+      // 记录 Firebase Analytics 保存埋点
+      await trackShareSaved({
+        uid,
+        emailId,
+        action: resolveShareAction(type),
       });
 
       const link = document.createElement("a");

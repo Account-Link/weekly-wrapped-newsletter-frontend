@@ -99,6 +99,7 @@ export interface WeeklyReportTopicItem {
 
 // 核心输入：周报完整数据对象
 export interface WeeklyReportData {
+  id?: number;
   // 基础信息
   weekRange: string; // e.g., "Jan 18 - Jan 24"
   periodStart?: string;
@@ -225,6 +226,7 @@ export interface WeeklyFooter {
 }
 
 export interface WeeklyData {
+  id?: number;
   uid: string;
   assetBaseUrl: string;
   weekStart: string; // ISO date string

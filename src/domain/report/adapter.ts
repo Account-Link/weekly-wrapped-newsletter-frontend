@@ -60,6 +60,7 @@ export function mapApiReportToWeeklyReportData(
 ): WeeklyReportData {
   // 重要逻辑：统一后端原始字段的格式与缺省值，保证模板渲染不缺关键字段
   return {
+    id: report.id,
     weekRange: formatWeekRange(report.period_start, report.period_end),
     periodStart: report.period_start ?? undefined,
     periodEnd: report.period_end ?? undefined,
@@ -255,6 +256,7 @@ export function mapReportToWeeklyData(
   const weeklyNudge = buildWeeklyNudge(report, uid, assetBaseUrl);
 
   return {
+    id: report.id,
     uid,
     assetBaseUrl,
     weekStart: report.weekRange.split(" - ")[0],

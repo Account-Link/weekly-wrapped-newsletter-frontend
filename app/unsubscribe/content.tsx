@@ -43,6 +43,7 @@ export default function UnsubscribeClient() {
     trackEvent({
       event: "page_view",
       type: "unsubscribe_flow",
+      action: "unsubscribe_page_view",
       uid,
       eid: emailId,
       source: "email_redirect",
@@ -163,7 +164,7 @@ export default function UnsubscribeClient() {
                   trackEvent({
                     event: "click",
                     type: "unsubscribe_flow",
-                    action: "keep_subscription",
+                    action: "unsubscribe_cancel",
                     uid,
                     eid: emailId,
                   });

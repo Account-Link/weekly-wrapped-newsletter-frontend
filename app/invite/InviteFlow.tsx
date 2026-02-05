@@ -67,10 +67,46 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     trackEvent({
       event: "page_view",
       type: "invite_flow",
+      action: "referral_landing_view",
       uid,
       source: "web",
     });
   }, [uid]);
+
+  // Track Funnel Steps
+  useEffect(() => {
+    if (step === 2) {
+      if (!redirectUrl) {
+        trackEvent({
+          event: "view",
+          type: "invite_flow",
+          action: "referral_loading_start",
+          uid,
+        });
+      } else {
+        trackEvent({
+          event: "view",
+          type: "invite_flow",
+          action: "referral_loading_complete",
+          uid,
+        });
+      }
+    } else if (step === 3) {
+      trackEvent({
+        event: "view",
+        type: "invite_flow",
+        action: "referral_processing_view",
+        uid,
+      });
+    } else if (step === 4) {
+      trackEvent({
+        event: "view",
+        type: "invite_flow",
+        action: "referral_complete",
+        uid,
+      });
+    }
+  }, [step, redirectUrl, uid]);
 
   const checkGeoLocation = async () => {
     try {
@@ -135,7 +171,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
           // 埋点：连接成功
           trackEvent({
-            event: "connect_tiktok_success",
+            event: "referral_oauth_success",
             type: "invite_flow",
             uid,
           });
@@ -230,7 +266,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     trackEvent({
       event: "click",
       type: "invite_flow",
-      action: "find_out_start",
+      action: "referral_landing_click",
       uid,
     });
     setStep(2); // Immediately go to Step 2 (which shows Preparing initially)
@@ -244,7 +280,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     trackEvent({
       event: "click",
       type: "invite_flow",
-      action: "connect_tiktok_click",
+      action: "referral_oauth_start",
       uid,
     });
 
@@ -297,7 +333,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     trackEvent({
       event: "click",
       type: "invite_flow",
-      action: "invite_share",
+      action: "referral_invite_click",
       uid,
     });
 
