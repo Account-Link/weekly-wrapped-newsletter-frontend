@@ -702,19 +702,18 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
             exit={{ opacity: 0 }}
             className="w-full h-full"
           >
-            <div className="flex flex-col items-center justify-center relative px-[3.2rem]">
+            <div className="w-full h-full flex flex-col items-center justify-center relative px-[3.2rem]">
               <p className="text-[2.4rem] font-bold text-center">
                 Reading your watch history...
               </p>
               {/* Loading Graphic */}
-              <div className="relative w-full flex-grow my-[4rem]">
+              <div className="relative w-full my-[4rem]">
                 <Image
                   src={ScreenBg3}
                   alt="Loading"
                   className="object-contain animate-pulse w-[33.2rem] h-[19.8rem]"
                 />
               </div>
-
               <h2 className="text-[2.8rem] font-bold mb-2">{progress}%</h2>
             </div>
           </motion.div>
