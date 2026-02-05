@@ -4,7 +4,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { trackEvent } from "@/lib/api/tracking";
+import { trackEvent } from "@/lib/tracking";
 
 // 方法功能：渲染跳转页面并执行跳转逻辑
 export default function RedirectContent() {

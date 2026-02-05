@@ -1,13 +1,27 @@
-import { getTrackingBaseUrl, getAppBaseUrl } from "./config";
+import { getTrackingBaseUrl, getAppBaseUrl } from "../config";
+import { TrackingAction } from "./types";
 
-export type ClickAction =
-  | "share_week"
-  | "share_stats"
-  | "invite_click"
-  | "unsubscribe";
+export type ClickTrackingOptions = {
+  uid: string;
+  emailId: string;
+  action: TrackingAction;
+  type?: string; // Module code
+  targetUrl?: string;
+  extraData?: Record<string, unknown>;
+};
 
-// 方法功能：生成打开像素 URL
+/**
+ * Generate a 1x1 pixel tracking URL for email opens.
+ */
 export const getOpenPixelUrl = (uid: string, emailId: string) => {
+  // Prevent pollution of production data in development unless explicitly enabled
+  if (
+    process.env.NODE_ENV === "development" &&
+    process.env.ENABLE_DEV_TRACKING !== "true"
+  ) {
+    return "";
+  }
+
   if (!uid || !emailId) return "";
   const baseUrl = getTrackingBaseUrl();
   return `${baseUrl}/api/track?event=open&uid=${encodeURIComponent(
@@ -15,16 +29,10 @@ export const getOpenPixelUrl = (uid: string, emailId: string) => {
   )}&eid=${encodeURIComponent(emailId)}`;
 };
 
-export type ClickTrackingOptions = {
-  uid: string;
-  emailId: string;
-  action: ClickAction;
-  type?: string; // 埋点 code
-  targetUrl?: string;
-  extraData?: Record<string, unknown>;
-};
-
-// 方法功能：生成点击追踪 URL (指向重定向服务)
+/**
+ * Generate a redirect tracking URL.
+ * Used in emails to track clicks before redirecting the user to the destination.
+ */
 export const getClickTrackingUrl = ({
   uid,
   emailId,
@@ -46,7 +54,7 @@ export const getClickTrackingUrl = ({
 
   if (targetUrl) {
     try {
-      // 兼容相对路径：如果是相对路径，直接使用 App Base URL 补全为绝对路径
+      // Support relative paths by resolving against App Base URL
       const isRelative = !targetUrl.startsWith("http");
       const base = isRelative ? getAppBaseUrl() : undefined;
       const u = new URL(targetUrl, base);

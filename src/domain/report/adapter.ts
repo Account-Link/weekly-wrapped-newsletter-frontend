@@ -227,11 +227,15 @@ function buildWeeklyNudge(
   uid: string,
   baseUrl: string,
 ): WeeklyNudge {
+  let linkUrl = `${baseUrl}/invite?uid=${uid}`;
+  if (report.periodStart) linkUrl += `&period_start=${report.periodStart}`;
+  if (report.periodEnd) linkUrl += `&period_end=${report.periodEnd}`;
+
   return {
     title: report.nudge.text || "👍🏻 Weekly Nudge 👍🏻",
     message: "Invite 1 friend to unlock next week",
     ctaLabel: "Share your invite link",
-    linkUrl: `${baseUrl}/invite?uid=${uid}`,
+    linkUrl,
   };
 }
 

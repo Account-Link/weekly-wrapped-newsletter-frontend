@@ -69,7 +69,7 @@ async function attachBasicChartAssets(
 ) {
   // 重要逻辑：先生成基础图表，再统一回填到 WeeklyData 的可渲染字段
   const { useUploads = true, uploadTarget = "api" } = options;
-  
+
   // 重要逻辑：并行生成基础图表
   const [progressPng, barChartPng] = await Promise.all([
     renderTrendProgressImage({
@@ -91,13 +91,13 @@ async function attachBasicChartAssets(
     // 重要逻辑：上传后写回 URL，供邮件模板渲染图片版本
     const uploadFn =
       uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
-    
+
     // 重要逻辑：并行上传基础图表
     const [progressImageUrl, barChartImageUrl] = await Promise.all([
       uploadFn(progressPng, options.progressKey),
       uploadFn(barChartPng, options.barsKey),
     ]);
-    
+
     data.trend.progressImageUrl = progressImageUrl;
     data.diagnosis.barChartImageUrl = barChartImageUrl;
     return;
@@ -131,25 +131,33 @@ async function attachShareAssetsAndLinks(
   // 重要逻辑：构建可追踪的下载链接，带上用户与周期参数
   const encodedUid = encodeURIComponent(data.uid);
   const encodedWeekStart = encodeURIComponent(data.weekStart);
+
+  let baseQueryParams = `uid=${encodedUid}&weekStart=${encodedWeekStart}`;
+  if (data.period_start)
+    baseQueryParams += `&period_start=${encodeURIComponent(data.period_start)}`;
+  if (data.period_end)
+    baseQueryParams += `&period_end=${encodeURIComponent(data.period_end)}`;
+
   data.trend.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
     trendCardUrl,
-  )}&filename=trend-card.png&type=trend_share_card&uid=${encodedUid}&weekStart=${encodedWeekStart}&theme=dark`;
+  )}&filename=trend-card.png&type=trend_share_card&${baseQueryParams}&theme=dark`;
+
   data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
     statsCardUrl,
-  )}&filename=stats-card.png&type=stats_share_card&uid=${encodedUid}&weekStart=${encodedWeekStart}&theme=light`;
+  )}&filename=stats-card.png&type=stats_share_card&${baseQueryParams}&theme=light`;
 
   if (data.weeklyNudge.linkUrl) {
     // 重要逻辑：行动按钮添加埋点跳转，统一落到 redirect 追踪入口
     data.weeklyNudge.linkUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
       data.weeklyNudge.linkUrl,
-    )}&type=nudge_invite&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
+    )}&type=nudge_invite&${baseQueryParams}`;
   }
 
   if (data.footer?.tiktokUrl) {
     // 重要逻辑：底部 TikTok 链接增加埋点追踪
     data.footer.tiktokUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
       data.footer.tiktokUrl,
-    )}&type=footer_tiktok&uid=${encodedUid}&weekStart=${encodedWeekStart}`;
+    )}&type=footer_tiktok&${baseQueryParams}`;
   }
 
   return { trendCardUrl, statsCardUrl };

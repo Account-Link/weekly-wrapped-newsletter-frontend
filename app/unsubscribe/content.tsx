@@ -9,7 +9,7 @@ import BannedIcon from "./images/banned.png";
 import CatIcon from "./images/cat.gif";
 import { unsubscribe, resubscribe } from "@/lib/api/report";
 import { useToast } from "@/context/ToastContext";
-import { trackEvent } from "@/lib/client-tracking";
+import { trackEvent } from "@/lib/tracking";
 
 type UnsubscribeState = "confirm" | "unsubscribed" | "subscribed";
 

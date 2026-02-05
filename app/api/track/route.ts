@@ -4,22 +4,12 @@ import admin from "firebase-admin";
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
 import { waitUntil } from "@vercel/functions";
+import type { TrackEventPayload } from "@/lib/tracking/types";
 
 const transparentGif = Buffer.from(
   "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
   "base64",
 );
-
-// 统一的埋点 Payload 接口
-type TrackEventPayload = {
-  event: string; // 必填：事件名，如 "click", "open", "page_view"
-  type?: string | null; // 埋点 code
-  uid?: string | null;
-  eid?: string | null; // 对应之前的 eid/weekStart
-  action?: string | null; // 具体动作
-  source?: string | null; // 来源，如 "email", "web"
-  extraData?: Record<string, unknown>;
-};
 
 // 定义输入接口，涵盖 URL 参数和 JSON Body 的可能字段
 type TrackEventInput = {
@@ -63,11 +53,11 @@ function normalizePayload(input: TrackEventInput): TrackEventPayload {
 
   return {
     event: input.event || "unknown",
-    type: input.type,
-    uid: input.uid,
-    eid: input.eid || input.email_id || input.weekStart,
-    action: input.action,
-    source: input.source,
+    type: input.type || undefined,
+    uid: input.uid || undefined,
+    eid: input.eid || input.email_id || input.weekStart || undefined,
+    action: input.action || undefined,
+    source: input.source || undefined,
     extraData: Object.keys(extraData).length > 0 ? extraData : undefined,
   };
 }

@@ -15,7 +15,10 @@ import { Tailwind } from "@react-email/tailwind";
 import type { WeeklyData } from "../src/lib/firebase-admin";
 import { EmailButton } from "./components/EmailButton";
 import { FEEDLING_COPY_MAP } from "../src/domain/report/logic-map";
-import { getClickTrackingUrl, getOpenPixelUrl } from "../src/lib/tracking";
+import {
+  getClickTrackingUrl,
+  getOpenPixelUrl,
+} from "../src/lib/tracking/server";
 
 import SplitBg from "../src/assets/figma/split-bg.png";
 import CatCuriousGif from "../src/assets/figma/Curious.gif";

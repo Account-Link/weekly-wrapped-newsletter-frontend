@@ -4,7 +4,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { trackEvent } from "@/lib/client-tracking";
+import { trackEvent } from "@/lib/tracking";
 
 // 方法功能：渲染分享下载页面内容
 export default function DownloadContent() {

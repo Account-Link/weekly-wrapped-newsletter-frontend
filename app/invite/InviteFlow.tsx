@@ -7,7 +7,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { startTikTokLink, pollTikTokRedirect } from "@/lib/api/tiktok";
 import { FeedlingState } from "@/domain/report/types";
 import { useToast } from "@/context/ToastContext";
-import { trackEvent } from "@/lib/client-tracking";
+import { trackEvent } from "@/lib/tracking";
 import { getUserTimezone, isUSTimezone } from "@/lib/timezone";
 
 import TiktokIcon from "@/assets/figma/invite/tiktok-icon.svg";

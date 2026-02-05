@@ -1,7 +1,8 @@
 import axios, { AxiosRequestConfig } from "axios";
 
 // --- Configuration ---
-const BACKEND_URL = process.env.NEXT_PUBLIC_TIKTOK_API_BASE_URL || "http://localhost:8000";
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_TIKTOK_API_BASE_URL || "http://localhost:8000";
 
 // --- Helpers ---
 const getUserTimezone = () => {
@@ -15,11 +16,11 @@ const getUserTimezone = () => {
 
 const getDeviceId = () => {
   if (typeof window === "undefined") return "server-side-id";
-  
-  let deviceId = localStorage.getItem('device_id');
+
+  let deviceId = localStorage.getItem("device_id");
   if (!deviceId) {
     deviceId = `device_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-    localStorage.setItem('device_id', deviceId);
+    localStorage.setItem("device_id", deviceId);
   }
   return deviceId;
 };
@@ -46,11 +47,11 @@ apiClient.interceptors.request.use((config) => {
 
   if (includeDevice) {
     const deviceId = getDeviceId();
-    config.headers['X-Device-Id'] = deviceId;
-    config.headers['X-Platform'] = 'web';
-    config.headers['X-App-Version'] = '1.0.0';
-    if (typeof navigator !== 'undefined') {
-      config.headers['X-OS-Version'] = navigator.userAgent;
+    config.headers["X-Device-Id"] = deviceId;
+    config.headers["X-Platform"] = "web";
+    config.headers["X-App-Version"] = "1.0.0";
+    if (typeof navigator !== "undefined") {
+      config.headers["X-OS-Version"] = navigator.userAgent;
     }
   }
 
@@ -64,9 +65,14 @@ apiClient.interceptors.response.use(
     if (axios.isAxiosError(error)) {
       // Network error (no response)
       if (!error.response) {
-        const isTimeout = error.code === 'ECONNABORTED';
-        const message = isTimeout ? 'Request timed out' : 'Network error';
-        throw new ApiRequestError(message, 0, isTimeout ? 'timeout_error' : 'network_error', true);
+        const isTimeout = error.code === "ECONNABORTED";
+        const message = isTimeout ? "Request timed out" : "Network error";
+        throw new ApiRequestError(
+          message,
+          0,
+          isTimeout ? "timeout_error" : "network_error",
+          true,
+        );
       }
 
       // HTTP error response
@@ -74,26 +80,33 @@ apiClient.interceptors.response.use(
       const errorData = error.response.data as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
       // Handle 410 expired status: if response contains status field, treat as valid response
-      if (status === 410 && errorData && typeof errorData === 'object' && 'status' in errorData) {
+      if (
+        status === 410 &&
+        errorData &&
+        typeof errorData === "object" &&
+        "status" in errorData
+      ) {
         return {
           ...error.response,
           data: errorData,
           status: 200, // Treat as success
-          statusText: 'OK',
+          statusText: "OK",
         };
       }
 
       // Extract error message
-      const message = errorData.message || errorData.error || 'Unknown error occurred';
-      const code = errorData.error || 'server_error';
-      
+      const message =
+        errorData.message || errorData.error || "Unknown error occurred";
+      const code = errorData.error || "server_error";
+
       throw new ApiRequestError(message, status, code);
     }
 
     // Unknown error
-    const message = error instanceof Error ? error.message : 'Unknown error occurred';
-    throw new ApiRequestError(message, 0, 'unknown_error');
-  }
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    throw new ApiRequestError(message, 0, "unknown_error");
+  },
 );
 
 // --- Types ---
@@ -104,9 +117,14 @@ export class ApiRequestError extends Error {
   isNetworkError: boolean;
   isServerError: boolean;
 
-  constructor(message: string, status: number, code: string = 'unknown_error', isNetworkError = false) {
+  constructor(
+    message: string,
+    status: number,
+    code: string = "unknown_error",
+    isNetworkError = false,
+  ) {
     super(message);
-    this.name = 'ApiRequestError';
+    this.name = "ApiRequestError";
     this.status = status;
     this.code = code;
     this.isNetworkError = isNetworkError;
@@ -115,7 +133,13 @@ export class ApiRequestError extends Error {
 }
 
 export interface TikTokRedirectResponse {
-  status: "pending" | "ready" | "completed" | "error" | "expired" | "reauth_needed";
+  status:
+    | "pending"
+    | "ready"
+    | "completed"
+    | "error"
+    | "expired"
+    | "reauth_needed";
   redirect_url?: string;
   token?: string;
   app_user_id?: string;
@@ -136,7 +160,7 @@ export async function pollTikTokRedirect(
 ): Promise<TikTokRedirectResponse> {
   const timeZone = getUserTimezone();
   const response = await apiClient.get("/link/tiktok/redirect", {
-    params: { 
+    params: {
       job_id,
       time_zone: timeZone,
     },
