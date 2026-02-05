@@ -128,7 +128,7 @@ export default function DownloadContent() {
 
   return (
     <div
-      className={`h-dvh w-[40.2rem] flex flex-col items-center px-[5.5rem] ${backgroundColor} ${textColor}`}
+      className={`h-dvh mx-auto w-[40.2rem] flex flex-col items-center px-[5.5rem] ${backgroundColor} ${textColor}`}
       style={{
         paddingTop: `calc(env(safe-area-inset-top) + 2rem)`,
         paddingBottom: `calc(env(safe-area-inset-bottom) + 2rem)`,
