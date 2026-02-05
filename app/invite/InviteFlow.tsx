@@ -518,7 +518,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
               </div>
             ) : (
               /* CONNECT STATE UI */
-              <div className="w-full h-full flex flex-col items-center justify-between flex-grow">
+              <div className="w-full h-full flex flex-col items-center justify-between flex-grow px-[3.2rem]">
                 <h2 className="w-full text-[2.8rem] font-bold text-center leading-[1.2] pt-[5rem] relative z-[1]">
                   Your data goes in.
                   <br />

@@ -27,7 +27,6 @@ import type {
   ShareAssetOptions,
 } from "./types";
 import { createLogger } from "@/lib/logger";
-import { ENABLE_CLIENT_SIDE_IMAGE_GENERATION } from "@/lib/config";
 
 const logger = createLogger("ReportPipeline");
 
@@ -170,39 +169,29 @@ async function attachShareAssetsAndLinks(
     if (data.period_end)
       baseQueryParams += `&period_end=${encodeURIComponent(data.period_end)}`;
 
-    // Strategy 1: Client-Side Generation (Optimization)
-    // Skips server-side rendering and uploading. Uses browser html2canvas.
-    if (ENABLE_CLIENT_SIDE_IMAGE_GENERATION) {
-      logger.info("Client-side generation enabled. Skipping server render.");
-      data.trend.shareUrl = `${assetBaseUrl}/share/download?type=trend_share_card&${baseQueryParams}&theme=dark`;
-      data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?type=stats_share_card&${baseQueryParams}&theme=light`;
-    }
-    // Strategy 2: Server-Side Generation (Legacy/Stable)
+    // Server-Side Generation (Legacy/Stable)
     // Renders images on server, uploads them, and embeds URLs.
-    else {
-      logger.info("Server-side generation active. Rendering images...");
-      const uploadFn =
-        uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
+    logger.info("Server-side generation active. Rendering images...");
+    const uploadFn =
+      uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
 
-      const { trendCardPng, statsCardPng } = await renderShareCardPngs(data);
+    const { trendCardPng, statsCardPng } = await renderShareCardPngs(data);
 
-      const [trendCardUrl, statsCardUrl] = await logger.measure(
-        "Upload Share Cards",
-        () =>
-          Promise.all([
-            uploadFn(trendCardPng, options.shareTrendKey),
-            uploadFn(statsCardPng, options.shareStatsKey),
-          ]),
-      );
+    const [trendCardUrl, statsCardUrl] = await logger.measure(
+      "Upload Share Cards",
+      () =>
+        Promise.all([
+          uploadFn(trendCardPng, options.shareTrendKey),
+          uploadFn(statsCardPng, options.shareStatsKey),
+        ]),
+    );
 
-      data.trend.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
-        trendCardUrl,
-      )}&filename=trend-card.png&type=trend_share_card&${baseQueryParams}&theme=dark`;
-
-      data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
-        statsCardUrl,
-      )}&filename=stats-card.png&type=stats_share_card&${baseQueryParams}&theme=light`;
-    }
+    data.trend.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
+      trendCardUrl,
+    )}&filename=trend-card.png&type=trend_share_card&${baseQueryParams}&theme=dark`;
+    data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
+      statsCardUrl,
+    )}&filename=stats-card.png&type=stats_share_card&${baseQueryParams}&theme=light`;
 
     // Inject trackable redirect links for other actions
     if (data.weeklyNudge.linkUrl) {
