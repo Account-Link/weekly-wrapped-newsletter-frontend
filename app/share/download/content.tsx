@@ -17,7 +17,6 @@ export default function DownloadContent() {
   const weekStart = searchParams.get("weekStart");
   const periodStart = searchParams.get("period_start");
   const periodEnd = searchParams.get("period_end");
-  const theme = searchParams.get("theme") || "dark";
   const [isDownloading, setIsDownloading] = useState(false);
 
   // 重要逻辑：根据下载类型映射分享动作，保持统计口径一致
@@ -43,11 +42,10 @@ export default function DownloadContent() {
       source: "email",
       extraData: {
         targetUrl: url,
-        theme,
         filename,
       },
     });
-  }, [type, url, uid, emailId, theme, filename]);
+  }, [type, url, uid, emailId, filename]);
 
   const handleDownload = async () => {
     if (!url || isDownloading) {
@@ -101,14 +99,17 @@ export default function DownloadContent() {
     }
   };
 
-  const isLightTheme = theme === "light";
-  const textColor = isLightTheme ? "text-[#000]" : "text-[#fffffe]";
-  const backgroundColor = isLightTheme ? "bg-[#e4e4e4]" : "bg-[#313131]";
-  const borderColor = isLightTheme
-    ? "border-[rgba(255,255,255,0.60)]"
-    : "border-[rgba(255,255,255,0.2)]";
-  const buttonBg = isLightTheme ? "bg-[#651AE9]" : "bg-[#fff]";
-  const buttonText = isLightTheme ? "text-[#fff]" : "text-[#000]";
+  // 使用 Tailwind 的 dark: 前缀和 CSS 变量适配系统主题
+  // 默认样式为浅色模式，dark: 类用于深色模式适配
+  const textColor = "text-[#000] dark:text-[#fffffe]";
+  const backgroundColor = "bg-[#e4e4e4] dark:bg-[#313131]";
+  const borderColor =
+    "border-[rgba(0,0,0,0.1)] dark:border-[rgba(255,255,255,0.2)]";
+  const buttonBg = "bg-[#651AE9] dark:bg-[#fff]";
+  const buttonText = "text-[#fff] dark:text-[#000]";
+
+  // 统一使用 9:16 的手机屏幕比例
+  const aspectRatio = "390/693";
 
   if (!url) {
     return (
@@ -128,13 +129,13 @@ export default function DownloadContent() {
 
   return (
     <div
-      className={`h-[100dvh] mx-auto w-[40.2rem] flex flex-col items-center px-[5.5rem] ${backgroundColor} ${textColor} overflow-hidden`}
+      className={`h-[100dvh] mx-auto w-[40.2rem] flex flex-col items-center px-[5.5rem] ${backgroundColor} ${textColor} overflow-hidden box-border`}
       style={{
         paddingTop: `calc(env(safe-area-inset-top) + 2rem)`,
         paddingBottom: `calc(env(safe-area-inset-bottom) + 2rem)`,
       }}
     >
-      <div className="flex-none flex flex-col items-center w-full">
+      <div className="flex-none flex flex-col items-center w-full pb-[2rem] flex-shrink-0">
         <h1 className="text-[2.4rem] leading-[3.2rem] font-bold m-0 text-center">
           Your Wrapped is Ready!
         </h1>
@@ -143,15 +144,15 @@ export default function DownloadContent() {
         </p>
       </div>
 
-      <div className="flex-1 min-h-0 w-full flex items-center justify-center my-[2rem]">
+      <div className="flex-1 min-h-0 w-full flex items-center justify-center">
         <button
           type="button"
           onClick={handleDownload}
           disabled={isDownloading}
-          className={`w-[39rem] rounded-[2rem] border ${borderColor} overflow-hidden ${
+          className={`max-w-[39rem] rounded-[2rem] border ${borderColor} overflow-hidden ${
             isDownloading ? "opacity-70" : "hover:opacity-95"
           }`}
-          style={{ aspectRatio: "auto" }}
+          style={{ aspectRatio: `${aspectRatio}`, maxHeight: "100%" }}
         >
           <img
             src={url}
@@ -161,7 +162,7 @@ export default function DownloadContent() {
         </button>
       </div>
 
-      <div className="flex-none flex flex-col items-center w-full">
+      <div className="flex-none flex flex-col items-center w-full pt-[2rem] flex-shrink-0">
         <button
           type="button"
           onClick={handleDownload}
