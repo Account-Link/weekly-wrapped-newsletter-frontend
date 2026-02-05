@@ -97,10 +97,14 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
   const lastLabel = formatMinutes(lastWeekValue);
   const thisLabel = formatMinutes(thisWeekValue);
 
+  // 动态计算 gap：宽度较小时减小间距，避免过于分散
+  const chartWidth = width ?? 520;
+  const gap = chartWidth < 400 ? 40 : 80;
+
   return (
     <div
       style={{
-        width: width ?? 520,
+        width: chartWidth,
         height: height ?? 265,
         display: "flex",
         flexDirection: "column",
@@ -216,10 +220,8 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
           display: "flex",
           width: "100%",
           height: "100%",
-          alignItems: "flex-end",
           justifyContent: "center",
-          paddingBottom: xAxisHeight,
-          gap: 80,
+          gap: gap,
           zIndex: 1,
         }}
       >
@@ -228,32 +230,61 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            opacity: 0.5,
             width: 80,
             height: "100%",
-            justifyContent: "flex-end",
           }}
         >
-          <span
-            style={{
-              fontSize: valueFontSize,
-              fontWeight: 700,
-              color: "rgba(255,255,254,0.6)",
-              marginBottom: 8,
-            }}
-          >
-            {lastLabel}
-          </span>
           <div
             style={{
-              width: barWidth,
-              height: `${lastHeight}%`,
-              backgroundColor: "#22C083",
-              borderTopLeftRadius: 25,
-              borderTopRightRadius: 25,
-              marginBottom: 1,
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              opacity: 0.5,
+              width: "100%",
+              paddingBottom: 1, // subtle adjustment for border
             }}
-          />
+          >
+            <span
+              style={{
+                fontSize: valueFontSize,
+                fontWeight: 700,
+                color: "rgba(255,255,254,0.6)",
+                marginBottom: 8,
+              }}
+            >
+              {lastLabel}
+            </span>
+            <div
+              style={{
+                width: barWidth,
+                height: `${lastHeight}%`,
+                backgroundColor: "#22C083",
+                borderTopLeftRadius: 25,
+                borderTopRightRadius: 25,
+              }}
+            />
+          </div>
+          <div
+            style={{
+              height: xAxisHeight,
+              width: "100%", // 显式占满父容器宽度 (80px)
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <span
+              style={{
+                fontSize: axisFontSize,
+                fontWeight: 700,
+                color: "rgba(255,255,254,0.2)",
+              }}
+            >
+              {lastWeekLabel}
+            </span>
+          </div>
         </div>
 
         <div
@@ -263,67 +294,59 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             alignItems: "center",
             width: 80,
             height: "100%",
-            justifyContent: "flex-end",
           }}
         >
-          <span
-            style={{
-              fontSize: valueFontSize,
-              fontWeight: 700,
-              color: "#FFFFFE",
-              marginBottom: 8,
-            }}
-          >
-            {thisLabel}
-          </span>
           <div
             style={{
-              width: barWidth,
-              height: `${thisHeight}%`,
-              backgroundColor: "#22C083",
-              borderTopLeftRadius: 25,
-              borderTopRightRadius: 25,
-              marginBottom: 1,
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              width: "100%",
+              paddingBottom: 1,
             }}
-          />
+          >
+            <span
+              style={{
+                fontSize: valueFontSize,
+                fontWeight: 700,
+                color: "#FFFFFE",
+                marginBottom: 8,
+              }}
+            >
+              {thisLabel}
+            </span>
+            <div
+              style={{
+                width: barWidth,
+                height: `${thisHeight}%`,
+                backgroundColor: "#22C083",
+                borderTopLeftRadius: 25,
+                borderTopRightRadius: 25,
+              }}
+            />
+          </div>
+          <div
+            style={{
+              height: xAxisHeight,
+              width: "100%", // 显式占满父容器宽度 (80px)
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <span
+              style={{
+                fontSize: axisFontSize,
+                fontWeight: 700,
+                color: "#FFFFFE",
+              }}
+            >
+              {thisWeekLabel}
+            </span>
+          </div>
         </div>
-      </div>
-
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 40,
-          right: 0,
-          display: "flex",
-          justifyContent: "center",
-          gap: 80,
-          height: xAxisHeight,
-          alignItems: "center",
-        }}
-      >
-        <span
-          style={{
-            width: 80,
-            textAlign: "center",
-            fontSize: axisFontSize,
-            fontWeight: 700,
-            color: "rgba(255,255,254,0.2)",
-          }}
-        >
-          {lastWeekLabel}
-        </span>
-        <span
-          style={{
-            width: 80,
-            textAlign: "center",
-            fontSize: axisFontSize,
-            fontWeight: 700,
-            color: "#FFFFFE",
-          }}
-        >
-          {thisWeekLabel}
-        </span>
       </div>
     </div>
   );
