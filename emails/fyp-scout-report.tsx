@@ -465,7 +465,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 ) : null}
               </Section>
 
-              <Text className="text-[20px] font-bold text-white leading-none mt-[40px] mb-[60px] mobile:text-[16px]">
+              <Text className="text-[20px] font-bold text-white leading-none mt-[40px] mb-[30px] mobile:text-[16px]">
                 • New contents you got into •
               </Text>
               {contentCount > 0 ? (
