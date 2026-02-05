@@ -73,6 +73,18 @@ function buildPayloadFromSearchParams(
   return normalizePayload(input);
 }
 
+// 提前创建 Formatter 实例以复用，避免每次请求重复实例化的性能开销
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
+
 // 写入 Firestore
 async function recordEvent(
   payload: TrackEventPayload,
@@ -95,10 +107,19 @@ async function recordEvent(
   const typePart = payload.type || "no_type";
   const actionPart = payload.action || "no_action";
   const timestamp = Date.now();
-  
-  // Format timestamp to YYYYMMDDHHMMSS (UTC) for sorting
+
+  // Format timestamp to YYYYMMDDHHMMSS (America/New_York)
   const date = new Date(timestamp);
-  const formattedTime = date.toISOString().replace(/[-:T.]/g, "").slice(0, 14);
+  const parts = dateFormatter.formatToParts(date);
+  const p = parts.reduce(
+    (acc, part) => {
+      acc[part.type] = part.value;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
+  const formattedTime = `${p.year}${p.month}${p.day}${p.hour}${p.minute}${p.second}`;
 
   // 构造文档 ID: timestamp_uid_eid_event_type_action
   // 这样在 Firestore 中默认按时间倒序/正序排列
