@@ -11,25 +11,46 @@ export interface DiagnosisBarChartProps {
   height?: number;
 }
 
-// 方法功能：预设的刻度档位
-const timeSteps = [6, 12, 24, 36, 48, 72];
-
 // 方法功能：将分钟数格式化为小时/分钟字符串
-function formatMinutes(minutes: number) {
+function formatMinutes(minutes: number, isAxis = false) {
   const totalMinutes = Math.max(0, Math.round(minutes));
+
+  // 特殊处理：如果是 Y 轴刻度且刚好是 30 分钟，强制显示 0.5h
+  if (isAxis && totalMinutes === 30) {
+    return "0.5h";
+  }
+
   const hours = Math.floor(totalMinutes / 60);
   const mins = totalMinutes % 60;
-  if (hours <= 0) return `${mins}min`;
-  if (mins === 0) return `${hours}h`;
-  return `${hours}h${mins}min`;
+
+  // Case 1: 纯分钟 (不足 1 小时)，直接显示分钟 (e.g., 27min, 30min)
+  if (hours === 0) {
+    return `${mins}min`;
+  }
+
+  // Case 2: 整小时 (分钟为 0)，只显示小时 (e.g., 12h)
+  if (mins === 0) {
+    return `${hours.toLocaleString()}h`;
+  }
+
+  // Case 3: 混合模式 (e.g., 1h 27min)
+  return `${hours.toLocaleString()}h${mins}min`;
 }
 
 // 方法功能：根据最大分钟数选择上方刻度
 function pickTopHours(maxMinutes: number) {
-  const maxHours = Math.max(1, Math.ceil(maxMinutes / 60));
-  return (
-    timeSteps.find((step) => step >= maxHours) ?? Math.ceil(maxHours / 12) * 12
-  );
+  const maxHours = maxMinutes / 60;
+
+  // 如果最大值不超过 1 小时，固定使用 1h 作为最大刻度，0.5h (30min) 作为中间刻度
+  if (maxHours <= 1) {
+    return 1;
+  }
+
+  // 其他情况：取最大小时数的一半向上取整作为步长 (mid)，最大刻度为步长的两倍
+  // 例如：1.33h -> ceil(0.66) = 1h -> Top 2h
+  // 例如：2.33h -> ceil(1.16) = 2h -> Top 4h
+  const mid = Math.ceil(maxHours / 2);
+  return mid * 2;
 }
 
 // 方法功能：渲染对比柱状图
@@ -144,7 +165,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             transform: "translateY(-50%)",
           }}
         >
-          {`${topHours}h`}
+          {formatMinutes(topHours * 60, true)}
         </span>
         <span
           style={{
@@ -154,7 +175,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
             transform: "translateY(-50%)",
           }}
         >
-          {`${midHours}h`}
+          {formatMinutes(midHours * 60, true)}
         </span>
         <span
           style={{
@@ -263,7 +284,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
           style={{
             width: 80,
             textAlign: "center",
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: 700,
             color: "rgba(255,255,254,0.2)",
           }}
@@ -274,7 +295,7 @@ export const DiagnosisBarChart: React.FC<DiagnosisBarChartProps> = ({
           style={{
             width: 80,
             textAlign: "center",
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: 700,
             color: "#FFFFFE",
           }}

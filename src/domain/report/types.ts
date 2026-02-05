@@ -193,7 +193,7 @@ export interface WeeklyDiagnosis {
   totalTimeUnit: string;
   comparisonDiff: string | null;
   comparisonText: string;
-  miles: number;
+  miles: string;
   milesComment: string;
   thisWeekLabel: string;
   lastWeekLabel: string;

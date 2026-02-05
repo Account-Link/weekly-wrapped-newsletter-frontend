@@ -163,7 +163,8 @@ function buildDiagnosis(report: WeeklyReportData): WeeklyDiagnosis {
     report.stats.totalTimeMinutes,
     report.stats.lastWeekTimeMinutes,
   );
-  const timeMatch = comparisonFull.match(/^(\d+h \d+min)/);
+  // 支持三种格式：1h 27min, 12h, 27min，并支持千分位逗号
+  const timeMatch = comparisonFull.match(/^([\d,]+h \d+min|[\d,]+h|\d+min)/);
   const comparisonDiff = timeMatch ? timeMatch[0] : null;
   const comparisonText = comparisonDiff
     ? comparisonFull.replace(comparisonDiff, "").trim()
@@ -184,7 +185,7 @@ function buildDiagnosis(report: WeeklyReportData): WeeklyDiagnosis {
     totalTimeUnit,
     comparisonDiff,
     comparisonText: `${comparisonText} 👍`,
-    miles: report.stats.milesScrolled,
+    miles: report.stats.milesScrolled.toLocaleString(),
     milesComment,
     thisWeekLabel: "This Week",
     lastWeekLabel: "Last Week",
@@ -216,7 +217,9 @@ function buildRabbitHole(
       ? `${report.rabbitHole.day} ${report.rabbitHole.time}`
       : "—",
     description: report.rabbitHole.category
-      ? `You watched ${report.rabbitHole.count ?? 0} videos of ${report.rabbitHole.category}.`
+      ? `You watched ${(
+          report.rabbitHole.count ?? 0
+        ).toLocaleString()} videos of ${report.rabbitHole.category}.`
       : "You went down a rabbit hole.",
     imageUrl: `${assetBaseUrl}/figma/cat-gif.png`,
   };
@@ -280,11 +283,22 @@ export function mapReportToWeeklyData(
 function formatTotalTimeDisplay(totalMinutes: number) {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
+
+  if (hours === 0) {
+    return { totalTimeValue: `${minutes}`, totalTimeUnit: "min" };
+  }
+
   if (minutes === 0) {
     // 重要逻辑：分钟为 0 时将小时作为单位，保持数值与单位留空格
-    return { totalTimeValue: `${hours}`, totalTimeUnit: "h" };
+    return {
+      totalTimeValue: `${hours.toLocaleString()}`,
+      totalTimeUnit: "h",
+    };
   }
-  return { totalTimeValue: `${hours} h ${minutes}`, totalTimeUnit: "min" };
+  return {
+    totalTimeValue: `${hours.toLocaleString()} h ${minutes}`,
+    totalTimeUnit: "min",
+  };
 }
 
 // 方法功能：计算趋势进度百分比

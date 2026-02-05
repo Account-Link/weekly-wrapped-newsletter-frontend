@@ -52,7 +52,19 @@ export function getTimeComparisonText(
   const formatTime = (mins: number) => {
     const h = Math.floor(Math.abs(mins) / 60);
     const m = Math.floor(Math.abs(mins) % 60);
-    return `${h}h ${m}min`;
+
+    // Case 1: 纯分钟 (不足 1 小时)，直接显示分钟 (e.g., 27min, 30min)
+    if (h === 0) {
+      return `${m}min`;
+    }
+
+    // Case 2: 整小时 (分钟为 0)，只显示小时 (e.g., 12h)
+    if (m === 0) {
+      return `${h.toLocaleString()}h`;
+    }
+
+    // Case 3: 混合模式 (e.g., 1h 27min)
+    return `${h.toLocaleString()}h ${m}min`;
   };
   if (diff >= 0) {
     return `${formatTime(diff)} more than last week`;
@@ -65,7 +77,7 @@ export function getTimeComparisonText(
 // ==========================================
 // 方法功能：生成拇指滑动里程文案
 export function getMilesScrolledText(miles: number): string {
-  const baseText = `Your thumb ran ${miles} miles`;
+  const baseText = `Your thumb ran ${miles.toLocaleString()} miles`;
 
   if (miles < 5) return `${baseText} - a nice walk.`;
   if (miles < 13) return `${baseText} - a 10K run.`;
