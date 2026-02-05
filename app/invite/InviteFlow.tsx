@@ -52,6 +52,11 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [showQrModal, setShowQrModal] = useState(false);
   const [showGeoModal, setShowGeoModal] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const isConnectingRef = useRef(isConnecting);
+
+  useEffect(() => {
+    isConnectingRef.current = isConnecting;
+  }, [isConnecting]);
 
   const { trend } = data;
 
@@ -205,6 +210,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
         // 2. Completed state: User finished login
         if (statusRes.status === "completed") {
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+          setIsConnecting(false);
 
           if (statusRes.token && statusRes.app_user_id) {
             setTiktokToken(statusRes.token);
@@ -213,6 +219,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
           // Clear saved job_id
           localStorage.removeItem(JOB_ID_KEY);
+          setJobId(null);
 
           // 埋点：连接成功
           trackOnce("referral_oauth_success", () => {
@@ -238,20 +245,30 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           statusRes.status === "reauth_needed"
         ) {
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-          setIsConnecting(false);
-          showToast("Connection failed. Please try again.");
           localStorage.removeItem(JOB_ID_KEY);
-          startAndPoll();
+          setJobId(null);
+
+          if (isConnectingRef.current) {
+            setIsConnecting(false);
+            showToast("Connection failed. Please try again.");
+          } else {
+            startAndPoll();
+          }
         }
       } catch (error) {
         console.error("Polling error:", error);
 
         // Error handling: Reset state, show toast, and restart session
         if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-        setIsConnecting(false);
-        showToast("Connection failed. Please try again.");
         localStorage.removeItem(JOB_ID_KEY);
-        startAndPoll();
+        setJobId(null);
+
+        if (isConnectingRef.current) {
+          setIsConnecting(false);
+          showToast("Connection failed. Please try again.");
+        } else {
+          startAndPoll();
+        }
       }
     }, 2000); // Poll every 2s
   };
@@ -328,6 +345,12 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
   const handleConnect = () => {
     if (!redirectUrl || isConnecting) return;
+
+    // Retry logic: If no job_id (cleared by error), restart session
+    if (!jobId) {
+      startAndPoll();
+      return;
+    }
 
     setIsConnecting(true);
 
