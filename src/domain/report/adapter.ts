@@ -269,6 +269,8 @@ export function mapReportToWeeklyData(
     footer: {
       tiktokUrl: "https://tiktok.com/@feedling",
     },
+    period_start: report.periodStart,
+    period_end: report.periodEnd,
   };
 }
 

@@ -22,6 +22,9 @@ const bufferToDataUrl = (buffer: Buffer) =>
   `data:image/png;base64,${buffer.toString("base64")}`;
 
 async function renderShareCardPngs(data: WeeklyData) {
+  const start = performance.now();
+  console.log(`[ReportPipeline] Starting renderShareCardPngs...`);
+
   const [trendCardPng, statsCardPng] = await Promise.all([
     renderTrendShareCardImage({
       topicTitle: data.trend.topic.replace(/“|”/g, ""),
@@ -58,6 +61,12 @@ async function renderShareCardPngs(data: WeeklyData) {
       height: 960,
     }),
   ]);
+
+  const end = performance.now();
+  const duration = (end - start).toFixed(2);
+  console.log(
+    `[ReportPipeline] renderShareCardPngs completed in ${duration}ms (Blocking time for download images)`,
+  );
 
   return { trendCardPng, statsCardPng };
 }
@@ -114,6 +123,11 @@ async function attachShareAssetsAndLinks(
   data: WeeklyData,
   options: ShareAssetOptions,
 ) {
+  const start = performance.now();
+  console.log(
+    `[ReportPipeline] Starting attachShareAssetsAndLinks (Render + Upload)...`,
+  );
+
   // 重要逻辑：生成分享图并注入可追踪的分享链接，保证统计链路一致
   const { uploadTarget = "api", assetBaseUrl } = options;
   const uploadFn =
@@ -123,10 +137,15 @@ async function attachShareAssetsAndLinks(
   const { trendCardPng, statsCardPng } = await renderShareCardPngs(data);
 
   // 重要逻辑：并行上传分享图并获取对外 URL
+  const uploadStart = performance.now();
   const [trendCardUrl, statsCardUrl] = await Promise.all([
     uploadFn(trendCardPng, options.shareTrendKey),
     uploadFn(statsCardPng, options.shareStatsKey),
   ]);
+  const uploadEnd = performance.now();
+  console.log(
+    `[ReportPipeline] Upload share cards completed in ${(uploadEnd - uploadStart).toFixed(2)}ms`,
+  );
 
   // 重要逻辑：构建可追踪的下载链接，带上用户与周期参数
   const encodedUid = encodeURIComponent(data.uid);
@@ -159,6 +178,11 @@ async function attachShareAssetsAndLinks(
       data.footer.tiktokUrl,
     )}&type=footer_tiktok&${baseQueryParams}`;
   }
+
+  const end = performance.now();
+  console.log(
+    `[ReportPipeline] attachShareAssetsAndLinks completed in ${(end - start).toFixed(2)}ms`,
+  );
 
   return { trendCardUrl, statsCardUrl };
 }
