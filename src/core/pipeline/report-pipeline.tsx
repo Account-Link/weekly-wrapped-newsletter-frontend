@@ -1,5 +1,14 @@
-// 文件功能：邮件主流程编排与资源注入的核心管线，处于 Data→Assets→HTML 的中心阶段
-// 方法概览：资源生成/上传、分享链接注入、HTML 渲染、统一运行入口
+/**
+ * Core pipeline for email report generation.
+ * Orchestrates the data -> assets -> HTML transformation flow.
+ * (邮件报告生成的核心流水线。编排 数据 -> 资源 -> HTML 的转换流程。)
+ *
+ * Responsibilities (职责):
+ * - Asset generation (charts, share cards) (资源生成：图表、分享卡片)
+ * - Image uploading (图片上传)
+ * - Share link injection (分享链接注入)
+ * - Final HTML rendering (最终 HTML 渲染)
+ */
 import { render } from "@react-email/render";
 import { FypScoutReportEmail } from "../../../emails/fyp-scout-report";
 import type { WeeklyData } from "@/lib/firebase-admin";
@@ -17,183 +26,213 @@ import type {
   ReportPipelineRunResult,
   ShareAssetOptions,
 } from "./types";
+import { createLogger } from "@/lib/logger";
+import { ENABLE_CLIENT_SIDE_IMAGE_GENERATION } from "@/lib/config";
+
+const logger = createLogger("ReportPipeline");
 
 const bufferToDataUrl = (buffer: Buffer) =>
   `data:image/png;base64,${buffer.toString("base64")}`;
 
+/**
+ * Renders share card PNGs using Satori.
+ * (使用 Satori 渲染分享卡片 PNG 图片。)
+ *
+ * This is a blocking operation that uses CPU-intensive SVG generation + resvg rendering.
+ * (这是一个阻塞操作，使用 CPU 密集的 SVG 生成 + resvg 渲染。)
+ *
+ * @param data - The weekly report data (周报数据)
+ * @returns Object containing trend and stats card PNG buffers (包含趋势和统计卡片 PNG 缓冲区的对象)
+ */
 async function renderShareCardPngs(data: WeeklyData) {
-  const start = performance.now();
-  console.log(`[ReportPipeline] Starting renderShareCardPngs...`);
-
-  const [trendCardPng, statsCardPng] = await Promise.all([
-    renderTrendShareCardImage({
-      topicTitle: data.trend.topic.replace(/“|”/g, ""),
-      topicSubtitle: data.trend.statusText,
-      discoveryRank: data.trend.rank ?? 0,
-      totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
-      progress: data.trend.trendProgress,
-      hashtag: data.trend.startTag,
-      hashtagPercent: data.trend.startPercent,
-      endTag: data.trend.endTag,
-      globalPercent: data.trend.endPercent,
-      width: 390,
-      height: 693,
-      trendType: data.trend.type,
-    }),
-    renderStatsShareCardImage({
-      totalVideos: data.diagnosis.totalVideosValue,
-      totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
-      miles: `${data.diagnosis.miles}`,
-      comparisonDiff: data.diagnosis.comparisonDiff,
-      comparisonText: data.diagnosis.comparisonText,
-      milesComment: data.diagnosis.milesComment,
-      barChartData: {
-        lastWeekLabel: data.diagnosis.lastWeekLabel,
-        thisWeekLabel: data.diagnosis.thisWeekLabel,
-        lastWeekValue: data.diagnosis.lastWeekValue,
-        thisWeekValue: data.diagnosis.thisWeekValue,
-      },
-      contents: data.newContents.slice(0, 3).map((content) => ({
-        label: content.label,
-        iconUrl: content.stickerUrl,
-      })),
-      width: 390,
-      height: 960,
-    }),
-  ]);
-
-  const end = performance.now();
-  const duration = (end - start).toFixed(2);
-  console.log(
-    `[ReportPipeline] renderShareCardPngs completed in ${duration}ms (Blocking time for download images)`,
-  );
-
-  return { trendCardPng, statsCardPng };
+  return logger.measure("renderShareCardPngs (CPU Blocking)", async () => {
+    const [trendCardPng, statsCardPng] = await Promise.all([
+      renderTrendShareCardImage({
+        topicTitle: data.trend.topic.replace(/“|”/g, ""),
+        topicSubtitle: data.trend.statusText,
+        discoveryRank: data.trend.rank ?? 0,
+        totalDiscovery: data.trend.totalDiscoverers.toLocaleString(),
+        progress: data.trend.trendProgress,
+        hashtag: data.trend.startTag,
+        hashtagPercent: data.trend.startPercent,
+        endTag: data.trend.endTag,
+        globalPercent: data.trend.endPercent,
+        width: 390,
+        height: 693,
+        trendType: data.trend.type,
+      }),
+      renderStatsShareCardImage({
+        totalVideos: data.diagnosis.totalVideosValue,
+        totalTime: `${data.diagnosis.totalTimeValue} ${data.diagnosis.totalTimeUnit}`,
+        miles: `${data.diagnosis.miles}`,
+        comparisonDiff: data.diagnosis.comparisonDiff,
+        comparisonText: data.diagnosis.comparisonText,
+        milesComment: data.diagnosis.milesComment,
+        barChartData: {
+          lastWeekLabel: data.diagnosis.lastWeekLabel,
+          thisWeekLabel: data.diagnosis.thisWeekLabel,
+          lastWeekValue: data.diagnosis.lastWeekValue,
+          thisWeekValue: data.diagnosis.thisWeekValue,
+        },
+        contents: data.newContents.slice(0, 3).map((content) => ({
+          label: content.label,
+          iconUrl: content.stickerUrl,
+        })),
+        width: 390,
+        height: 960,
+      }),
+    ]);
+    return { trendCardPng, statsCardPng };
+  });
 }
 
-// 方法功能：生成基础图表并回填到 WeeklyData，属于 Assets 生成阶段
+/**
+ * Generates basic chart assets (Trend Progress & Diagnosis Bar Chart).
+ * These are small charts embedded directly in the email body.
+ * (生成基础图表资源（趋势进度条 & 诊断柱状图）。这些是直接嵌入邮件正文的小图表。)
+ *
+ * @param data - The weekly report data (周报数据)
+ * @param options - Configuration for upload targets and keys (上传目标和键值的配置)
+ */
 async function attachBasicChartAssets(
   data: WeeklyData,
   options: ChartAssetOptions,
 ) {
-  // 重要逻辑：先生成基础图表，再统一回填到 WeeklyData 的可渲染字段
-  const { useUploads = true, uploadTarget = "api" } = options;
+  await logger.measure("attachBasicChartAssets", async () => {
+    const { useUploads = true, uploadTarget = "api" } = options;
 
-  // 重要逻辑：并行生成基础图表
-  const [progressPng, barChartPng] = await Promise.all([
-    renderTrendProgressImage({
-      progress: data.trend.trendProgress,
-      width: 520,
-      height: 64,
-    }),
-    renderDiagnosisBarChartImage({
-      lastWeekLabel: data.diagnosis.lastWeekLabel,
-      thisWeekLabel: data.diagnosis.thisWeekLabel,
-      lastWeekValue: data.diagnosis.lastWeekValue,
-      thisWeekValue: data.diagnosis.thisWeekValue,
-      width: 520,
-      height: 265,
-    }),
-  ]);
-
-  if (useUploads) {
-    // 重要逻辑：上传后写回 URL，供邮件模板渲染图片版本
-    const uploadFn =
-      uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
-
-    // 重要逻辑：并行上传基础图表
-    const [progressImageUrl, barChartImageUrl] = await Promise.all([
-      uploadFn(progressPng, options.progressKey),
-      uploadFn(barChartPng, options.barsKey),
+    // Parallel generation of basic charts
+    const [progressPng, barChartPng] = await Promise.all([
+      renderTrendProgressImage({
+        progress: data.trend.trendProgress,
+        width: 520,
+        height: 64,
+      }),
+      renderDiagnosisBarChartImage({
+        lastWeekLabel: data.diagnosis.lastWeekLabel,
+        thisWeekLabel: data.diagnosis.thisWeekLabel,
+        lastWeekValue: data.diagnosis.lastWeekValue,
+        thisWeekValue: data.diagnosis.thisWeekValue,
+        width: 520,
+        height: 265,
+      }),
     ]);
 
-    data.trend.progressImageUrl = progressImageUrl;
-    data.diagnosis.barChartImageUrl = barChartImageUrl;
-    return;
-  }
+    if (useUploads) {
+      const uploadFn =
+        uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
 
-  // 重要逻辑：本地预览场景使用 Data URL，避免依赖远程上传
-  // 方法功能：将 Buffer 转成 PNG Data URL 以便模板直接渲染
-  data.trend.progressImageUrl = bufferToDataUrl(progressPng);
-  data.diagnosis.barChartImageUrl = bufferToDataUrl(barChartPng);
+      // Parallel upload
+      const [progressImageUrl, barChartImageUrl] = await logger.measure(
+        "Upload Basic Charts",
+        () =>
+          Promise.all([
+            uploadFn(progressPng, options.progressKey),
+            uploadFn(barChartPng, options.barsKey),
+          ]),
+      );
+
+      data.trend.progressImageUrl = progressImageUrl;
+      data.diagnosis.barChartImageUrl = barChartImageUrl;
+      return;
+    }
+
+    // For local preview, use Data URLs
+    data.trend.progressImageUrl = bufferToDataUrl(progressPng);
+    data.diagnosis.barChartImageUrl = bufferToDataUrl(barChartPng);
+  });
 }
 
-// 方法功能：生成分享图并注入分享链接，属于 Assets 生成与 Link 注入阶段
+/**
+ * Generates share assets and injects trackable share links.
+ * (生成分享资源并注入可追踪的分享链接。)
+ *
+ * Includes logic to toggle between server-side generation (traditional)
+ * and client-side generation (new optimization).
+ * (包含在服务端生成（传统模式）和客户端生成（新优化模式）之间切换的逻辑。)
+ *
+ * @param data - The weekly report data (周报数据)
+ * @param options - Configuration for upload targets and keys (上传目标和键值的配置)
+ */
 async function attachShareAssetsAndLinks(
   data: WeeklyData,
   options: ShareAssetOptions,
 ) {
-  const start = performance.now();
-  console.log(
-    `[ReportPipeline] Starting attachShareAssetsAndLinks (Render + Upload)...`,
-  );
+  await logger.measure("attachShareAssetsAndLinks", async () => {
+    const { uploadTarget = "api", assetBaseUrl } = options;
 
-  // 重要逻辑：生成分享图并注入可追踪的分享链接，保证统计链路一致
-  const { uploadTarget = "api", assetBaseUrl } = options;
-  const uploadFn =
-    uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
+    // Common query params for all share links
+    const encodedUid = encodeURIComponent(data.uid);
+    const encodedWeekStart = encodeURIComponent(data.weekStart);
+    let baseQueryParams = `uid=${encodedUid}&weekStart=${encodedWeekStart}`;
+    if (data.period_start)
+      baseQueryParams += `&period_start=${encodeURIComponent(data.period_start)}`;
+    if (data.period_end)
+      baseQueryParams += `&period_end=${encodeURIComponent(data.period_end)}`;
 
-  // 重要逻辑：趋势分享图用于社交传播卡片
-  const { trendCardPng, statsCardPng } = await renderShareCardPngs(data);
+    // Strategy 1: Client-Side Generation (Optimization)
+    // Skips server-side rendering and uploading. Uses browser html2canvas.
+    if (ENABLE_CLIENT_SIDE_IMAGE_GENERATION) {
+      logger.info("Client-side generation enabled. Skipping server render.");
+      data.trend.shareUrl = `${assetBaseUrl}/share/download?type=trend_share_card&${baseQueryParams}&theme=dark`;
+      data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?type=stats_share_card&${baseQueryParams}&theme=light`;
+    }
+    // Strategy 2: Server-Side Generation (Legacy/Stable)
+    // Renders images on server, uploads them, and embeds URLs.
+    else {
+      logger.info("Server-side generation active. Rendering images...");
+      const uploadFn =
+        uploadTarget === "vercel" ? uploadToVercelBlob : uploadPngToNewApi;
 
-  // 重要逻辑：并行上传分享图并获取对外 URL
-  const uploadStart = performance.now();
-  const [trendCardUrl, statsCardUrl] = await Promise.all([
-    uploadFn(trendCardPng, options.shareTrendKey),
-    uploadFn(statsCardPng, options.shareStatsKey),
-  ]);
-  const uploadEnd = performance.now();
-  console.log(
-    `[ReportPipeline] Upload share cards completed in ${(uploadEnd - uploadStart).toFixed(2)}ms`,
-  );
+      const { trendCardPng, statsCardPng } = await renderShareCardPngs(data);
 
-  // 重要逻辑：构建可追踪的下载链接，带上用户与周期参数
-  const encodedUid = encodeURIComponent(data.uid);
-  const encodedWeekStart = encodeURIComponent(data.weekStart);
+      const [trendCardUrl, statsCardUrl] = await logger.measure(
+        "Upload Share Cards",
+        () =>
+          Promise.all([
+            uploadFn(trendCardPng, options.shareTrendKey),
+            uploadFn(statsCardPng, options.shareStatsKey),
+          ]),
+      );
 
-  let baseQueryParams = `uid=${encodedUid}&weekStart=${encodedWeekStart}`;
-  if (data.period_start)
-    baseQueryParams += `&period_start=${encodeURIComponent(data.period_start)}`;
-  if (data.period_end)
-    baseQueryParams += `&period_end=${encodeURIComponent(data.period_end)}`;
+      data.trend.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
+        trendCardUrl,
+      )}&filename=trend-card.png&type=trend_share_card&${baseQueryParams}&theme=dark`;
 
-  data.trend.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
-    trendCardUrl,
-  )}&filename=trend-card.png&type=trend_share_card&${baseQueryParams}&theme=dark`;
+      data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
+        statsCardUrl,
+      )}&filename=stats-card.png&type=stats_share_card&${baseQueryParams}&theme=light`;
+    }
 
-  data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
-    statsCardUrl,
-  )}&filename=stats-card.png&type=stats_share_card&${baseQueryParams}&theme=light`;
+    // Inject trackable redirect links for other actions
+    if (data.weeklyNudge.linkUrl) {
+      data.weeklyNudge.linkUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
+        data.weeklyNudge.linkUrl,
+      )}&type=nudge_invite&${baseQueryParams}`;
+    }
 
-  if (data.weeklyNudge.linkUrl) {
-    // 重要逻辑：行动按钮添加埋点跳转，统一落到 redirect 追踪入口
-    data.weeklyNudge.linkUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
-      data.weeklyNudge.linkUrl,
-    )}&type=nudge_invite&${baseQueryParams}`;
-  }
-
-  if (data.footer?.tiktokUrl) {
-    // 重要逻辑：底部 TikTok 链接增加埋点追踪
-    data.footer.tiktokUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
-      data.footer.tiktokUrl,
-    )}&type=footer_tiktok&${baseQueryParams}`;
-  }
-
-  const end = performance.now();
-  console.log(
-    `[ReportPipeline] attachShareAssetsAndLinks completed in ${(end - start).toFixed(2)}ms`,
-  );
-
-  return { trendCardUrl, statsCardUrl };
+    if (data.footer?.tiktokUrl) {
+      data.footer.tiktokUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
+        data.footer.tiktokUrl,
+      )}&type=footer_tiktok&${baseQueryParams}`;
+    }
+  });
 }
 
-// 方法功能：统一编排图表生成、上传、链接注入，属于主流程核心阶段
+/**
+ * High-level orchestrator for data preparation with assets.
+ * (带资源的数据准备高级编排器。)
+ *
+ * @param data - The weekly report data (周报数据)
+ * @param options - Pipeline options (流水线配置)
+ */
 async function prepareWeeklyDataWithAssets(
   data: WeeklyData,
   options: PrepareWeeklyDataOptions,
 ) {
-  // 重要逻辑：统一编排图表生成、图片上传与分享链接注入，避免入口分叉
   const { assetBaseUrl, uploadTarget, useUploads = true, assetKeys } = options;
+
+  // 1. Generate basic charts (always needed for email body)
   await attachBasicChartAssets(data, {
     useUploads,
     uploadTarget,
@@ -201,8 +240,8 @@ async function prepareWeeklyDataWithAssets(
     barsKey: assetKeys.barsKey,
   });
 
+  // 2. Handle share assets (upload mode vs preview mode)
   if (useUploads) {
-    // 重要逻辑：生产路径生成分享图并注入下载/跳转链接
     return attachShareAssetsAndLinks(data, {
       assetBaseUrl,
       uploadTarget,
@@ -211,7 +250,8 @@ async function prepareWeeklyDataWithAssets(
     });
   }
 
-  // 重要逻辑：预览路径不注入分享链接，避免误触外部跳转
+  // 3. Preview mode (no uploads, just generate Data URLs)
+  logger.info("Preview mode: generating local Data URLs for share cards");
   data.trend.shareUrl = undefined;
   data.diagnosis.shareUrl = undefined;
   const { trendCardPng, statsCardPng } = await renderShareCardPngs(data);
@@ -221,38 +261,59 @@ async function prepareWeeklyDataWithAssets(
   };
 }
 
-// 方法功能：将 WeeklyData 渲染为邮件 HTML，属于 HTML 输出阶段
+/**
+ * Renders the final HTML string from the populated WeeklyData.
+ * (根据填充好的 WeeklyData 渲染最终 HTML 字符串。)
+ *
+ * @param data - The fully populated weekly data (填充完整的周报数据)
+ * @returns HTML string (HTML 字符串)
+ */
 async function renderEmailHtmlFromWeeklyData(data: WeeklyData) {
-  // 重要逻辑：单一入口渲染 React Email，保证 HTML 输出稳定
-  return render(<FypScoutReportEmail data={data} />, {
-    pretty: true,
+  return logger.measure("renderEmailHtmlFromWeeklyData", async () => {
+    return render(<FypScoutReportEmail data={data} />, {
+      pretty: true,
+    });
   });
 }
 
-// 方法功能：主流程入口，统一执行数据→资源→HTML 输出
+/**
+ * Main Entry Point.
+ * Orchestrates the full report generation pipeline.
+ * (主入口点。编排完整的报告生成流水线。)
+ *
+ * @param options - Run options (运行配置)
+ * @returns Result containing HTML, updated Data, and Asset URLs (包含 HTML、更新后的数据和资源 URL 的结果)
+ */
 async function run(
   options: ReportPipelineRunOptions,
 ): Promise<ReportPipelineRunResult> {
-  // 重要逻辑：主流程编排，固定数据流向避免重复实现
-  const {
-    data,
-    assetBaseUrl,
-    assetKeys,
-    uploadTarget,
-    useUploads = true,
-  } = options;
-  // 重要逻辑：先注入资源，再渲染 HTML，确保模板读取到完整字段
-  const assets = await prepareWeeklyDataWithAssets(data, {
-    assetBaseUrl,
-    uploadTarget,
-    useUploads,
-    assetKeys,
+  return logger.measure("Pipeline Full Run", async () => {
+    const {
+      data,
+      assetBaseUrl,
+      assetKeys,
+      uploadTarget,
+      useUploads = true,
+    } = options;
+
+    logger.info(`Starting pipeline for uid=${data.uid}`);
+
+    const assetsResult = await prepareWeeklyDataWithAssets(data, {
+      assetBaseUrl,
+      uploadTarget,
+      useUploads,
+      assetKeys,
+    });
+
+    const assets = assetsResult || {};
+
+    const html = await renderEmailHtmlFromWeeklyData(data);
+
+    logger.success("Pipeline completed successfully");
+    return { html, data, assets };
   });
-  const html = await renderEmailHtmlFromWeeklyData(data);
-  return { html, data, assets };
 }
 
-// 方法功能：对外暴露管线接口，作为单一业务编排入口
 export const ReportPipeline = {
   attachBasicChartAssets,
   attachShareAssetsAndLinks,

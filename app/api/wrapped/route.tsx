@@ -1,5 +1,11 @@
-// 文件功能：提供周报邮件 HTML 生成 API，处于主流程入口层
-// 方法概览：GET 预览生成、POST 生产生成
+/**
+ * API Route: Weekly Report Generation
+ * (API 路由：周报生成)
+ *
+ * Serves as the main entry point for generating weekly newsletter emails.
+ * Supports both preview (GET) and production (POST) modes.
+ * (作为生成周报邮件的主要入口点。支持预览 (GET) 和生产 (POST) 模式。)
+ */
 import { NextResponse } from "next/server";
 import { mockReports } from "../../../src/domain/report/mock";
 import {
@@ -12,14 +18,30 @@ import { getAssetBaseUrl, getTrackingBaseUrl } from "@/lib/config";
 import type { WeeklyReportApiResponse } from "../../../src/domain/report/types";
 import crypto from "node:crypto";
 import { ReportPipeline } from "@/core/pipeline";
+import { createLogger } from "@/lib/logger";
 
-// 方法功能：POST 请求体类型定义
+const logger = createLogger("API/Wrapped");
+
+/**
+ * Request body structure for the POST endpoint.
+ */
 interface WrappedRequestBody {
   uid?: string;
   params?: WeeklyReportApiResponse;
 }
 
-// 方法功能：GET 生成预览 HTML，支持 mock/真实数据
+/**
+ * GET Handler
+ * (GET 处理程序)
+ *
+ * Generates a preview HTML of the newsletter.
+ * Supports:
+ * - Mock data rendering (via ?mock=true or ?case=...)
+ * - Real data rendering (via ?uid=...)
+ * (生成简报的预览 HTML。支持：Mock 数据渲染或真实数据渲染。)
+ *
+ * @param request - The incoming HTTP request (传入的 HTTP 请求)
+ */
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
@@ -31,12 +53,14 @@ export async function GET(request: Request) {
     const assetBaseUrl = getAssetBaseUrl();
     const trackingBaseUrl = getTrackingBaseUrl();
     let weeklyData;
+
     if (useMock) {
       const mockCase = caseKey ?? "curious";
       const apiReport = mockReports[mockCase] ?? mockReports.curious;
       weeklyData = buildWeeklyDataFromApiReport(apiReport, {
         assetBaseUrl,
       });
+      logger.info(`Using mock data: case=${mockCase}`);
     } else {
       const uid = url.searchParams.get("uid");
       if (!uid) {
@@ -45,17 +69,17 @@ export async function GET(request: Request) {
       const { getWeeklyData } =
         await import("../../../src/domain/report/service");
       weeklyData = await getWeeklyData(uid);
-      console.log("weeklyData", weeklyData);
+      logger.info(`Fetched real data for uid=${uid}`);
     }
 
-    // 重要逻辑：每次生成使用唯一资源 key，避免覆盖
+    // Generate unique asset ID to prevent collisions during preview
     const assetId = crypto.randomUUID();
     const assetKeys = useMock
       ? buildPreviewAssetKeys(caseKey ?? "real", assetId)
       : buildWeeklyAssetKeys(weeklyData.uid, weeklyData.weekStart, assetId);
 
-    console.log(
-      `[API/Wrapped] Generating preview for uid=${weeklyData.uid} case=${caseKey ?? "real"}`,
+    logger.info(
+      `Generating preview for uid=${weeklyData.uid} case=${caseKey ?? "real"}`,
     );
 
     const { html } = await ReportPipeline.run({
@@ -70,19 +94,30 @@ export async function GET(request: Request) {
       headers: { "content-type": "text/html; charset=utf-8" },
     });
   } catch (error) {
-    console.error("[API/Wrapped] GET Error:", error);
+    logger.error("GET request failed", error);
     const message = error instanceof Error ? error.message : "Unknown error";
     const stack = error instanceof Error ? error.stack : undefined;
     return NextResponse.json({ error: message, stack }, { status: 500 });
   }
 }
 
-// 方法功能：POST 生成生产 HTML，返回 HTML 与数据
+/**
+ * POST Handler
+ * (POST 处理程序)
+ *
+ * Production endpoint for generating the newsletter HTML and data.
+ * Can be triggered with:
+ * - Direct params (push model)
+ * - UID (pull model, if enabled)
+ * (用于生成简报 HTML 和数据的生产端点。可以通过直接参数（推送模式）或 UID（拉取模式）触发。)
+ *
+ * @param request - The incoming HTTP request (传入的 HTTP 请求)
+ */
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as WrappedRequestBody;
-    console.log(
-      `[API/Wrapped] Received POST request. uid=${body.uid}, hasParams=${!!body.params}`,
+    logger.info(
+      `Received POST request. uid=${body.uid}, params=${JSON.stringify(body.params)}`,
     );
 
     const enableUidFetch = process.env.WRAPPED_UID_FETCH_ENABLED === "true";
@@ -90,7 +125,7 @@ export async function POST(request: Request) {
 
     let weeklyData;
     if (body?.params) {
-      console.log("[API/Wrapped] Building data from provided params");
+      logger.info("Building data from provided params");
       weeklyData = buildWeeklyDataFromApiReport(body.params, {
         assetBaseUrl,
         uidOverride: body.uid,
@@ -100,18 +135,14 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Missing uid" }, { status: 400 });
       }
 
-      console.log(
-        `[API/Wrapped] Fetching data from service for uid=${body.uid}`,
-      );
+      logger.info(`Fetching data from service for uid=${body.uid}`);
+
       const { getWeeklyData } =
         await import("../../../src/domain/report/service");
 
-      // Optional: Check Firebase Admin connection if needed
-      // const { adminDb } = await import("../../../src/lib/firebase-admin");
-
       weeklyData = await getWeeklyData(body.uid);
-      console.log(
-        `[API/Wrapped] Data fetched successfully. weekStart=${weeklyData.weekStart}`,
+      logger.success(
+        `Data fetched successfully. weekStart=${weeklyData.weekStart}`,
       );
     } else {
       return NextResponse.json(
@@ -127,9 +158,8 @@ export async function POST(request: Request) {
       assetId,
     );
 
-    console.log(
-      `[API/Wrapped] Starting pipeline execution. assetId=${assetId}`,
-    );
+    logger.info(`Starting pipeline execution. assetId=${assetId}`);
+
     const { html, data } = await ReportPipeline.run({
       data: weeklyData,
       assetBaseUrl,
@@ -137,12 +167,13 @@ export async function POST(request: Request) {
       useUploads: true,
       assetKeys,
     });
-    console.log("[API/Wrapped] Pipeline execution completed");
 
-    // 重要逻辑：返回 HTML 与数据便于联调与回归测试
+    logger.success("Pipeline execution completed");
+
+    // Returns HTML and Data for debugging and integration testing
     return NextResponse.json({ html, data });
   } catch (error) {
-    console.error("[API/Wrapped] POST Error:", error);
+    logger.error("POST request failed", error);
     const message = error instanceof Error ? error.message : "Unknown error";
     const stack = error instanceof Error ? error.stack : undefined;
     return NextResponse.json(

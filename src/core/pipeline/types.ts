@@ -44,7 +44,7 @@ export type ReportPipelineRunResult = {
   html: string;
   data: WeeklyData;
   assets: {
-    trendCardUrl: string;
-    statsCardUrl: string;
+    trendCardUrl?: string;
+    statsCardUrl?: string;
   };
 };

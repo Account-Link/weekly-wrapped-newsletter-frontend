@@ -27,3 +27,8 @@ export const getAssetBaseUrl = () => {
 export const getTrackingBaseUrl = () => {
   return getAppBaseUrl();
 };
+
+// 客户端渲染开关
+// 如果开启，生成报告时不会在服务端生成和上传分享卡片，
+// 而是依赖客户端页面 (share/download) 实时渲染并截图下载
+export const ENABLE_CLIENT_SIDE_IMAGE_GENERATION = true;

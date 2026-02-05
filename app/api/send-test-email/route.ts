@@ -1,10 +1,27 @@
-// 文件功能：发送测试邮件 API，处于本地联调与验证阶段
-// 方法概览：生成邮件 HTML、选择 SMTP/Ethereal、发送并返回结果
+/**
+ * API Route: Send Test Email
+ * (API 路由：发送测试邮件)
+ *
+ * Used for local debugging and verification of email templates.
+ * Supports sending via real SMTP or Ethereal (fake SMTP service).
+ * (用于邮件模板的本地调试和验证。支持通过真实 SMTP 或 Ethereal（伪造 SMTP 服务）发送。)
+ */
 import { generateEmailHtml } from "@/lib/email-generator";
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
+import { createLogger } from "@/lib/logger";
 
-// 方法功能：生成 HTML 并发送测试邮件
+const logger = createLogger("API/SendTestEmail");
+
+/**
+ * GET Handler
+ * (GET 处理程序)
+ *
+ * Generates HTML and sends a test email.
+ * (生成 HTML 并发送测试邮件。)
+ *
+ * @param request - The incoming HTTP request (传入的 HTTP 请求)
+ */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get("email");
@@ -17,8 +34,11 @@ export async function GET(request: Request) {
   }
 
   try {
-    // 重要逻辑：生成 HTML，确保模板与资源注入生效
-    // 如果传入了 uid，则尝试拉取真实数据
+    // Generate HTML, ensuring templates and asset injection work
+    // (生成 HTML，确保模板与资源注入生效)
+    // If uid is provided, try to fetch real data
+    // (如果传入了 uid，则尝试拉取真实数据)
+    logger.info(`Generating email HTML. case=${caseKey}, uid=${uid}`);
     const html = await generateEmailHtml(caseKey, {
       uidOverride: uid || undefined,
       useRealData: !!uid,
@@ -27,8 +47,10 @@ export async function GET(request: Request) {
     let transporter;
     let isEthereal = false;
 
-    // 重要逻辑：优先使用真实 SMTP，否则使用 Ethereal 测试
+    // Prioritize real SMTP, otherwise use Ethereal for testing
+    // (优先使用真实 SMTP，否则使用 Ethereal 测试)
     if (process.env.SMTP_HOST) {
+      logger.info("Using real SMTP configuration.");
       transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: Number(process.env.SMTP_PORT) || 587,
@@ -40,7 +62,7 @@ export async function GET(request: Request) {
       });
     } else {
       // Create Ethereal test account
-      console.log("No SMTP config found, using Ethereal...");
+      logger.warn("No SMTP config found, using Ethereal...");
       const testAccount = await nodemailer.createTestAccount();
       transporter = nodemailer.createTransport({
         host: "smtp.ethereal.email",
@@ -54,11 +76,14 @@ export async function GET(request: Request) {
       isEthereal = true;
     }
 
-    // 重要逻辑：无收件人时使用占位地址，配合 Ethereal 预览
+    // Use placeholder address if no recipient, compatible with Ethereal preview
+    // (无收件人时使用占位地址，配合 Ethereal 预览)
     const recipient = email || "test@example.com";
 
-    // 重要逻辑：发送邮件并返回 messageId 以便追踪
-    // 添加时间戳防止 Gmail 折叠邮件 (Conversation View threading)
+    // Send email and return messageId for tracking
+    // (发送邮件并返回 messageId 以便追踪)
+    // Add timestamp to prevent Gmail threading
+    // (添加时间戳防止 Gmail 折叠邮件)
     const timestamp = new Date().toLocaleTimeString();
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM || '"FYP Scout" <no-reply@example.com>',
@@ -67,11 +92,11 @@ export async function GET(request: Request) {
       html: html,
     });
 
-    console.log("Message sent: %s", info.messageId);
+    logger.success(`Message sent: ${info.messageId}`);
     let previewUrl = "";
     if (isEthereal) {
       previewUrl = nodemailer.getTestMessageUrl(info) || "";
-      console.log("Preview URL: %s", previewUrl);
+      logger.info(`Preview URL: ${previewUrl}`);
     }
 
     return NextResponse.json({
@@ -83,7 +108,7 @@ export async function GET(request: Request) {
       mode: isEthereal ? "Ethereal (Fake)" : "Real SMTP",
     });
   } catch (error: unknown) {
-    console.error("Error sending email:", error);
+    logger.error("Error sending email", error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       {
