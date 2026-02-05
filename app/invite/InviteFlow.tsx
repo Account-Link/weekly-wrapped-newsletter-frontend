@@ -51,12 +51,6 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [isPc, setIsPc] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
   const [showGeoModal, setShowGeoModal] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const isConnectingRef = useRef(isConnecting);
-
-  useEffect(() => {
-    isConnectingRef.current = isConnecting;
-  }, [isConnecting]);
 
   const { trend } = data;
 
@@ -210,7 +204,6 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
         // 2. Completed state: User finished login
         if (statusRes.status === "completed") {
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-          setIsConnecting(false);
 
           if (statusRes.token && statusRes.app_user_id) {
             setTiktokToken(statusRes.token);
@@ -239,36 +232,25 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           }
         }
 
-        // 3. Error/Expired state: Retry
+        // 3. Error/Expired state: Auto Retry
         if (
           statusRes.status === "expired" ||
-          statusRes.status === "reauth_needed"
+          statusRes.status === "reauth_needed" ||
+          statusRes.status === "error"
         ) {
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
           localStorage.removeItem(JOB_ID_KEY);
           setJobId(null);
-
-          if (isConnectingRef.current) {
-            setIsConnecting(false);
-            showToast("Connection failed. Please try again.");
-          } else {
-            startAndPoll();
-          }
+          startAndPoll();
         }
       } catch (error) {
         console.error("Polling error:", error);
 
-        // Error handling: Reset state, show toast, and restart session
+        // Error handling: Auto Retry
         if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
         localStorage.removeItem(JOB_ID_KEY);
         setJobId(null);
-
-        if (isConnectingRef.current) {
-          setIsConnecting(false);
-          showToast("Connection failed. Please try again.");
-        } else {
-          startAndPoll();
-        }
+        startAndPoll();
       }
     }, 2000); // Poll every 2s
   };
@@ -344,15 +326,13 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   };
 
   const handleConnect = () => {
-    if (!redirectUrl || isConnecting) return;
+    if (!redirectUrl) return;
 
     // Retry logic: If no job_id (cleared by error), restart session
     if (!jobId) {
       startAndPoll();
       return;
     }
-
-    setIsConnecting(true);
 
     // 埋点：点击连接 TikTok
     const now = Date.now();
@@ -372,7 +352,6 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
     if (isPc) {
       setShowQrModal(true);
-      setIsConnecting(false);
     } else {
       window.location.href = redirectUrl;
     }
@@ -588,24 +567,15 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
                   </div>
                   <button
                     onClick={handleConnect}
-                    disabled={isConnecting}
-                    className={`w-[33.4rem] h-[5.6rem] bg-white rounded-full flex items-center justify-center gap-[0.4rem] text-black font-bold text-[1.6rem] transition-colors mt-auto hover:bg-gray-100 ${
-                      isConnecting ? "opacity-70 cursor-not-allowed" : ""
-                    }`}
+                    className={`w-[33.4rem] h-[5.6rem] bg-white rounded-full flex items-center justify-center gap-[0.4rem] text-black font-bold text-[1.6rem] transition-colors mt-auto hover:bg-gray-100`}
                   >
-                    {isConnecting ? (
-                      "Connecting..."
-                    ) : (
-                      <>
-                        <Image
-                          src={TiktokIcon}
-                          width={18}
-                          height={21}
-                          alt="TikTok"
-                        />
-                        Connect TikTok
-                      </>
-                    )}
+                    <Image
+                      src={TiktokIcon}
+                      width={18}
+                      height={21}
+                      alt="TikTok"
+                    />
+                    Connect TikTok
                   </button>
                 </div>
               </div>
