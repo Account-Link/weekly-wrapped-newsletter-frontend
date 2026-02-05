@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -38,6 +38,8 @@ export default function UnsubscribeClient() {
     resolveState(searchParams.get("state")),
   );
 
+  const hasTrackedCancel = useRef(false);
+
   useEffect(() => {
     if (!uid) return;
     trackEvent({
@@ -58,13 +60,22 @@ export default function UnsubscribeClient() {
 
     setIsSubmitting(true);
 
-    trackEvent({
-      event: "click",
-      type: "unsubscribe_flow",
-      action: "unsubscribe_confirm",
-      uid,
-      eid: emailId,
-    });
+    const key = `tracked_unsubscribe_confirm_${uid}`;
+    if (typeof window !== "undefined" && !localStorage.getItem(key)) {
+      trackEvent({
+        event: "click",
+        type: "unsubscribe_flow",
+        action: "unsubscribe_confirm",
+        uid,
+        eid: emailId,
+      });
+      const now = new Date();
+      const pad = (n: number) => n.toString().padStart(2, "0");
+      const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(
+        now.getDate(),
+      )}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+      localStorage.setItem(key, timestamp);
+    }
 
     try {
       const { success } = await unsubscribe(uid);
@@ -72,12 +83,6 @@ export default function UnsubscribeClient() {
         showToast("Unsubscribe failed. Please try again.");
         return;
       }
-      trackEvent({
-        event: "unsubscribe_success",
-        type: "unsubscribe_flow",
-        uid,
-        eid: emailId,
-      });
       setState("unsubscribed");
     } catch {
       showToast("Unsubscribe failed. Please try again.");
@@ -161,13 +166,16 @@ export default function UnsubscribeClient() {
               <button
                 type="button"
                 onClick={() => {
-                  trackEvent({
-                    event: "click",
-                    type: "unsubscribe_flow",
-                    action: "unsubscribe_cancel",
-                    uid,
-                    eid: emailId,
-                  });
+                  if (!hasTrackedCancel.current) {
+                    trackEvent({
+                      event: "click",
+                      type: "unsubscribe_flow",
+                      action: "unsubscribe_cancel",
+                      uid,
+                      eid: emailId,
+                    });
+                    hasTrackedCancel.current = true;
+                  }
                   setState("subscribed");
                 }}
                 disabled={!uid}

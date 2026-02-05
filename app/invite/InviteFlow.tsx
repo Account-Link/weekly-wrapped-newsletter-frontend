@@ -40,6 +40,10 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [jobId, setJobId] = useState<string | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Time Tracking Refs
+  const landingClickTimeRef = useRef<number | null>(null);
+  const loadingCompleteTimeRef = useRef<number | null>(null);
+
   const [tiktokToken, setTiktokToken] = useState<string | null>(null);
   const [appUserId, setAppUserId] = useState<string | null>(null);
 
@@ -49,6 +53,32 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [showGeoModal, setShowGeoModal] = useState(false);
 
   const { trend } = data;
+
+  // Deduplication Helper
+  const trackOnce = (action: string, callback: () => void) => {
+    if (typeof window === "undefined") return;
+
+    // Determine scope based on event type
+    const isUserScoped = [
+      "referral_oauth_success",
+      "referral_processing_view",
+      "referral_complete",
+    ].includes(action);
+
+    const storageKey = isUserScoped
+      ? `tracked_${action}_${uid}`
+      : `tracked_${action}`;
+
+    if (localStorage.getItem(storageKey)) return;
+    callback();
+
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(
+      now.getDate(),
+    )}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+    localStorage.setItem(storageKey, timestamp);
+  };
 
   // Check if PC
   useEffect(() => {
@@ -77,33 +107,47 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   useEffect(() => {
     if (step === 2) {
       if (!redirectUrl) {
-        trackEvent({
-          event: "view",
-          type: "invite_flow",
-          action: "referral_loading_start",
-          uid,
+        trackOnce("referral_loading_start", () => {
+          trackEvent({
+            event: "view",
+            type: "invite_flow",
+            action: "referral_loading_start",
+            uid,
+          });
         });
       } else {
-        trackEvent({
-          event: "view",
-          type: "invite_flow",
-          action: "referral_loading_complete",
-          uid,
+        loadingCompleteTimeRef.current = Date.now();
+        const duration = landingClickTimeRef.current
+          ? loadingCompleteTimeRef.current - landingClickTimeRef.current
+          : 0;
+
+        trackOnce("referral_loading_complete", () => {
+          trackEvent({
+            event: "view",
+            type: "invite_flow",
+            action: "referral_loading_complete",
+            uid,
+            extraData: { duration },
+          });
         });
       }
     } else if (step === 3) {
-      trackEvent({
-        event: "view",
-        type: "invite_flow",
-        action: "referral_processing_view",
-        uid,
+      trackOnce("referral_processing_view", () => {
+        trackEvent({
+          event: "view",
+          type: "invite_flow",
+          action: "referral_processing_view",
+          uid,
+        });
       });
     } else if (step === 4) {
-      trackEvent({
-        event: "view",
-        type: "invite_flow",
-        action: "referral_complete",
-        uid,
+      trackOnce("referral_complete", () => {
+        trackEvent({
+          event: "view",
+          type: "invite_flow",
+          action: "referral_complete",
+          uid,
+        });
       });
     }
   }, [step, redirectUrl, uid]);
@@ -170,10 +214,12 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           localStorage.removeItem(JOB_ID_KEY);
 
           // 埋点：连接成功
-          trackEvent({
-            event: "referral_oauth_success",
-            type: "invite_flow",
-            uid,
+          trackOnce("referral_oauth_success", () => {
+            trackEvent({
+              event: "referral_oauth_success",
+              type: "invite_flow",
+              uid,
+            });
           });
 
           // Check Geo Location
@@ -181,11 +227,6 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           if (isUS) {
             setStep(3);
           } else {
-            trackEvent({
-              event: "view",
-              type: "geo_warning_modal",
-              uid,
-            });
             setShowGeoModal(true);
           }
         }
@@ -263,11 +304,14 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
   const handleFindOut = () => {
     // 埋点：点击 Find Out
-    trackEvent({
-      event: "click",
-      type: "invite_flow",
-      action: "referral_landing_click",
-      uid,
+    landingClickTimeRef.current = Date.now();
+    trackOnce("referral_landing_click", () => {
+      trackEvent({
+        event: "click",
+        type: "invite_flow",
+        action: "referral_landing_click",
+        uid,
+      });
     });
     setStep(2); // Immediately go to Step 2 (which shows Preparing initially)
     startAndPoll();
@@ -277,11 +321,19 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     if (!redirectUrl) return;
 
     // 埋点：点击连接 TikTok
-    trackEvent({
-      event: "click",
-      type: "invite_flow",
-      action: "referral_oauth_start",
-      uid,
+    const now = Date.now();
+    const duration = loadingCompleteTimeRef.current
+      ? now - loadingCompleteTimeRef.current
+      : 0;
+
+    trackOnce("referral_oauth_start", () => {
+      trackEvent({
+        event: "click",
+        type: "invite_flow",
+        action: "referral_oauth_start",
+        uid,
+        extraData: { duration },
+      });
     });
 
     if (isPc) {

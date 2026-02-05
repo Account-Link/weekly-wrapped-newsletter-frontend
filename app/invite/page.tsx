@@ -19,9 +19,10 @@ export default async function InvitePage({
   }
 
   let data;
+  const start = Array.isArray(period_start) ? period_start[0] : period_start;
+  const end = Array.isArray(period_end) ? period_end[0] : period_end;
+
   try {
-    const start = Array.isArray(period_start) ? period_start[0] : period_start;
-    const end = Array.isArray(period_end) ? period_end[0] : period_end;
     data = await getWeeklyData(uid, start, end);
   } catch (error) {
     console.error("Error fetching weekly data:", error);

@@ -15,6 +15,7 @@ export type TrackingModule =
   | "unsubscribe_flow"
   | "email_share"
   | "redirect"
+  | "referral_flow"
   | (string & {}); // Allow string for flexibility with autocompletion
 
 export type TrackingAction =
@@ -26,6 +27,31 @@ export type TrackingAction =
   | "invite_click"
   | "unsubscribe"
   | "download"
+  | "referral_landing_view"
+  | "referral_landing_click"
+  | "referral_loading_start"
+  | "referral_loading_complete"
+  | "referral_oauth_start"
+  | "referral_oauth_success"
+  | "referral_oauth_fail"
+  | "referral_processing_view"
+  | "referral_complete"
+  | "referral_invite_click"
+  | "unsubscribe_page_view"
+  | "unsubscribe_confirm"
+  | "unsubscribe_cancel"
+  | "resubscribe"
+  | "click_share_twitter"
+  | "click_share_linkedin"
+  | "click_share_copy_link"
+  | "click_invite_friend"
+  | "click_unsubscribe"
+  | "share_twitter_saved"
+  | "share_linkedin_saved"
+  | "share_copy_link_saved"
+  | "share_messenger_saved"
+  | "share_whatsapp_saved"
+  | "share_instagram_saved"
   | (string & {});
 
 export interface BaseTrackingPayload {

@@ -95,7 +95,14 @@ async function recordEvent(
   const typePart = payload.type || "no_type";
   const actionPart = payload.action || "no_action";
   const timestamp = Date.now();
-  const docId = `${uidPart}_${eidPart}_${payload.event}_${typePart}_${actionPart}_${timestamp}`;
+  
+  // Format timestamp to YYYYMMDDHHMMSS (UTC) for sorting
+  const date = new Date(timestamp);
+  const formattedTime = date.toISOString().replace(/[-:T.]/g, "").slice(0, 14);
+
+  // 构造文档 ID: timestamp_uid_eid_event_type_action
+  // 这样在 Firestore 中默认按时间倒序/正序排列
+  const docId = `${formattedTime}_${uidPart}_${eidPart}_${payload.event}_${typePart}_${actionPart}`;
 
   try {
     await adminDb
@@ -103,6 +110,8 @@ async function recordEvent(
       .doc(docId)
       .set({
         ...cleanPayload,
+        timestamp, // 保留原始毫秒级时间戳字段
+        formattedTime, // 保留可读时间字段
         userAgent: request.headers.get("user-agent"),
         ip:
           request.headers.get("x-forwarded-for") ??

@@ -1,55 +1,101 @@
-# 埋点与重定向系统实现总结
+# Tracking Implementation Scheme & Core Metrics
 
-## 核心架构
-本项目采用了统一的埋点与重定向架构，将数据追踪（Tracking）与业务跳转（Redirect）分离，确保职责单一且易于维护。
+Based on your request, we have implemented a comprehensive tracking system covering Referral Flow, Unsubscribe Flow, and Share Flow. This document outlines the implementation details, deduplication strategies, and metric definitions.
 
-### 1. API 接口设计
-- **`/api/track` (纯埋点服务)**
-    - **POST**: 接收 JSON 格式的埋点数据，写入 Firestore `analytics_logs` 集合。
-    - **GET**: 接收 URL 参数埋点（如 Open Pixel），记录后返回 1x1 透明 GIF。
-    - **特点**: 不处理重定向，专注于数据记录。
+## 1. Tracking Implementation Overview
 
-- **`/api/redirect` (重定向服务)**
-    - **GET**: 接收 `targetUrl` 及埋点参数。
-    - **逻辑**:
-        1. 提取所有 URL 参数作为 `metadata`。
-        2. 异步调用 `/api/track` 记录点击事件 (`type=redirect`)。
-        3. 验证 `targetUrl` 是否在白名单内。
-        4. 执行 HTTP 302 跳转。
-    - **特殊处理**: 对 `unsubscribe` 动作自动跳转至取消订阅页。
+All tracking events are sent via our unified `trackEvent` (Server-side API) or `trackShareSaved` (Client-side Firebase Analytics) functions.
 
-### 2. 客户端埋点 (`src/lib/client-tracking.ts`)
-封装了统一的 `trackEvent` 方法，前端组件直接调用此方法发送 POST 请求到 `/api/track`。
+### 1.1 Referral Flow (Invite + OAuth)
 
-```typescript
-trackEvent({
-  event: "click",
-  type: "download",
-  uid: "...",
-  metadata: { filename: "report.png" }
-});
-```
+**File:** `app/invite/InviteFlow.tsx`
 
-## 页面埋点实现
-已完成以下核心页面的埋点覆盖：
+| Event                       | Trigger                | Deduplication Strategy       | Scope                                    |
+| --------------------------- | ---------------------- | ---------------------------- | ---------------------------------------- |
+| `referral_landing_view`     | Page Load              | **None** (Track every visit) | -                                        |
+| `referral_landing_click`    | Click "Find out"       | **Device ID** (LocalStorage) | `tracked_referral_landing_click`         |
+| `referral_loading_start`    | Loading Start          | **Device ID** (LocalStorage) | `tracked_referral_loading_start`         |
+| `referral_loading_complete` | Loading Done           | **Device ID** (LocalStorage) | `tracked_referral_loading_complete`      |
+| `referral_oauth_start`      | Click "Connect TikTok" | **Device ID** (LocalStorage) | `tracked_referral_oauth_start`           |
+| `referral_oauth_success`    | Auth Success           | **User ID** (LocalStorage)   | `tracked_referral_oauth_success_{uid}`   |
+| `referral_oauth_fail`       | Auth Fail              | **None**                     | -                                        |
+| `referral_processing_view`  | Processing Screen      | **User ID** (LocalStorage)   | `tracked_referral_processing_view_{uid}` |
+| `referral_complete`         | Success Screen         | **User ID** (LocalStorage)   | `tracked_referral_complete_{uid}`        |
+| `referral_invite_click`     | Click "Invite"         | **None**                     | -                                        |
 
-### 邀请页 (`/invite`)
-- **Page View**: `event: page_view`, `type: invite_page`
-- **TikTok 连接**:
-    - 点击连接: `event: click`, `type: connect_tiktok_start`
-    - 连接成功: `event: connect_tiktok_success`
-- **分享/复制链接**: `event: click`, `type: invite_share`
+**Time Metrics:**
 
-### 下载页 (`/share/download`)
-- **Page View**: `event: page_view`, `type: download_page`, `metadata: { theme, filename }`
-- **点击下载**: `event: click`, `type: download`, `action: share_week | share_stats`
+- `loading_duration`: `referral_loading_complete` timestamp - `referral_landing_click` timestamp. (Passed in `extraData`)
+- `privacy_read_duration`: `referral_oauth_start` timestamp - `referral_loading_complete` timestamp. (Passed in `extraData`)
 
-### 取消订阅页 (`/unsubscribe`)
-- **Page View**: `event: page_view`, `type: unsubscribe_page`
-- **确认取消**: `event: click`, `type: unsubscribe_confirm`
-- **重新订阅**: `event: click`, `type: resubscribe`
+### 1.2 Unsubscribe Flow
 
-## 核心变更点
-1. **去耦合**: `firebase-admin` 初始化仅保留 Firestore，移除不用的 Storage。
-2. **统一入口**: 所有客户端埋点不再直接依赖 Firebase SDK，而是通过 API 路由统一入库，便于后续对接其他分析服务。
-3. **参数灵活**: 支持 `metadata` 字段，允许传递任意业务参数（如 theme, filename）。
+**File:** `app/unsubscribe/content.tsx`
+
+| Event                   | Trigger              | Deduplication Strategy     | Scope                               |
+| ----------------------- | -------------------- | -------------------------- | ----------------------------------- |
+| `unsubscribe_page_view` | Page Load            | **None**                   | -                                   |
+| `unsubscribe_confirm`   | Click "Yes"          | **User ID** (LocalStorage) | `tracked_unsubscribe_confirm_{uid}` |
+| `unsubscribe_cancel`    | Click "No"           | **Session** (React Ref)    | Component Lifecycle                 |
+| `resubscribe`           | Click "Re-subscribe" | **None**                   | -                                   |
+
+### 1.3 Share Image Saved
+
+**File:** `src/lib/client-analytics.ts` (Called from `app/share/download/content.tsx`)
+
+| Event         | Trigger        | Deduplication Strategy          | Scope                                      |
+| ------------- | -------------- | ------------------------------- | ------------------------------------------ |
+| `share_saved` | Download Click | **User ID + Email ID + Action** | `tracked_share_saved_{uid}_{eid}_{action}` |
+
+_Supported Actions:_ `share_week`, `share_stats`, `share_twitter_saved`, `share_linkedin_saved`, `share_whatsapp_saved`, etc.
+
+### 1.4 Button CTR (Email/Web) & Social Specifics
+
+**Files:** `src/lib/tracking/types.ts`
+
+The following actions have been defined in the schema to support granular social tracking. These can be used when specific social buttons are added to the Email Template or Share Page UI:
+
+| Action Code             | Intended Use                     |
+| ----------------------- | -------------------------------- |
+| `click_share_twitter`   | User clicks Twitter icon         |
+| `click_share_linkedin`  | User clicks LinkedIn icon        |
+| `click_share_copy_link` | User clicks Copy Link icon       |
+| `click_invite_friend`   | User clicks Invite Friend button |
+| `click_unsubscribe`     | User clicks Unsubscribe link     |
+
+---
+
+## 2. Core Metrics Definitions
+
+### 2.1 Engagement Metrics
+
+- **Open Rate** = `unique opens` / `emails delivered`
+- **CTR (Click-Through Rate)** = `unique clicks (any button)` / `emails delivered`
+- **CTOR (Click-to-Open Rate)** = `unique clicks` / `unique opens`
+
+### 2.2 Growth Metrics
+
+- **Share Rate** = `(share_week + share_stats + share_saved)` / `unique opens`
+  - _Note: `share_week` and `share_stats` are tracked via redirect URLs in the email._
+  - _Note: `share_saved` is tracked on the download landing page._
+- **Invite Rate** = `referral_invite_click` / `unique opens`
+  - _Note: This measures how many people reached the end of the funnel and clicked invite, relative to openers._
+
+### 2.3 Funnel Metrics
+
+- **Landing to OAuth Conversion** = `referral_oauth_start` / `referral_landing_click`
+- **OAuth Success Rate** = `referral_oauth_success` / `referral_oauth_start`
+- **Unsubscribe Rate** = `unsubscribe_confirm` / `emails delivered`
+
+### 2.4 Time Metrics (Calculated in Analysis)
+
+- **Avg Loading Duration** = Average of `extraData.duration` in `referral_loading_complete` events.
+- **Avg Privacy Read Time** = Average of `extraData.duration` in `referral_oauth_start` events.
+
+## 3. Data Dictionary (New Actions)
+
+Updated `src/lib/tracking/types.ts` with:
+
+- `referral_flow` module
+- All `referral_*` actions
+- All `unsubscribe_*` actions
