@@ -244,6 +244,13 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
         }
       } catch (error) {
         console.error("Polling error:", error);
+
+        // Error handling: Reset state, show toast, and restart session
+        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+        setIsConnecting(false);
+        showToast("Connection failed. Please try again.");
+        localStorage.removeItem(JOB_ID_KEY);
+        startAndPoll();
       }
     }, 2000); // Poll every 2s
   };
