@@ -128,30 +128,40 @@ export default function DownloadContent() {
 
   return (
     <div
-      className={`min-h-dvh mx-auto w-[40.2rem] flex flex-col items-center px-[5.5rem] ${backgroundColor} ${textColor}`}
+      className={`h-[100dvh] mx-auto w-[40.2rem] flex flex-col items-center px-[5.5rem] ${backgroundColor} ${textColor} overflow-hidden`}
       style={{
         paddingTop: `calc(env(safe-area-inset-top) + 2rem)`,
         paddingBottom: `calc(env(safe-area-inset-bottom) + 2rem)`,
       }}
     >
-      <h1 className="text-[2.4rem] leading-[3.2rem] font-bold m-0 text-center">
-        Your Wrapped is Ready!
-      </h1>
-      <p className="text-[1.2rem] text-center w-[20rem]">
-        Click the image below to download and share it with your friends.
-      </p>
+      <div className="flex-none flex flex-col items-center w-full">
+        <h1 className="text-[2.4rem] leading-[3.2rem] font-bold m-0 text-center">
+          Your Wrapped is Ready!
+        </h1>
+        <p className="text-[1.2rem] text-center w-[20rem]">
+          Click the image below to download and share it with your friends.
+        </p>
+      </div>
 
-      <div className="flex flex-col items-center w-full mt-[2rem] mb-[2rem]">
+      <div className="flex-1 min-h-0 w-full flex items-center justify-center my-[2rem]">
         <button
           type="button"
           onClick={handleDownload}
           disabled={isDownloading}
-          className={`w-full rounded-[2rem] border ${borderColor} overflow-hidden mb-[2rem] ${
+          className={`w-[39rem] rounded-[2rem] border ${borderColor} overflow-hidden ${
             isDownloading ? "opacity-70" : "hover:opacity-95"
           }`}
+          style={{ aspectRatio: "auto" }}
         >
-          <img src={url} alt={filename} className="block w-full h-auto" />
+          <img
+            src={url}
+            alt={filename}
+            className="block h-full w-auto object-contain"
+          />
         </button>
+      </div>
+
+      <div className="flex-none flex flex-col items-center w-full">
         <button
           type="button"
           onClick={handleDownload}
@@ -175,12 +185,12 @@ export default function DownloadContent() {
             />
           </svg>
         </button>
-      </div>
 
-      <p className="text-[1.2rem] leading-[1.8rem] mt-[1.2rem] text-center">
-        If download doesn&apos;t start, long press (mobile) or right click to
-        save.
-      </p>
+        <p className="text-[1.2rem] leading-[1.8rem] mt-[1.2rem] text-center">
+          If download doesn&apos;t start, long press (mobile) or right click to
+          save.
+        </p>
+      </div>
     </div>
   );
 }
