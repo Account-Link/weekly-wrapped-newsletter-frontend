@@ -145,21 +145,19 @@ export default function DownloadContent() {
       </div>
 
       <div className="flex-1 min-h-0 w-full flex items-center justify-center">
-        <button
-          type="button"
-          onClick={handleDownload}
-          disabled={isDownloading}
-          className={`max-w-[39rem] rounded-[2rem] border ${borderColor} overflow-hidden ${
-            isDownloading ? "opacity-70" : "hover:opacity-95"
-          }`}
+        <div
+          className={`w-full  overflow-hidden `}
           style={{ aspectRatio: `${aspectRatio}`, maxHeight: "100%" }}
         >
           <img
             src={url}
+            onClick={handleDownload}
             alt={filename}
-            className="block h-full w-auto object-contain"
+            className={`block mx-auto h-full w-auto object-contain rounded-[2rem] border ${borderColor} max-w-[39rem] 
+              ${isDownloading ? "opacity-70" : "hover:opacity-95"}
+            `}
           />
-        </button>
+        </div>
       </div>
 
       <div className="flex-none flex flex-col items-center w-full pt-[2rem] flex-shrink-0">
