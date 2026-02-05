@@ -46,10 +46,26 @@ function pickTopHours(maxMinutes: number) {
     return 1;
   }
 
-  // 其他情况：取最大小时数的一半向上取整作为步长 (mid)，最大刻度为步长的两倍
-  // 例如：1.33h -> ceil(0.66) = 1h -> Top 2h
-  // 例如：2.33h -> ceil(1.16) = 2h -> Top 4h
-  const mid = Math.ceil(maxHours / 2);
+  // 其他情况：根据量级决定刻度单位
+  let stepUnit = 1;
+  if (maxHours > 1000) {
+    stepUnit = 100;
+  } else if (maxHours > 20) {
+    // 覆盖 70h, 120h, 140h 等场景
+    stepUnit = 10;
+  }
+
+  // 取最大小时数的一半，按 stepUnit 向上取整作为步长 (mid)
+  // 最大刻度为步长的两倍
+  const rawMid = maxHours / 2;
+  let mid = Math.ceil(rawMid / stepUnit) * stepUnit;
+
+  // 如果最大值刚好等于或超过计算出的最大刻度 (mid * 2)，为了避免顶格，增加一个步长
+  // 注意：这里 mid 已经是 stepUnit 的倍数，直接加 stepUnit 即可
+  if (mid * 2 <= maxHours) {
+    mid += stepUnit;
+  }
+
   return mid * 2;
 }
 
