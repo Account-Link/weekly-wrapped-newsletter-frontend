@@ -108,8 +108,37 @@ export default function DownloadContent() {
   const buttonBg = "bg-[#651AE9] dark:bg-[#fff]";
   const buttonText = "text-[#fff] dark:text-[#000]";
 
+  useEffect(() => {
+    // 设置 iOS 顶部状态栏颜色
+    // 对于支持 theme-color 的浏览器，动态设置 meta 标签
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    // 浅色模式下使用 #e4e4e4，深色模式下使用 #313131
+    // 注意：这里简单判断系统主题，更完善的做法是监听 prefers-color-scheme
+    const updateThemeColor = () => {
+      const isDarkMode = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      if (metaThemeColor) {
+        metaThemeColor.setAttribute(
+          "content",
+          isDarkMode ? "#313131" : "#e4e4e4",
+        );
+      } else {
+        const meta = document.createElement("meta");
+        meta.name = "theme-color";
+        meta.content = isDarkMode ? "#313131" : "#e4e4e4";
+        document.head.appendChild(meta);
+      }
+    };
+
+    updateThemeColor();
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaQuery.addEventListener("change", updateThemeColor);
+    return () => mediaQuery.removeEventListener("change", updateThemeColor);
+  }, []);
+
   // 统一使用 9:16 的手机屏幕比例
-  const aspectRatio = "390/693";
+  const aspectRatio = "9/16";
 
   if (!url) {
     return (
