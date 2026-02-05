@@ -51,6 +51,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [isPc, setIsPc] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
   const [showGeoModal, setShowGeoModal] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const { trend } = data;
 
@@ -318,7 +319,9 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   };
 
   const handleConnect = () => {
-    if (!redirectUrl) return;
+    if (!redirectUrl || isConnecting) return;
+
+    setIsConnecting(true);
 
     // 埋点：点击连接 TikTok
     const now = Date.now();
@@ -338,6 +341,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
     if (isPc) {
       setShowQrModal(true);
+      setIsConnecting(false);
     } else {
       window.location.href = redirectUrl;
     }
@@ -553,15 +557,24 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
                   </div>
                   <button
                     onClick={handleConnect}
-                    className="w-[33.4rem] h-[5.6rem] bg-white rounded-full flex items-center justify-center gap-[0.4rem] text-black font-bold text-[1.6rem] transition-colors mt-auto hover:bg-gray-100"
+                    disabled={isConnecting}
+                    className={`w-[33.4rem] h-[5.6rem] bg-white rounded-full flex items-center justify-center gap-[0.4rem] text-black font-bold text-[1.6rem] transition-colors mt-auto hover:bg-gray-100 ${
+                      isConnecting ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
                   >
-                    <Image
-                      src={TiktokIcon}
-                      width={18}
-                      height={21}
-                      alt="TikTok"
-                    />
-                    Connect TikTok
+                    {isConnecting ? (
+                      "Connecting..."
+                    ) : (
+                      <>
+                        <Image
+                          src={TiktokIcon}
+                          width={18}
+                          height={21}
+                          alt="TikTok"
+                        />
+                        Connect TikTok
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
