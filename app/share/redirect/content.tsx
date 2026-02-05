@@ -58,15 +58,5 @@ export default function RedirectContent() {
     );
   }
 
-  return (
-    <div
-      className="h-dvh w-[40.2rem] flex flex-col items-center justify-center"
-      style={{ background: "#fffffe" }}
-    >
-      <div className="animate-pulse flex flex-col items-center">
-        <div className="h-8 w-8 bg-gray-200 rounded-full mb-4"></div>
-        <p className="text-gray-500">{status}</p>
-      </div>
-    </div>
-  );
+  return <div></div>;
 }
