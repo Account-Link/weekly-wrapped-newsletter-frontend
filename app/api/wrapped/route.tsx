@@ -51,6 +51,9 @@ export async function GET(request: Request) {
     // 重要逻辑：每次生成使用唯一资源 key，避免覆盖
     const assetId = crypto.randomUUID();
     const assetKeys = buildPreviewAssetKeys(caseKey ?? "real", assetId);
+    
+    console.log(`[API/Wrapped] Generating preview for uid=${weeklyData.uid} case=${caseKey ?? "real"}`);
+    
     const { html } = await ReportPipeline.run({
       data: weeklyData,
       assetBaseUrl,
@@ -63,8 +66,10 @@ export async function GET(request: Request) {
       headers: { "content-type": "text/html; charset=utf-8" },
     });
   } catch (error) {
+    console.error("[API/Wrapped] GET Error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const stack = error instanceof Error ? error.stack : undefined;
+    return NextResponse.json({ error: message, stack }, { status: 500 });
   }
 }
 
@@ -72,11 +77,14 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as WrappedRequestBody;
+    console.log(`[API/Wrapped] Received POST request. uid=${body.uid}, hasParams=${!!body.params}`);
+    
     const enableUidFetch = process.env.WRAPPED_UID_FETCH_ENABLED === "true";
     const assetBaseUrl = getAssetBaseUrl();
-    const trackingBaseUrl = getTrackingBaseUrl();
+    
     let weeklyData;
     if (body?.params) {
+      console.log("[API/Wrapped] Building data from provided params");
       weeklyData = buildWeeklyDataFromApiReport(body.params, {
         assetBaseUrl,
         uidOverride: body.uid,
@@ -85,17 +93,18 @@ export async function POST(request: Request) {
       if (!body?.uid) {
         return NextResponse.json({ error: "Missing uid" }, { status: 400 });
       }
-      const { adminDb } = await import("../../../src/lib/firebase-admin");
+      
+      console.log(`[API/Wrapped] Fetching data from service for uid=${body.uid}`);
       const { getWeeklyData } =
         await import("../../../src/domain/report/service");
-      const shouldCheckAdmin = process.env.FIREBASE_ADMIN_CHECK === "true";
-      if (!shouldCheckAdmin || !adminDb) {
-      } else {
-        await adminDb.listCollections();
-      }
+        
+      // Optional: Check Firebase Admin connection if needed
+      // const { adminDb } = await import("../../../src/lib/firebase-admin");
+      
       weeklyData = await getWeeklyData(body.uid);
+      console.log(`[API/Wrapped] Data fetched successfully. weekStart=${weeklyData.weekStart}`);
     } else {
-      return NextResponse.json({ error: "Missing params" }, { status: 400 });
+      return NextResponse.json({ error: "Missing params or UID fetch disabled" }, { status: 400 });
     }
 
     const assetId = crypto.randomUUID();
@@ -104,6 +113,8 @@ export async function POST(request: Request) {
       weeklyData.weekStart,
       assetId,
     );
+    
+    console.log(`[API/Wrapped] Starting pipeline execution. assetId=${assetId}`);
     const { html, data } = await ReportPipeline.run({
       data: weeklyData,
       assetBaseUrl,
@@ -111,11 +122,14 @@ export async function POST(request: Request) {
       useUploads: true,
       assetKeys,
     });
+    console.log("[API/Wrapped] Pipeline execution completed");
 
     // 重要逻辑：返回 HTML 与数据便于联调与回归测试
     return NextResponse.json({ html, data });
   } catch (error) {
+    console.error("[API/Wrapped] POST Error:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const stack = error instanceof Error ? error.stack : undefined;
+    return NextResponse.json({ error: message, stack, location: "POST /api/wrapped" }, { status: 500 });
   }
 }
