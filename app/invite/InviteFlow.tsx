@@ -237,10 +237,11 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           statusRes.status === "expired" ||
           statusRes.status === "reauth_needed"
         ) {
-          console.log("Session expired, restarting...");
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+          setIsConnecting(false);
+          showToast("Connection failed. Please try again.");
           localStorage.removeItem(JOB_ID_KEY);
-          startAndPoll(); // Recursive retry with new job
+          startAndPoll();
         }
       } catch (error) {
         console.error("Polling error:", error);
