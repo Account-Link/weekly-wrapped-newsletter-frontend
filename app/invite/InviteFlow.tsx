@@ -11,10 +11,10 @@ import { trackEvent } from "@/lib/tracking";
 import { getUserTimezone, isUSTimezone } from "@/lib/timezone";
 
 import TiktokIcon from "@/assets/figma/invite/tiktok-icon.svg";
-import ScreenBg1 from "@/assets/figma/invite/screen-bg_1.gif";
-import ScreenBg2 from "@/assets/figma/invite/screen-bg_2.gif";
-import ScreenBg3 from "@/assets/figma/invite/screen-bg_3.gif";
-import ScreenBg4 from "@/assets/figma/invite/screen-bg_4.gif";
+import LoadingGif from "@/assets/figma/invite/loading.gif";
+import ConnectGif from "@/assets/figma/invite/connect.gif";
+import FindOutGif from "@/assets/figma/invite/find-out.gif";
+import YouAreInGif from "@/assets/figma/invite/you-are-in.gif";
 
 const JOB_ID_KEY = "tiktok_auth_job_id";
 const JOB_TIMESTAMP_KEY = "tiktok_auth_job_timestamp";
@@ -478,7 +478,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
                 {/* Cat Image */}
                 <div className="w-[40.2rem] h-[34rem] mt-[4rem] absolute right-0 top-[9rem] z-[0]">
                   <Image
-                    src={ScreenBg1}
+                    src={FindOutGif}
                     alt="Find-Out"
                     fill
                     className="object-contain"
@@ -536,7 +536,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
             {/* Background Image (Shared between Preparing and Connect) */}
             <div className="pointer-events-none flex-1 w-full flex items-center justify-center absolute top-[45%] translate-y-[-50%] z-[0] px-[3.2rem]">
               <Image
-                src={ScreenBg2}
+                src={ConnectGif}
                 alt="Connecting"
                 className="object-contain w-[33.5rem] h-[33.5rem]"
               />
@@ -729,7 +729,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
               {/* Loading Graphic */}
               <div className="relative w-full my-[4rem]">
                 <Image
-                  src={ScreenBg3}
+                  src={LoadingGif}
                   alt="Loading"
                   className="object-contain animate-pulse w-[33.2rem] h-[19.8rem]"
                 />
@@ -761,7 +761,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
               </div>
               <div className="absolute right-0 top-[50%] translate-y-[-50%] z-0 w-[40.2rem] h-[33rem]">
                 <Image
-                  src={ScreenBg4}
+                  src={YouAreInGif}
                   alt="You-Are-In"
                   fill
                   className="object-contain"
