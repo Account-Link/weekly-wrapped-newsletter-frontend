@@ -204,8 +204,8 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
             marginBottom: 16,
           }}
         >
-          <span>Your thumb ran &nbsp;</span>
-          <span style={{ fontSize: 20, color: "#FF5678" }}>{miles} miles</span>
+          <span>Your thumb scrolled &nbsp;</span>
+          <span style={{ fontSize: 20, color: "#FF5678" }}>{miles}</span>
         </div>
 
         {/* Bar Chart Section */}

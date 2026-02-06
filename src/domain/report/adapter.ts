@@ -7,7 +7,7 @@ import type {
 import {
   FEEDLING_COPY_MAP,
   getDiscoveryText,
-  getMilesScrolledText,
+  getScrolledDistanceText,
   getTimeComparisonText,
 } from "@/domain/report/logic-map";
 import type {
@@ -169,8 +169,9 @@ function buildDiagnosis(report: WeeklyReportData): WeeklyDiagnosis {
     ? comparisonFull.replace(comparisonDiff, "").trim()
     : comparisonFull;
 
-  const milesFull = getMilesScrolledText(report.stats.milesScrolled);
-  const milesComment = milesFull.split("miles")[1] || "";
+  const { valueText, comment } = getScrolledDistanceText(
+    report.stats.milesScrolled,
+  );
 
   const { totalTimeValue, totalTimeUnit } = formatTotalTimeDisplay(
     report.stats.totalTimeMinutes,
@@ -184,8 +185,8 @@ function buildDiagnosis(report: WeeklyReportData): WeeklyDiagnosis {
     totalTimeUnit,
     comparisonDiff,
     comparisonText: `${comparisonText} 👍`,
-    miles: report.stats.milesScrolled.toLocaleString(),
-    milesComment,
+    miles: valueText,
+    milesComment: comment,
     thisWeekLabel: "This Week",
     lastWeekLabel: "Last Week",
     thisWeekValue: thisWeekVal,

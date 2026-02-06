@@ -76,14 +76,56 @@ export function getTimeComparisonText(
 // E. 拇指滑动距离文案 [Source: PRD Miles Scrolled Variants]
 // ==========================================
 // 方法功能：生成拇指滑动里程文案
-export function getMilesScrolledText(miles: number): string {
-  const baseText = `Your thumb ran ${miles.toLocaleString()} miles`;
+// Input: feet (number)
+// Output: { valueText: string, comment: string }
+// valueText: e.g. "1,200 ft" or "over a mile."
+// comment: e.g. "— a short hallway" or "Touch grass?"
+export function getScrolledDistanceText(feet: number): {
+  valueText: string;
+  comment: string;
+} {
+  const roundedFeet = Math.round(feet);
+  const formattedFeet = `${roundedFeet.toLocaleString()} ft`;
 
-  if (miles < 5) return `${baseText} - a nice walk.`;
-  if (miles < 13) return `${baseText} - a 10K run.`;
-  if (miles < 26) return `${baseText} - a half marathon.`;
+  if (roundedFeet < 600) {
+    return { valueText: formattedFeet, comment: "— a short hallway." };
+  }
+  if (roundedFeet < 800) {
+    return {
+      valueText: formattedFeet,
+      comment: "— two Statues of Liberty stacked.",
+    };
+  }
+  if (roundedFeet < 1100) {
+    return {
+      valueText: formattedFeet,
+      comment: "— three Statues of Liberty stacked.",
+    };
+  }
+  if (roundedFeet < 1500) {
+    return {
+      valueText: formattedFeet,
+      comment: "— taller than the Eiffel Tower.",
+    };
+  }
+  if (roundedFeet < 2000) {
+    return {
+      valueText: formattedFeet,
+      comment: "— taller than Empire State Building.",
+    };
+  }
+  if (roundedFeet < 3000) {
+    return { valueText: formattedFeet, comment: "— almost a kilometer." };
+  }
+  if (roundedFeet < 5280) {
+    return {
+      valueText: formattedFeet,
+      comment: "— longer than 10 football fields.",
+    };
+  }
 
-  return `${baseText} - more than a full marathon.`;
+  // 5280+
+  return { valueText: "over a mile.", comment: "Touch grass?" };
 }
 
 // ==========================================

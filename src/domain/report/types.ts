@@ -132,7 +132,7 @@ export interface WeeklyReportData {
     totalTimeMinutes: number; // 本周总时长 (分钟)
     lastWeekTimeMinutes: number; // 上周总时长 (用于对比)
     lateNightPercentage: number; // 深夜观看比例 (0-100)
-    milesScrolled: number; // 拇指滑动英里数
+    milesScrolled: number; // 拇指滑动距离 (Unit: Feet) 历史原因，最早版本是英里数。
     // 用于计算逻辑的额外字段 (PRD Logic 部分需要)
     contentDiversityScore?: number; // 内容多样性分数 (0-100)
     brainrotPercentage?: number; // "脑残"内容占比 (0-100)

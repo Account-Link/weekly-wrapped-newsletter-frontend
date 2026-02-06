@@ -446,9 +446,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 {data.diagnosis.comparisonText}
                 <br />
                 <span>
-                  Your thumb ran{" "}
+                  Your thumb scrolled{" "}
                   <span className="text-[24px] text-brand mobile:text-[22px]">
-                    {data.diagnosis.miles} miles
+                    {data.diagnosis.miles}
                   </span>{" "}
                   {data.diagnosis.milesComment}
                 </span>
