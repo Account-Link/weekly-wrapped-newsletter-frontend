@@ -19,7 +19,6 @@ import type {
   WeeklyTrend,
   WeeklyNudge,
 } from "@/lib/firebase-admin";
-import { calculateFeedlingState } from "@/domain/report/utils";
 
 // 方法功能：适配器配置入参定义
 export interface AdapterOptions {
@@ -245,7 +244,7 @@ export function mapReportToWeeklyData(
 ): WeeklyData {
   // 重要逻辑：统一资产与追踪入口，保证后续渲染可直接使用
   const assetBaseUrl = options.assetBaseUrl;
-  const feedlingState = report.feedling.state || calculateFeedlingState(report);
+  const feedlingState = report.feedling.state;
   const opening = buildOpening(feedlingState, report);
   const trend = buildTrend(report);
   const diagnosis = buildDiagnosis(report);
