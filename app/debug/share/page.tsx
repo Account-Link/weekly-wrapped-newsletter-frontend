@@ -1,6 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import DebugShareContent from "./content";
+import { getAppBaseUrl } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Debug Share",
@@ -8,9 +9,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Debug Share Title",
     description: "Debug Share Description",
+    url: `${getAppBaseUrl()}/debug/share`,
     images: [
       {
-        url: "/images/og-image.png", // Use a valid image path from your public folder
+        url: `${getAppBaseUrl()}/images/og-image.png`,
         width: 1200,
         height: 630,
         alt: "Debug Share Image",
@@ -21,7 +23,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Debug Share Title",
     description: "Debug Share Description",
-    images: ["/images/og-image.png"],
+    images: [`${getAppBaseUrl()}/images/og-image.png`],
   },
 };
 
