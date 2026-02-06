@@ -32,10 +32,16 @@ export const metadata: Metadata = {
     images: [`${getAppBaseUrl()}/images/og-image.png`],
   },
   icons: {
-    icon: [{ url: `${getAppBaseUrl()}/favicon.ico` }],
+    icon: [
+      {
+        url: `${getAppBaseUrl()}/icon.png`,
+        sizes: "240x240",
+        type: "image/png",
+      },
+    ],
     apple: [
       {
-        url: `${getAppBaseUrl()}/images/og-image.png`,
+        url: `${getAppBaseUrl()}/apple-icon.png`,
         sizes: "240x240",
         type: "image/png",
       },
