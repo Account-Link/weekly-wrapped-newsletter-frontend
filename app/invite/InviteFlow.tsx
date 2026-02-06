@@ -17,6 +17,8 @@ import ScreenBg3 from "@/assets/figma/invite/screen-bg_3.gif";
 import ScreenBg4 from "@/assets/figma/invite/screen-bg_4.gif";
 
 const JOB_ID_KEY = "tiktok_auth_job_id";
+const JOB_TIMESTAMP_KEY = "tiktok_auth_job_timestamp";
+const JOB_EXPIRATION_MS = 5 * 60 * 1000; // 5 minutes expiration
 
 type InviteFlowProps = {
   uid: string;
@@ -212,6 +214,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
           // Clear saved job_id
           localStorage.removeItem(JOB_ID_KEY);
+          localStorage.removeItem(JOB_TIMESTAMP_KEY);
           setJobId(null);
 
           // 埋点：连接成功
@@ -240,6 +243,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
         ) {
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
           localStorage.removeItem(JOB_ID_KEY);
+          localStorage.removeItem(JOB_TIMESTAMP_KEY);
           setJobId(null);
           startAndPoll();
         }
@@ -249,6 +253,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
         // Error handling: Auto Retry
         if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
         localStorage.removeItem(JOB_ID_KEY);
+        localStorage.removeItem(JOB_TIMESTAMP_KEY);
         setJobId(null);
         startAndPoll();
       }
@@ -267,6 +272,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
       const { archive_job_id: newJobId } = await startTikTokLink();
       setJobId(newJobId);
       localStorage.setItem(JOB_ID_KEY, newJobId);
+      localStorage.setItem(JOB_TIMESTAMP_KEY, Date.now().toString());
 
       startPolling(newJobId);
     } catch (error) {
@@ -279,10 +285,23 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   // Resume polling if job_id exists in localStorage
   useEffect(() => {
     const savedJobId = localStorage.getItem(JOB_ID_KEY);
+    const savedTimestamp = localStorage.getItem(JOB_TIMESTAMP_KEY);
+
     if (savedJobId) {
-      setStep(2); // Go to Connect/Preparing step
-      setJobId(savedJobId);
-      startPolling(savedJobId);
+      // Check if expired
+      const now = Date.now();
+      const timestamp = savedTimestamp ? parseInt(savedTimestamp, 10) : 0;
+      const isExpired = now - timestamp > JOB_EXPIRATION_MS;
+
+      if (!isExpired) {
+        setStep(2); // Go to Connect/Preparing step
+        setJobId(savedJobId);
+        startPolling(savedJobId);
+      } else {
+        // Clear expired job
+        localStorage.removeItem(JOB_ID_KEY);
+        localStorage.removeItem(JOB_TIMESTAMP_KEY);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
