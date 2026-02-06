@@ -217,6 +217,7 @@ function buildRabbitHole(
         ).toLocaleString()} videos of ${report.rabbitHole.category}.`
       : "You went down a rabbit hole.",
     imageUrl: `${assetBaseUrl}/figma/cat-gif.png`,
+    count: report.rabbitHole.count,
   };
 }
 

@@ -229,6 +229,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   const contentStickers = [ContentSticker1, ContentSticker2, ContentSticker3];
   const newContents = data.newContents.slice(0, 3);
   const contentCount = newContents.length;
+  const rabbitHoleCount = data.rabbitHole.count ?? 0;
   const renderNewContent = (content: NewContentItem, index: number) => {
     let imgSrc = content.stickerUrl;
     if (imgSrc.includes("content-sticker-")) {
@@ -499,28 +500,32 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Row>
               ) : null}
 
-              <Text className="text-[20px] font-bold text-white my-[30px] mb-[30px] mobile:text-[16px]">
-                • Deepest rabbit hole •
-              </Text>
-              <Section className="text-left mb-[60px]">
-                <Row>
-                  <Column style={{ width: "60%" }}>
-                    <Text className="text-[18px] text-brand font-bold mb-[16px] mobile:text-[16px]">
-                      {data.rabbitHole.timeLabel}
-                    </Text>
-                    <Text className="text-[30px] font-bold text-white leading-[40px] mobile:text-[24px] mobile-leading-[36px]">
-                      {data.rabbitHole.description}
-                    </Text>
-                  </Column>
-                  <Column style={{ width: "40%" }} align="right">
-                    <Img
-                      src={getImgUrl(CatSleep.src)}
-                      width="160"
-                      className="w-[160px] mobile:w-[120px]"
-                    />
-                  </Column>
-                </Row>
-              </Section>
+              {rabbitHoleCount > 0 ? (
+                <>
+                  <Text className="text-[20px] font-bold text-white my-[30px] mb-[30px] mobile:text-[16px]">
+                    • Deepest rabbit hole •
+                  </Text>
+                  <Section className="text-left mb-[60px]">
+                    <Row>
+                      <Column style={{ width: "60%" }}>
+                        <Text className="text-[18px] text-brand font-bold mb-[16px] mobile:text-[16px]">
+                          {data.rabbitHole.timeLabel}
+                        </Text>
+                        <Text className="text-[30px] font-bold text-white leading-[40px] mobile:text-[24px] mobile-leading-[36px]">
+                          {data.rabbitHole.description}
+                        </Text>
+                      </Column>
+                      <Column style={{ width: "40%" }} align="right">
+                        <Img
+                          src={getImgUrl(CatSleep.src)}
+                          width="160"
+                          className="w-[160px] mobile:w-[120px]"
+                        />
+                      </Column>
+                    </Row>
+                  </Section>
+                </>
+              ) : null}
 
               <EmailButton
                 href={statsShareTrackingUrl}

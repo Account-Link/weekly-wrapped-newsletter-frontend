@@ -212,6 +212,7 @@ export interface WeeklyRabbitHole {
   timeLabel: string;
   description: string;
   imageUrl: string;
+  count?: number;
 }
 
 export interface WeeklyNudge {
