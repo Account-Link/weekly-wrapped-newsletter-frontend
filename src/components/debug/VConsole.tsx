@@ -7,10 +7,15 @@ export default function VConsoleComponent() {
   useEffect(() => {
     // Check if running in browser
     if (typeof window !== "undefined") {
-      const vConsole = new VConsole();
-      return () => {
-        vConsole.destroy();
-      };
+      const searchParams = new URLSearchParams(window.location.search);
+      const shouldEnable = searchParams.get("debug") === "feedling";
+
+      if (shouldEnable) {
+        const vConsole = new VConsole();
+        return () => {
+          vConsole.destroy();
+        };
+      }
     }
   }, []);
 
