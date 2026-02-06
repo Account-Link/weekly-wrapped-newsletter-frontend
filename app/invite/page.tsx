@@ -12,11 +12,28 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { uid } = await searchParams;
   const baseUrl = getAppBaseUrl();
+  const resolvedUid = Array.isArray(uid) ? uid[0] : uid;
+  const imageUrl = `${baseUrl}/images/og-image.png`;
 
-  // Invite page specific overrides: specific URL with UID
   return {
     openGraph: {
-      url: `${baseUrl}/invite?uid=${uid || ""}`,
+      title: "FYP Scout - Your TikTok Wrapped",
+      description: "Discover your TikTok persona and weekly insights!",
+      url: `${baseUrl}/invite?uid=${resolvedUid || ""}`,
+      images: [
+        {
+          url: imageUrl,
+          width: 240,
+          height: 240,
+          alt: "FYP Scout Preview",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "FYP Scout - Your TikTok Wrapped",
+      description: "Discover your TikTok persona and weekly insights!",
+      images: [imageUrl],
     },
   };
 }
