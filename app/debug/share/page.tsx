@@ -13,8 +13,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: `${getAppBaseUrl()}/images/og-image.png`,
-        width: 1200,
-        height: 630,
+        width: 240,
+        height: 240,
         alt: "Debug Share Image",
       },
     ],

@@ -7,6 +7,7 @@ import { getAppBaseUrl } from "@/lib/config";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getAppBaseUrl()),
   title: "FYP Scout - Your TikTok Wrapped",
   description: "Discover your TikTok persona and weekly insights!",
   openGraph: {
@@ -29,6 +30,16 @@ export const metadata: Metadata = {
     title: "FYP Scout - Your TikTok Wrapped",
     description: "Discover your TikTok persona and weekly insights!",
     images: [`${getAppBaseUrl()}/images/og-image.png`],
+  },
+  icons: {
+    icon: [{ url: `${getAppBaseUrl()}/favicon.ico` }],
+    apple: [
+      {
+        url: `${getAppBaseUrl()}/images/og-image.png`,
+        sizes: "240x240",
+        type: "image/png",
+      },
+    ],
   },
 };
 
