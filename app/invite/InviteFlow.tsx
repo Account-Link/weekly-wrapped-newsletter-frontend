@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { startTikTokLink, pollTikTokRedirect } from "@/lib/api/tiktok";
 import { FeedlingState } from "@/domain/report/types";
 import { useToast } from "@/context/ToastContext";
 import { useShareInvite } from "@/hooks/useShareInvite";
+import { useUSCheck } from "@/hooks/useUSCheck";
 import { trackEvent } from "@/lib/tracking";
-import { getUserTimezone, isUSTimezone } from "@/lib/timezone";
 
 import { LandingStep } from "./components/LandingStep";
 import { EmailStep } from "./components/EmailStep";
@@ -54,6 +54,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [showGeoModal, setShowGeoModal] = useState(false);
 
   const { trend } = data;
+  const { checkUS } = useUSCheck();
 
   // 重要逻辑：埋点去重，避免重复上报影响统计
   const trackOnce = useCallback(
@@ -155,42 +156,6 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     }
   }, [step, redirectUrl, uid, trackOnce]);
 
-  const checkGeoLocation = async () => {
-    try {
-      // 1. Check Timezone
-      let timezoneIsUS = true; // Default to true (fail open)
-      try {
-        const timezone = getUserTimezone();
-        timezoneIsUS = isUSTimezone(timezone);
-        console.log("Timezone check:", { timezone, isUS: timezoneIsUS });
-      } catch (err) {
-        console.warn("Error checking timezone:", err);
-      }
-
-      // 2. Check Geo API (IP-based)
-      let geoIsUS = true; // Default to true (fail open)
-      try {
-        const res = await fetch("/api/geo");
-        if (res.ok) {
-          const data = await res.json();
-          geoIsUS = data.isUS ?? true;
-        } else {
-          console.error("Geo API request failed:", res.status);
-        }
-      } catch (e) {
-        console.error("Geo check failed", e);
-      }
-
-      const isInUS = timezoneIsUS || geoIsUS;
-      console.log("Combined check result:", { timezoneIsUS, geoIsUS, isInUS });
-
-      return isInUS;
-    } catch (e) {
-      console.error("Geo check fatal error", e);
-      return true; // Fail open
-    }
-  };
-
   const startAndPoll = async (currentEmail: string) => {
     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
 
@@ -245,7 +210,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           });
 
           // Check Geo Location
-          const isUS = await checkGeoLocation();
+          const isUS = await checkUS();
           if (isUS) {
             setStep("loading");
           } else {
@@ -305,7 +270,14 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     setStep("email");
   };
 
-  const handleEmailContinue = (inputEmail: string) => {
+  const handleEmailContinue = async (inputEmail: string) => {
+    // 重要逻辑：US 校验必须在发起邮箱上传接口前完成
+    const isUS = await checkUS();
+    if (!isUS) {
+      setShowGeoModal(true);
+      return;
+    }
+
     setEmail(inputEmail);
     setStep("connect");
     startAndPoll(inputEmail);
@@ -376,12 +348,63 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
             onConnect={handleConnect}
             showQrModal={showQrModal}
             setShowQrModal={setShowQrModal}
-            showGeoModal={showGeoModal}
-            setShowGeoModal={setShowGeoModal}
           />
         )}
         {step === "loading" && <LoadingStep progress={progress} />}
         {step === "success" && <SuccessStep onInvite={handleInvite} />}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showGeoModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => {}}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-white rounded-3xl p-8 flex flex-col items-center gap-6 max-w-md w-full relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+
+              <h3 className="text-[2.4rem] font-bold text-black text-center leading-tight">
+                Region Not Supported
+              </h3>
+
+              <p className="text-[1.6rem] text-center text-gray-600">
+                Sorry, this experience is currently available only for users in
+                the United States.
+              </p>
+
+              <button
+                onClick={() => setShowGeoModal(false)}
+                className="w-full h-[4.8rem] bg-black text-white rounded-full font-bold text-[1.6rem] mt-2"
+              >
+                Got it
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </main>
   );

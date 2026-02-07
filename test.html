@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TikTok Profile AI Loader Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+      /* --- CSS: 搭建舞台与基础样式 --- */
+      :root {
+        --bg: #0a0a0a; /* 深色背景 */
+        --primary: #00f2ff; /* TikTok 风格的青色霓虹光 */
+        --secondary: #ff0050; /* TikTok 风格的红色霓虹光 */
+        --text: #ffffff;
+      }
+
+      body {
+        margin: 0;
+        height: 100vh;
+        background-color: var(--bg);
+        color: var(--text);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        overflow: hidden;
+      }
+
+      /* 主容器 */
+      .loader-container {
+        position: relative;
+        width: 300px;
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* 1. 中心头像区域 */
+      .avatar-wrapper {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin-bottom: 30px;
+      }
+
+      /* SVG 能量环 */
+      .ring-svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg); /* 让进度条从顶部开始 */
+      }
+
+      .ring-bg {
+        fill: none;
+        stroke: #222;
+        stroke-width: 4;
+      }
+
+      .ring-progress {
+        fill: none;
+        stroke: var(--primary);
+        stroke-width: 4;
+        stroke-linecap: round;
+        /* 关键：设置虚线长度等于圆周长 (2 * PI * r)，这里 r=70 */
+        stroke-dasharray: 440;
+        stroke-dashoffset: 440; /* 初始状态：偏移量等于周长，看起来是空的 */
+        filter: drop-shadow(0 0 8px var(--primary));
+      }
+
+      /* 默认占位头像 (灰色剪影) */
+      .placeholder-avatar {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        width: 120px;
+        height: 120px;
+        background: #222;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0.5;
+      }
+
+      /* 最终揭示的真实头像 (初始隐藏) */
+      .real-profile {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        opacity: 0; /* 初始不可见 */
+        border: 2px solid var(--primary);
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+      }
+      .real-profile img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      /* 2. 数据粒子容器 */
+      .particles-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1; /* 放在最底层 */
+      }
+      .data-particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: var(--primary);
+        border-radius: 50%;
+        box-shadow: 0 0 4px var(--primary);
+      }
+
+      /* 3. 文字与进度条信息 */
+      .info-text {
+        font-size: 14px;
+        letter-spacing: 1px;
+        color: #888;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+
+      .progress-bar-bg {
+        width: 200px;
+        height: 4px;
+        background: #222;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        transform: scaleX(0); /* 初始宽度为0 */
+        transform-origin: left;
+      }
+
+      /* 最终用户名 (初始隐藏) */
+      .profile-name {
+        margin-top: 20px;
+        font-size: 24px;
+        font-weight: bold;
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loader-container">
+      <div class="particles-container" id="particles-box"></div>
+
+      <div class="avatar-wrapper">
+        <svg class="ring-svg" viewBox="0 0 150 150">
+          <circle class="ring-bg" cx="75" cy="75" r="70"></circle>
+          <circle
+            id="ring-progress"
+            class="ring-progress"
+            cx="75"
+            cy="75"
+            r="70"
+          ></circle>
+        </svg>
+        <div class="placeholder-avatar" id="placeholder">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="#555">
+            <path
+              d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+            />
+          </svg>
+        </div>
+        <div class="real-profile" id="real-profile">
+          <img src="https://i.pravatar.cc/150?img=32" alt="User Avatar" />
+        </div>
+      </div>
+
+      <div class="info-text" id="info-text">Initializing AI Agent...</div>
+      <div class="progress-bar-bg" id="progress-bg">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+      </div>
+
+      <div class="profile-name" id="profile-name">@TikTok_Tech_Kitty</div>
+    </div>
+
+    <script>
+      // --- JS: GSAP 动画编排 ---
+
+      // 1. 准备工作：生成数据粒子
+      const particleCount = 50;
+      const particlesBox = document.getElementById("particles-box");
+      const containerRect = document
+        .querySelector(".loader-container")
+        .getBoundingClientRect();
+      const centerX = containerRect.width / 2;
+      const centerY = 150 / 2; // 头像中心高度
+
+      for (let i = 0; i < particleCount; i++) {
+        const p = document.createElement("div");
+        p.classList.add("data-particle");
+        particlesBox.appendChild(p);
+
+        // 随机分布在屏幕外围
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 300 + Math.random() * 200; // 距离中心 300-500px
+        const startX = centerX + Math.cos(angle) * distance;
+        const startY = centerY + Math.sin(angle) * distance;
+
+        // 使用 GSAP set 方法初始化位置
+        gsap.set(p, { x: startX, y: startY, opacity: 0 });
+      }
+
+      // 2. 创建主时间轴 (Master Timeline)
+      const tl = gsap.timeline();
+
+      // --- Stage 1: 数据汇聚 (Data Gathering) ---
+      tl.to(
+        ".data-particle",
+        {
+          duration: 1.5,
+          x: centerX, // 汇聚到中心 X
+          y: centerY, // 汇聚到中心 Y
+          opacity: 1,
+          scale: 0.5, // 汇聚时变小
+          stagger: {
+            amount: 1, // 所有粒子在1秒内陆续出发
+            from: "random",
+          },
+          ease: "power2.in", // 加速冲向中心
+        },
+        "start",
+      );
+
+      // 同时让占位符闪烁，表示正在接收数据
+      tl.to(
+        "#placeholder",
+        {
+          opacity: 1,
+          scale: 1.1,
+          duration: 0.2,
+          repeat: 5,
+          yoyo: true,
+          ease: "rough",
+        },
+        "start+=0.5",
+      );
+
+      // --- Stage 2: 处理与进度 (Processing) ---
+      // 改变文字提示
+      tl.to(
+        "#info-text",
+        {
+          text: "Analyzing User Behavior Data...", // GSAP 可以直接变文字内容 (需 TextPlugin，这里用简单透明度模拟)
+          opacity: 0,
+          y: -10,
+          duration: 0.3,
+          onComplete: () => {
+            document.getElementById("info-text").innerText =
+              "AI Generating Profile Model...";
+          },
+        },
+        "process",
+      );
+      tl.to("#info-text", { opacity: 1, y: 0, duration: 0.3 }, "process+=0.4");
+
+      // 核心：SVG 能量环进度条动画
+      tl.to(
+        "#ring-progress",
+        {
+          strokeDashoffset: 0, // 偏移量归零，线条填满
+          duration: 2,
+          ease: "power2.inOut",
+        },
+        "process",
+      );
+
+      // 底部直线进度条同步动画
+      tl.to(
+        "#progress-fill",
+        {
+          scaleX: 1, // 宽度从 0% 变到 100%
+          duration: 2,
+          ease: "power2.inOut",
+        },
+        "process",
+      );
+
+      // --- Stage 3: 最终揭示 (Final Reveal) ---
+      // 隐藏进度条和旧元素
+      tl.to(
+        ["#info-text", "#progress-bg", "#placeholder", ".data-particle"],
+        {
+          opacity: 0,
+          scale: 0.8,
+          duration: 0.5,
+          stagger: 0.1,
+        },
+        "reveal",
+      );
+
+      // 能量环爆发闪光
+      tl.to(
+        "#ring-progress",
+        {
+          stroke: "#ffffff",
+          strokeWidth: 8,
+          filter: "drop-shadow(0 0 20px #fff)",
+          duration: 0.3,
+          yoyo: true,
+          repeat: 1,
+        },
+        "reveal",
+      );
+
+      // 真实头像浮现 (带有活泼的弹性效果)
+      tl.fromTo(
+        "#real-profile",
+        { opacity: 0, scale: 0.5, rotation: -90 },
+        {
+          opacity: 1,
+          scale: 1,
+          rotation: 0,
+          duration: 1,
+          ease: "back.out(1.7)",
+        },
+        "reveal+=0.3",
+      );
+
+      // 用户名浮现
+      tl.to(
+        "#profile-name",
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power3.out",
+        },
+        "reveal+=0.6",
+      );
+    </script>
+  </body>
+</html>

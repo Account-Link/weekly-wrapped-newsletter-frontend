@@ -10,8 +10,6 @@ type ConnectStepProps = {
   onConnect: () => void;
   showQrModal: boolean;
   setShowQrModal: (show: boolean) => void;
-  showGeoModal: boolean;
-  setShowGeoModal: (show: boolean) => void;
 };
 
 export const ConnectStep: React.FC<ConnectStepProps> = ({
@@ -19,8 +17,6 @@ export const ConnectStep: React.FC<ConnectStepProps> = ({
   onConnect,
   showQrModal,
   setShowQrModal,
-  showGeoModal,
-  setShowGeoModal,
 }) => {
   return (
     <motion.div
@@ -49,7 +45,13 @@ export const ConnectStep: React.FC<ConnectStepProps> = ({
         <></>
       ) : (
         /* CONNECT STATE UI */
-        <div className="w-full h-full flex flex-col items-center justify-between flex-grow px-[3.2rem]">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -16 }}
+          transition={{ duration: 0.3 }}
+          className="w-full h-full flex flex-col items-center justify-between flex-grow px-[3.2rem]"
+        >
           <h2 className="w-full text-[2.8rem] text-center leading-[1.2] pt-[5rem] relative z-[1] font-invite-title">
             Your data goes in.
             <br />
@@ -89,7 +91,7 @@ export const ConnectStep: React.FC<ConnectStepProps> = ({
               Connect TikTok
             </button>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* PC QR Code Modal */}
@@ -143,61 +145,6 @@ export const ConnectStep: React.FC<ConnectStepProps> = ({
                 Open your camera app to scan this code and connect your TikTok
                 account.
               </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Geo Warning Modal */}
-      <AnimatePresence>
-        {showGeoModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-            onClick={() => {}}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-white rounded-3xl p-8 flex flex-col items-center gap-6 max-w-md w-full relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-500 mb-2">
-                <svg
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-              </div>
-
-              <h3 className="text-[2.4rem] font-bold text-black text-center leading-tight">
-                Region Not Supported
-              </h3>
-
-              <p className="text-[1.6rem] text-center text-gray-600">
-                Sorry, this experience is currently available only for users in
-                the United States.
-              </p>
-
-              <button
-                onClick={() => setShowGeoModal(false)}
-                className="w-full h-[4.8rem] bg-black text-white rounded-full font-bold text-[1.6rem] mt-2"
-              >
-                Got it
-              </button>
             </motion.div>
           </motion.div>
         )}
