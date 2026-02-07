@@ -148,10 +148,16 @@ export interface TikTokRedirectResponse {
 
 // --- Endpoints ---
 
-export async function startTikTokLink(): Promise<{ archive_job_id: string }> {
-  const response = await apiClient.post("/link/tiktok/start", {}, {
-    skipAuth: true,
-  } as CustomConfig);
+export async function startTikTokLink(
+  email?: string,
+): Promise<{ archive_job_id: string }> {
+  const response = await apiClient.post(
+    "/link/tiktok/start",
+    { email },
+    {
+      skipAuth: true,
+    } as CustomConfig,
+  );
   return response.data;
 }
 

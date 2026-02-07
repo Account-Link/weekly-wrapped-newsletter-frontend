@@ -5,7 +5,11 @@ export default {
     "./emails/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        poppins: ["var(--font-poppins)", "sans-serif"],
+      },
+    },
   },
   plugins: [],
 };

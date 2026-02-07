@@ -33,7 +33,7 @@ export const Toast: React.FC<ToastProps> = ({
           animate={{ opacity: 1, y: 0, x: "-50%" }}
           exit={{ opacity: 0, y: -20, x: "-50%" }}
           transition={{ duration: 0.3 }}
-          className="fixed left-1/2 z-[9999] px-[2.4rem] py-[1.2rem] bg-black/80 backdrop-blur-sm rounded-[1.2rem] text-white text-[1.6rem] font-medium shadow-lg max-w-[90vw] text-center"
+          className="fixed left-1/2 z-[9999] flex items-center justify-center w-full max-w-[33.4rem] h-[5.6rem] px-[2.4rem] bg-black/70 backdrop-blur-sm rounded-[16px] text-white text-[1.6rem] font-medium shadow-lg text-center"
           style={{ top: "10rem" }}
         >
           {message}

@@ -190,7 +190,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     emailId,
     type: "redirect",
     action: "invite_click",
-    targetUrl: `/invite?${paramsString}`,
+    targetUrl: `/invite/share?${paramsString}`,
     extraData: {
       period_start: data.period_start,
       period_end: data.period_end,
