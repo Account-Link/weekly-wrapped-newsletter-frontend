@@ -41,11 +41,12 @@ export const ConnectStep: React.FC<ConnectStepProps> = ({
 
       {!redirectUrl ? (
         /* PREPARING STATE UI */
-        <div className="w-full h-full flex flex-col items-center justify-center relative z-[1]">
-          <p className="text-[1.8rem] font-bold text-white mt-[20rem] animate-pulse">
-            Preparing your experience...
-          </p>
-        </div>
+        // <div className="w-full h-full flex flex-col items-center justify-center relative z-[1]">
+        //   <p className="text-[1.8rem] font-bold text-white mt-[20rem] animate-pulse">
+        //     Preparing your experience...
+        //   </p>
+        // </div>
+        <></>
       ) : (
         /* CONNECT STATE UI */
         <div className="w-full h-full flex flex-col items-center justify-between flex-grow px-[3.2rem]">
