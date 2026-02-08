@@ -6,7 +6,7 @@ import { startTikTokLink, pollTikTokRedirect } from "@/lib/api/tiktok";
 import { FeedlingState } from "@/domain/report/types";
 import { useToast } from "@/context/ToastContext";
 import { useShareInvite } from "@/hooks/useShareInvite";
-import { useUSCheck } from "@/hooks/useUSCheck";
+// import { useUSCheck } from "@/hooks/useUSCheck";
 import { trackEvent } from "@/lib/tracking";
 
 import { LandingStep } from "./components/LandingStep";
@@ -54,7 +54,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [showGeoModal, setShowGeoModal] = useState(false);
 
   const { trend } = data;
-  const { checkUS } = useUSCheck();
+  // const { checkUS } = useUSCheck();
 
   // 重要逻辑：埋点去重，避免重复上报影响统计
   const trackOnce = useCallback(
@@ -208,14 +208,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
               uid,
             });
           });
-
-          // Check Geo Location
-          const isUS = await checkUS();
-          if (isUS) {
-            setStep("loading");
-          } else {
-            setShowGeoModal(true);
-          }
+          setStep("loading");
         }
 
         // 3. Error/Expired state: Auto Retry
@@ -272,11 +265,11 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
   const handleEmailContinue = async (inputEmail: string) => {
     // 重要逻辑：US 校验必须在发起邮箱上传接口前完成
-    const isUS = await checkUS();
-    if (!isUS) {
-      setShowGeoModal(true);
-      return;
-    }
+    // const isUS = await checkUS();
+    // if (!isUS) {
+    //   setShowGeoModal(true);
+    //   return;
+    // }
 
     setEmail(inputEmail);
     setStep("connect");
