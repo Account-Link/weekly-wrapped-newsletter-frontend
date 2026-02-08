@@ -27,6 +27,12 @@ export default function DownloadContent() {
     return "share_week" as const;
   };
   const emailId = weekStart || "unknown";
+  const shareAction = resolveShareAction(type);
+  const resolveShareSavedEvent = (action: string) => {
+    if (action === "share_week") return "share_week_saved";
+    if (action === "share_stats") return "share_stats_saved";
+    return "share_saved";
+  };
 
   useEffect(() => {
     // 重要逻辑：打开下载页即上报埋点
@@ -35,17 +41,17 @@ export default function DownloadContent() {
     }
 
     trackEvent({
-      event: "page_view",
-      type: "download_page", // 埋点 code
+      event: "share_download_view",
       uid,
-      eid: emailId,
-      source: "email",
-      extraData: {
+      params: {
+        eid: emailId,
         targetUrl: url,
         filename,
+        shareAction,
+        shareType: type,
       },
     });
-  }, [type, url, uid, emailId, filename]);
+  }, [type, url, uid, emailId, filename, shareAction]);
 
   const handleDownload = async () => {
     if (!url || isDownloading) {
@@ -55,26 +61,32 @@ export default function DownloadContent() {
     setIsDownloading(true);
 
     try {
-      // 记录下载行为埋点
-      trackEvent({
-        event: "click",
-        type: "download_page", // 埋点 code
-        action: "download", // 具体动作
-        uid,
-        eid: emailId,
-        extraData: {
-          shareAction: resolveShareAction(type),
-          targetUrl: url,
-          filename,
-        },
-      });
+      const dedupeKey = `tracked_share_saved_${uid}_${emailId}_${shareAction}`;
+      const hasTracked =
+        typeof window !== "undefined" && localStorage.getItem(dedupeKey);
+      if (!hasTracked) {
+        trackEvent({
+          event: resolveShareSavedEvent(shareAction),
+          uid,
+          params: {
+            eid: emailId,
+            shareAction,
+            targetUrl: url,
+            filename,
+            shareType: type,
+          },
+        });
 
-      // 记录 Firebase Analytics 保存埋点
-      await trackShareSaved({
-        uid,
-        emailId,
-        action: resolveShareAction(type),
-      });
+        await trackShareSaved({
+          uid,
+          emailId,
+          action: shareAction,
+        });
+
+        if (typeof window !== "undefined") {
+          localStorage.setItem(dedupeKey, "true");
+        }
+      }
 
       const link = document.createElement("a");
       if (url.startsWith("data:")) {

@@ -120,6 +120,8 @@ apiClient.interceptors.response.use(
           queue_limit_reached: "queue_limit_reached",
           rate_limit: "rate_limit",
           expired: "job_expired",
+          email_duplicate: "email_duplicate",
+          invalid_email: "invalid_email",
         };
         if (errorCodeMap[errorData.error]) {
           code = errorCodeMap[errorData.error];
@@ -151,6 +153,8 @@ type ErrorCode =
   | "rate_limit"
   | "queue_limit_reached"
   | "auth_failed"
+  | "email_duplicate"
+  | "invalid_email"
   | "unknown_error";
 
 type ApiError = {

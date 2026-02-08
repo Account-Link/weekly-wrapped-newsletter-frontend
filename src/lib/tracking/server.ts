@@ -1,13 +1,10 @@
 import { getTrackingBaseUrl, getAppBaseUrl } from "../config";
-import { TrackingAction } from "./types";
 
 export type ClickTrackingOptions = {
   uid: string;
-  emailId: string;
-  action: TrackingAction;
-  type?: string; // Module code
+  event: string;
   targetUrl?: string;
-  extraData?: Record<string, unknown>;
+  params?: Record<string, unknown>;
 };
 
 /**
@@ -35,22 +32,16 @@ export const getOpenPixelUrl = (uid: string, emailId: string) => {
  */
 export const getClickTrackingUrl = ({
   uid,
-  emailId,
-  action,
-  type,
+  event,
   targetUrl,
-  extraData,
+  params: customParams,
 }: ClickTrackingOptions) => {
-  if (!uid || !emailId) return "";
+  if (!uid) return "";
   const baseUrl = getTrackingBaseUrl();
-  const params = new URLSearchParams();
+  const qs = new URLSearchParams();
 
-  params.set("uid", uid);
-  params.set("eid", emailId);
-  params.set("action", action);
-  if (type) {
-    params.set("type", type);
-  }
+  qs.set("uid", uid);
+  qs.set("event", event);
 
   if (targetUrl) {
     try {
@@ -59,15 +50,15 @@ export const getClickTrackingUrl = ({
       const base = isRelative ? getAppBaseUrl() : undefined;
       const u = new URL(targetUrl, base);
 
-      params.set("targetUrl", u.toString());
+      qs.set("targetUrl", u.toString());
     } catch {
-      params.set("targetUrl", targetUrl);
+      qs.set("targetUrl", targetUrl);
     }
   }
 
-  if (extraData) {
-    params.set("extraData", JSON.stringify(extraData));
+  if (customParams) {
+    qs.set("params", JSON.stringify(customParams));
   }
 
-  return `${baseUrl}/api/redirect?${params.toString()}`;
+  return `${baseUrl}/api/redirect?${qs.toString()}`;
 };

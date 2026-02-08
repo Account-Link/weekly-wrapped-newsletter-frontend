@@ -14,51 +14,87 @@ const transparentGif = Buffer.from(
 // 定义输入接口，涵盖 URL 参数和 JSON Body 的可能字段
 type TrackEventInput = {
   event?: string;
-  type?: string;
   uid?: string;
-  eid?: string;
-  email_id?: string;
-  weekStart?: string;
-  action?: string;
-  source?: string;
-  targetUrl?: string;
-  url?: string;
-  extraData?: string | Record<string, unknown>;
+  uuid?: string;
+  session_id?: string;
+  eid?: string | null;
+  timestamp?: number | string;
+  common_params?: string | Record<string, unknown>;
+  page_params?: string | Record<string, unknown>;
+  params?: string | Record<string, unknown>;
   [key: string]: unknown;
 };
 
 // 规范化 Payload：处理字段映射与迁移
 function normalizePayload(input: TrackEventInput): TrackEventPayload {
-  let extraData: Record<string, unknown> = {};
+  let params: Record<string, unknown> = {};
+  let commonParams: Record<string, unknown> = {};
+  let pageParams: Record<string, unknown> = {};
 
-  // 处理 extraData: 可能是 JSON 对象 (POST body) 或 JSON 字符串 (URL params)
-  if (typeof input.extraData === "string") {
+  // 处理 params: 可能是 JSON 对象 (POST body) 或 JSON 字符串 (URL params)
+  if (typeof input.params === "string") {
     try {
-      const parsed = JSON.parse(input.extraData);
+      const parsed = JSON.parse(input.params);
       if (typeof parsed === "object" && parsed !== null) {
-        extraData = parsed;
+        params = parsed;
       }
     } catch {
       // ignore
     }
-  } else if (typeof input.extraData === "object" && input.extraData !== null) {
-    extraData = { ...(input.extraData as Record<string, unknown>) };
+  } else if (typeof input.params === "object" && input.params !== null) {
+    params = { ...(input.params as Record<string, unknown>) };
+  }
+  if (typeof input.eid === "string" && input.eid && !("eid" in params)) {
+    params.eid = input.eid;
   }
 
-  // 1. 迁移 targetUrl 到 extraData
-  const targetUrl = input.targetUrl || input.url;
-  if (targetUrl) {
-    extraData.targetUrl = targetUrl;
+  if (typeof input.common_params === "string") {
+    try {
+      const parsed = JSON.parse(input.common_params);
+      if (typeof parsed === "object" && parsed !== null) {
+        commonParams = parsed as Record<string, unknown>;
+      }
+    } catch {
+      // ignore
+    }
+  } else if (
+    typeof input.common_params === "object" &&
+    input.common_params !== null
+  ) {
+    commonParams = { ...(input.common_params as Record<string, unknown>) };
   }
+
+  if (typeof input.page_params === "string") {
+    try {
+      const parsed = JSON.parse(input.page_params);
+      if (typeof parsed === "object" && parsed !== null) {
+        pageParams = parsed as Record<string, unknown>;
+      }
+    } catch {
+      // ignore
+    }
+  } else if (
+    typeof input.page_params === "object" &&
+    input.page_params !== null
+  ) {
+    pageParams = { ...(input.page_params as Record<string, unknown>) };
+  }
+
+  const timestampValue =
+    typeof input.timestamp === "string"
+      ? Number(input.timestamp)
+      : input.timestamp;
 
   return {
     event: input.event || "unknown",
-    type: input.type || undefined,
     uid: input.uid || undefined,
-    eid: input.eid || input.email_id || input.weekStart || undefined,
-    action: input.action || undefined,
-    source: input.source || undefined,
-    extraData: Object.keys(extraData).length > 0 ? extraData : undefined,
+    uuid: input.uuid || undefined,
+    session_id: input.session_id || undefined,
+    timestamp: Number.isFinite(timestampValue) ? timestampValue : undefined,
+    common_params:
+      Object.keys(commonParams).length > 0 ? commonParams : undefined,
+    page_params: Object.keys(pageParams).length > 0 ? pageParams : undefined,
+    params: Object.keys(params).length > 0 ? params : undefined,
   };
 }
 
@@ -94,19 +130,33 @@ async function recordEvent(
 
   // 移除 undefined 字段，防止 Firestore 报错
   const cleanPayload = JSON.parse(JSON.stringify(payload));
-  if (
-    cleanPayload.extraData &&
-    cleanPayload.extraData.targetUrl === undefined
-  ) {
-    delete cleanPayload.extraData.targetUrl;
-  }
+  const fallbackCommonParams = {
+    ...(cleanPayload.common_params || {}),
+    user_agent:
+      cleanPayload.common_params?.user_agent ||
+      request.headers.get("user-agent") ||
+      undefined,
+  };
+  const fallbackPageParams = {
+    ...(cleanPayload.page_params || {}),
+    referrer:
+      cleanPayload.page_params?.referrer ||
+      request.headers.get("referer") ||
+      undefined,
+  };
 
-  // 构造文档 ID: uid_eid_event_type_action_timestamp
+  cleanPayload.common_params =
+    Object.keys(fallbackCommonParams).length > 0
+      ? fallbackCommonParams
+      : undefined;
+  cleanPayload.page_params =
+    Object.keys(fallbackPageParams).length > 0 ? fallbackPageParams : undefined;
+
   const uidPart = payload.uid || "anon";
-  const eidPart = payload.eid || "no_eid";
-  const typePart = payload.type || "no_type";
-  const actionPart = payload.action || "no_action";
-  const timestamp = Date.now();
+  const rawEid = (payload.params as Record<string, unknown> | undefined)?.eid;
+  const eidPart = typeof rawEid === "string" && rawEid ? rawEid : "no_eid";
+  const sessionPart = payload.session_id || payload.uuid || "no_session";
+  const timestamp = payload.timestamp ?? Date.now();
 
   // Format timestamp to YYYYMMDDHHMMSS (America/New_York)
   const date = new Date(timestamp);
@@ -121,9 +171,9 @@ async function recordEvent(
 
   const formattedTime = `${p.year}${p.month}${p.day}${p.hour}${p.minute}${p.second}`;
 
-  // 构造文档 ID: timestamp_uid_eid_event_type_action
+  // 构造文档 ID: timestamp_uid_eid_event_session
   // 这样在 Firestore 中默认按时间倒序/正序排列
-  const docId = `${formattedTime}_${uidPart}_${eidPart}_${payload.event}_${typePart}_${actionPart}`;
+  const docId = `${formattedTime}_${uidPart}_${eidPart}_${payload.event}_${sessionPart}`;
 
   try {
     await adminDb
@@ -133,7 +183,6 @@ async function recordEvent(
         ...cleanPayload,
         timestamp, // 保留原始毫秒级时间戳字段
         formattedTime, // 保留可读时间字段
-        userAgent: request.headers.get("user-agent"),
         ip:
           request.headers.get("x-forwarded-for") ??
           request.headers.get("x-real-ip"),

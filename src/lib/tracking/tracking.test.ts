@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { trackEvent } from "./client";
 import { getOpenPixelUrl, getClickTrackingUrl } from "./server";
-import { TrackingModule, TrackingAction } from "./types";
 
 // Mock global fetch
 const mockFetch = vi.fn();
@@ -22,19 +21,24 @@ describe("Tracking Library", () => {
     it("should send a correct payload via POST", async () => {
       const payload = {
         event: "page_view",
-        type: "invite_flow" as TrackingModule,
         uid: "user-123",
-        extraData: { foo: "bar" },
+        params: { foo: "bar" },
       };
 
       await trackEvent(payload);
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
-      expect(mockFetch).toHaveBeenCalledWith("/api/track", {
+      const [, options] = mockFetch.mock.calls[0];
+      const body = JSON.parse(options.body as string);
+      expect(options).toMatchObject({
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
         keepalive: true,
+      });
+      expect(body).toMatchObject({
+        event: "page_view",
+        uid: "user-123",
+        params: { foo: "bar" },
       });
     });
 
@@ -85,27 +89,25 @@ describe("Tracking Library", () => {
 
     it("should generate correct click tracking URL", () => {
       const targetUrl = "https://target.com/page";
-      const type = "email_share" as TrackingModule;
+      const event = "share_week";
       const uid = "user-123";
-      const emailId = "email-456";
-      const action = "click" as TrackingAction;
 
       const trackingUrl = getClickTrackingUrl({
         targetUrl,
-        type,
+        event,
         uid,
-        emailId,
-        action,
+        params: { eid: "email-456" },
       });
 
       expect(trackingUrl).toContain("/api/redirect");
       expect(trackingUrl).toContain(
         `targetUrl=${encodeURIComponent(targetUrl)}`,
       );
-      expect(trackingUrl).toContain(`type=${type}`);
       expect(trackingUrl).toContain(`uid=${uid}`);
-      expect(trackingUrl).toContain(`action=${action}`);
-      expect(trackingUrl).toContain(`eid=${emailId}`);
+      expect(trackingUrl).toContain(`event=${event}`);
+      expect(trackingUrl).toContain(
+        `params=${encodeURIComponent(JSON.stringify({ eid: "email-456" }))}`,
+      );
     });
   });
 });

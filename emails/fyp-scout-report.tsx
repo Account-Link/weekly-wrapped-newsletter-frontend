@@ -162,11 +162,11 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   const trendShareTrackingUrl = data.trend.shareUrl
     ? getClickTrackingUrl({
         uid: data.uid,
-        emailId,
-        type: "redirect",
-        action: "share_week",
+        event: "share_week",
         targetUrl: appendParams(data.trend.shareUrl),
-        extraData: {
+        params: {
+          eid: emailId,
+          targetUrl: appendParams(data.trend.shareUrl),
           period_start: data.period_start,
           period_end: data.period_end,
         },
@@ -175,11 +175,11 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   const statsShareTrackingUrl = data.diagnosis.shareUrl
     ? getClickTrackingUrl({
         uid: data.uid,
-        emailId,
-        type: "redirect",
-        action: "share_stats",
+        event: "share_stats",
         targetUrl: appendParams(data.diagnosis.shareUrl),
-        extraData: {
+        params: {
+          eid: emailId,
+          targetUrl: appendParams(data.diagnosis.shareUrl),
           period_start: data.period_start,
           period_end: data.period_end,
         },
@@ -187,22 +187,35 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     : data.diagnosis.shareUrl || "";
   const inviteTrackingUrl = getClickTrackingUrl({
     uid: data.uid,
-    emailId,
-    type: "redirect",
-    action: "invite_click",
+    event: "invite_click",
     targetUrl: `/invite/share?${paramsString}`,
-    extraData: {
+    params: {
+      eid: emailId,
+      targetUrl: `/invite/share?${paramsString}`,
       period_start: data.period_start,
       period_end: data.period_end,
     },
   });
   const unsubscribeTrackingUrl = getClickTrackingUrl({
     uid: data.uid,
-    emailId,
-    type: "redirect",
-    action: "click_unsubscribe",
+    event: "click_unsubscribe",
     targetUrl: `/unsubscribe?${paramsString}`,
-    extraData: {
+    params: {
+      eid: emailId,
+      targetUrl: `/unsubscribe?${paramsString}`,
+      period_start: data.period_start,
+      period_end: data.period_end,
+    },
+  });
+  const privacyPolicyTrackingUrl = getClickTrackingUrl({
+    uid: data.uid,
+    event: "click_privacy_policy",
+    targetUrl:
+      "https://jjpi4asql2zl.jp.larksuite.com/wiki/Mt9VwGGZcimz1Skgqj2jsGa8pXe",
+    params: {
+      eid: emailId,
+      targetUrl:
+        "https://jjpi4asql2zl.jp.larksuite.com/wiki/Mt9VwGGZcimz1Skgqj2jsGa8pXe",
       period_start: data.period_start,
       period_end: data.period_end,
     },
@@ -600,7 +613,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   </Text>
                   <Link
                     className="text-white/70 ml-[4px]"
-                    href="https://jjpi4asql2zl.jp.larksuite.com/wiki/Mt9VwGGZcimz1Skgqj2jsGa8pXe"
+                    href={privacyPolicyTrackingUrl}
                     style={{ textDecoration: "underline", color: "#ffffffb3" }}
                   >
                     Privacy Policy

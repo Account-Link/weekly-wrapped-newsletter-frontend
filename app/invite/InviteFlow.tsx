@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { startTikTokLink, pollTikTokRedirect } from "@/lib/api/tiktok";
+import {
+  startTikTokLink,
+  pollTikTokRedirect,
+  ApiRequestError,
+} from "@/lib/api/tiktok";
 import { FeedlingState } from "@/domain/report/types";
 import { useToast } from "@/context/ToastContext";
 import { useShareInvite } from "@/hooks/useShareInvite";
@@ -58,18 +62,18 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
   // 重要逻辑：埋点去重，避免重复上报影响统计
   const trackOnce = useCallback(
-    (action: string, callback: () => void) => {
+    (eventName: string, callback: () => void) => {
       if (typeof window === "undefined") return;
 
       const isUserScoped = [
         "referral_oauth_success",
         "referral_processing_view",
         "referral_complete",
-      ].includes(action);
+      ].includes(eventName);
 
       const storageKey = isUserScoped
-        ? `tracked_${action}_${uid}`
-        : `tracked_${action}`;
+        ? `tracked_${eventName}_${uid}`
+        : `tracked_${eventName}`;
 
       if (localStorage.getItem(storageKey)) return;
       callback();
@@ -96,15 +100,8 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     };
   }, []);
 
-  // 记录页面访问埋点
   useEffect(() => {
-    trackEvent({
-      event: "page_view",
-      type: "invite_flow",
-      action: "referral_landing_view",
-      uid,
-      source: "web",
-    });
+    trackEvent({ event: "referral_landing_view", uid });
   }, [uid]);
 
   // Track Funnel Steps
@@ -112,12 +109,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     if (step === "connect") {
       if (!redirectUrl) {
         trackOnce("referral_loading_start", () => {
-          trackEvent({
-            event: "view",
-            type: "invite_flow",
-            action: "referral_loading_start",
-            uid,
-          });
+          trackEvent({ event: "referral_loading_start", uid });
         });
       } else {
         loadingCompleteTimeRef.current = Date.now();
@@ -127,31 +119,23 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
         trackOnce("referral_loading_complete", () => {
           trackEvent({
-            event: "view",
-            type: "invite_flow",
-            action: "referral_loading_complete",
+            event: "referral_loading_complete",
             uid,
-            extraData: { duration },
+            params: { duration },
           });
         });
       }
+    } else if (step === "email") {
+      trackOnce("referral_email_view", () => {
+        trackEvent({ event: "referral_email_view", uid });
+      });
     } else if (step === "loading") {
       trackOnce("referral_processing_view", () => {
-        trackEvent({
-          event: "view",
-          type: "invite_flow",
-          action: "referral_processing_view",
-          uid,
-        });
+        trackEvent({ event: "referral_processing_view", uid });
       });
     } else if (step === "success") {
       trackOnce("referral_complete", () => {
-        trackEvent({
-          event: "view",
-          type: "invite_flow",
-          action: "referral_complete",
-          uid,
-        });
+        trackEvent({ event: "referral_complete", uid });
       });
     }
   }, [step, redirectUrl, uid, trackOnce]);
@@ -166,9 +150,20 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
     try {
       const { archive_job_id: newJobId } = await startTikTokLink(currentEmail);
+      trackOnce("referral_email_submit", () => {
+        trackEvent({ event: "referral_email_submit", uid });
+      });
       setJobId(newJobId);
       startPolling(newJobId, currentEmail);
     } catch (error) {
+      if (error instanceof ApiRequestError) {
+        if (error.code === "email_duplicate") {
+          trackEvent({ event: "referral_email_duplicate", uid });
+        }
+        if (error.code === "invalid_email") {
+          trackEvent({ event: "referral_email_invalid", uid });
+        }
+      }
       console.error("Failed to start:", error);
       // Retry after delay
       setTimeout(() => startAndPoll(currentEmail), 2000);
@@ -202,11 +197,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
           // 埋点：连接成功
           trackOnce("referral_oauth_success", () => {
-            trackEvent({
-              event: "referral_oauth_success",
-              type: "invite_flow",
-              uid,
-            });
+            trackEvent({ event: "referral_oauth_success", uid });
           });
           setStep("loading");
         }
@@ -217,6 +208,19 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           statusRes.status === "reauth_needed" ||
           statusRes.status === "error"
         ) {
+          if (
+            statusRes.status === "reauth_needed" ||
+            statusRes.status === "error"
+          ) {
+            trackEvent({
+              event: "referral_oauth_fail",
+              uid,
+              params: {
+                status: statusRes.status,
+                error: statusRes.error,
+              },
+            });
+          }
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
           setJobId(null);
           startAndPoll(currentEmail);
@@ -253,12 +257,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     // 埋点：点击 Find Out
     landingClickTimeRef.current = Date.now();
     trackOnce("referral_landing_click", () => {
-      trackEvent({
-        event: "click",
-        type: "invite_flow",
-        action: "referral_landing_click",
-        uid,
-      });
+      trackEvent({ event: "referral_landing_click", uid });
     });
     setStep("email");
   };
@@ -293,11 +292,9 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
     trackOnce("referral_oauth_start", () => {
       trackEvent({
-        event: "click",
-        type: "invite_flow",
-        action: "referral_oauth_start",
+        event: "referral_oauth_start",
         uid,
-        extraData: { duration },
+        params: { duration },
       });
     });
 
@@ -312,12 +309,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     const url = window.location.href;
 
     // 埋点：点击邀请/分享
-    trackEvent({
-      event: "click",
-      type: "invite_flow",
-      action: "referral_invite_click",
-      uid,
-    });
+    trackEvent({ event: "referral_invite_click", uid });
 
     await shareInvite(url);
   };
@@ -334,7 +326,18 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
         {step === "landing" && (
           <LandingStep trend={trend} onFindOut={handleFindOut} />
         )}
-        {step === "email" && <EmailStep onContinue={handleEmailContinue} />}
+        {step === "email" && (
+          <EmailStep
+            onContinue={handleEmailContinue}
+            onInvalid={(reason) => {
+              trackEvent({
+                event: "referral_email_invalid",
+                uid,
+                params: { reason },
+              });
+            }}
+          />
+        )}
         {step === "connect" && (
           <ConnectStep
             redirectUrl={redirectUrl}

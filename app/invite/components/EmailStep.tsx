@@ -6,9 +6,13 @@ import RocketIcon from "@/assets/figma/invite/rocket.png";
 
 type EmailStepProps = {
   onContinue: (email: string) => void;
+  onInvalid?: (reason: "empty" | "format") => void;
 };
 
-export const EmailStep: React.FC<EmailStepProps> = ({ onContinue }) => {
+export const EmailStep: React.FC<EmailStepProps> = ({
+  onContinue,
+  onInvalid,
+}) => {
   const [email, setEmail] = useState("");
   const { showToast } = useToast();
 
@@ -19,11 +23,13 @@ export const EmailStep: React.FC<EmailStepProps> = ({ onContinue }) => {
 
   const handleContinue = () => {
     if (!email) {
+      onInvalid?.("empty");
       showToast("Please enter your email");
       return;
     }
 
     if (!validateEmail(email)) {
+      onInvalid?.("format");
       showToast("Please enter a valid email address");
       return;
     }

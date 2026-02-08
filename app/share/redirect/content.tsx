@@ -10,7 +10,8 @@ import { trackEvent } from "@/lib/tracking";
 export default function RedirectContent() {
   const searchParams = useSearchParams();
   const url = searchParams.get("url");
-  const type = searchParams.get("type") || "unknown";
+  const type = searchParams.get("type");
+  const event = searchParams.get("event") || type || "unknown";
   const uid = searchParams.get("uid") || "anonymous";
   const weekStart = searchParams.get("weekStart");
   const periodStart = searchParams.get("period_start");
@@ -26,13 +27,20 @@ export default function RedirectContent() {
 
     // 重要逻辑：跳转前先写入埋点，保证可追踪
     trackEvent({
-      event: "click",
-      type, // 埋点 code
-      action: "redirect", // 具体交互动作
+      event: "redirect",
       uid,
-      eid: weekStart || null,
-      source: "email",
-      extraData: {
+      params: {
+        ...(weekStart ? { eid: weekStart } : {}),
+        targetUrl: url,
+        sourceEvent: event,
+      },
+    }).catch(() => null);
+
+    trackEvent({
+      event,
+      uid,
+      params: {
+        ...(weekStart ? { eid: weekStart } : {}),
         targetUrl: url,
       },
     }).catch(() => null);
@@ -48,7 +56,7 @@ export default function RedirectContent() {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [url, type, uid, weekStart, periodStart, periodEnd]);
+  }, [url, event, uid, weekStart, periodStart, periodEnd]);
 
   if (!url) {
     return (

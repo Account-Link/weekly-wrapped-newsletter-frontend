@@ -43,12 +43,9 @@ export default function UnsubscribeClient() {
   useEffect(() => {
     if (!uid) return;
     trackEvent({
-      event: "page_view",
-      type: "unsubscribe_flow",
-      action: "unsubscribe_page_view",
+      event: "unsubscribe_page_view",
       uid,
-      eid: emailId,
-      source: "email_redirect",
+      params: { eid: emailId },
     });
   }, [uid, emailId]);
 
@@ -63,11 +60,9 @@ export default function UnsubscribeClient() {
     const key = `tracked_unsubscribe_confirm_${uid}`;
     if (typeof window !== "undefined" && !localStorage.getItem(key)) {
       trackEvent({
-        event: "click",
-        type: "unsubscribe_flow",
-        action: "unsubscribe_confirm",
+        event: "unsubscribe_confirm",
         uid,
-        eid: emailId,
+        params: { eid: emailId },
       });
       const now = new Date();
       const pad = (n: number) => n.toString().padStart(2, "0");
@@ -100,11 +95,9 @@ export default function UnsubscribeClient() {
     setIsSubmitting(true);
 
     trackEvent({
-      event: "click",
-      type: "unsubscribe_flow",
-      action: "resubscribe",
+      event: "resubscribe",
       uid,
-      eid: emailId,
+      params: { eid: emailId },
     });
 
     try {
@@ -113,12 +106,6 @@ export default function UnsubscribeClient() {
         showToast("Re-subscribe failed. Please try again.");
         return;
       }
-      trackEvent({
-        event: "resubscribe_success",
-        type: "unsubscribe_flow",
-        uid,
-        eid: emailId,
-      });
       setState("subscribed");
     } catch {
       showToast("Re-subscribe failed. Please try again.");
@@ -168,11 +155,9 @@ export default function UnsubscribeClient() {
                 onClick={() => {
                   if (!hasTrackedCancel.current) {
                     trackEvent({
-                      event: "click",
-                      type: "unsubscribe_flow",
-                      action: "unsubscribe_cancel",
+                      event: "unsubscribe_cancel",
                       uid,
-                      eid: emailId,
+                      params: { eid: emailId },
                     });
                     hasTrackedCancel.current = true;
                   }
