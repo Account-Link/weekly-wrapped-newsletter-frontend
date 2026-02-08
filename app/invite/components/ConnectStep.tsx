@@ -1,22 +1,17 @@
 import React from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
-import { QRCodeSVG } from "qrcode.react";
+import { motion } from "framer-motion";
 import ConnectGif from "@/assets/figma/invite/connect.gif";
 import TiktokIcon from "@/assets/figma/invite/tiktok-icon.svg";
 
 type ConnectStepProps = {
   redirectUrl: string | null;
   onConnect: () => void;
-  showQrModal: boolean;
-  setShowQrModal: (show: boolean) => void;
 };
 
 export const ConnectStep: React.FC<ConnectStepProps> = ({
   redirectUrl,
   onConnect,
-  showQrModal,
-  setShowQrModal,
 }) => {
   return (
     <motion.div
@@ -94,61 +89,6 @@ export const ConnectStep: React.FC<ConnectStepProps> = ({
         </motion.div>
       )}
 
-      {/* PC QR Code Modal */}
-      <AnimatePresence>
-        {showQrModal && redirectUrl && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-            onClick={() => setShowQrModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-white rounded-3xl p-8 flex flex-col items-center gap-6 max-w-md w-full relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setShowQrModal(false)}
-                className="absolute top-4 right-4 text-black/50 hover:text-black transition-colors"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
-              </button>
-
-              <h3 className="text-[2.4rem] font-bold text-black text-center leading-tight">
-                Scan to Connect
-              </h3>
-
-              <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100">
-                <QRCodeSVG
-                  value={redirectUrl}
-                  size={240}
-                  level="H"
-                  includeMargin={true}
-                />
-              </div>
-
-              <p className="text-[1.6rem] text-center text-gray-600">
-                Open your camera app to scan this code and connect your TikTok
-                account.
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 };

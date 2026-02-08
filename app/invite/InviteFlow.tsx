@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { QRCodeSVG } from "qrcode.react";
 import {
   startTikTokLink,
   pollTikTokRedirect,
@@ -51,6 +52,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
   const [tiktokToken, setTiktokToken] = useState<string | null>(null);
   const [appUserId, setAppUserId] = useState<string | null>(null);
+  const [oauthCompleted, setOauthCompleted] = useState(false);
 
   // PC QR Code State
   const [isPc, setIsPc] = useState(false);
@@ -60,7 +62,6 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const { trend } = data;
   // const { checkUS } = useUSCheck();
 
-  // 重要逻辑：埋点去重，避免重复上报影响统计
   const trackOnce = useCallback(
     (eventName: string, callback: () => void) => {
       if (typeof window === "undefined") return;
@@ -70,10 +71,28 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
         "referral_processing_view",
         "referral_complete",
       ].includes(eventName);
+      const isDeviceScoped = [
+        "referral_landing_click",
+        "referral_email_view",
+        "referral_email_submit",
+        "referral_loading_start",
+        "referral_loading_complete",
+        "referral_oauth_start",
+      ].includes(eventName);
 
-      const storageKey = isUserScoped
-        ? `tracked_${eventName}_${uid}`
-        : `tracked_${eventName}`;
+      let storageKey = `tracked_${eventName}`;
+      if (isUserScoped) {
+        storageKey = `tracked_${eventName}_${uid}`;
+      } else if (isDeviceScoped) {
+        let deviceId = localStorage.getItem("device_id");
+        if (!deviceId) {
+          deviceId = `device_${Date.now()}_${Math.random()
+            .toString(36)
+            .slice(2, 9)}`;
+          localStorage.setItem("device_id", deviceId);
+        }
+        storageKey = `tracked_${eventName}_${deviceId}`;
+      }
 
       if (localStorage.getItem(storageKey)) return;
       callback();
@@ -128,10 +147,6 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     } else if (step === "email") {
       trackOnce("referral_email_view", () => {
         trackEvent({ event: "referral_email_view", uid });
-      });
-    } else if (step === "loading") {
-      trackOnce("referral_processing_view", () => {
-        trackEvent({ event: "referral_processing_view", uid });
       });
     } else if (step === "success") {
       trackOnce("referral_complete", () => {
@@ -199,6 +214,8 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           trackOnce("referral_oauth_success", () => {
             trackEvent({ event: "referral_oauth_success", uid });
           });
+          setOauthCompleted(true);
+          setShowQrModal(false);
           setStep("loading");
         }
 
@@ -241,17 +258,21 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     if (step === "loading") {
       const interval = setInterval(() => {
         setProgress((prev) => {
-          if (prev >= 100) {
+          if (!oauthCompleted && prev >= 99) {
+            return 99;
+          }
+          const next = Math.min(prev + 2, 100);
+          if (oauthCompleted && next >= 100) {
             clearInterval(interval);
             setStep("success");
             return 100;
           }
-          return prev + 2; // Increment speed
+          return next;
         });
       }, 100);
       return () => clearInterval(interval);
     }
-  }, [step]);
+  }, [step, oauthCompleted]);
 
   const handleFindOut = () => {
     // 埋点：点击 Find Out
@@ -271,6 +292,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     // }
 
     setEmail(inputEmail);
+    setOauthCompleted(false);
     setStep("connect");
     startAndPoll(inputEmail);
   };
@@ -290,6 +312,10 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
       ? now - loadingCompleteTimeRef.current
       : 0;
 
+    trackOnce("referral_processing_view", () => {
+      trackEvent({ event: "referral_processing_view", uid });
+    });
+
     trackOnce("referral_oauth_start", () => {
       trackEvent({
         event: "referral_oauth_start",
@@ -297,6 +323,10 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
         params: { duration },
       });
     });
+
+    setOauthCompleted(false);
+    setProgress(0);
+    setStep("loading");
 
     if (isPc) {
       setShowQrModal(true);
@@ -339,15 +369,64 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           />
         )}
         {step === "connect" && (
-          <ConnectStep
-            redirectUrl={redirectUrl}
-            onConnect={handleConnect}
-            showQrModal={showQrModal}
-            setShowQrModal={setShowQrModal}
-          />
+          <ConnectStep redirectUrl={redirectUrl} onConnect={handleConnect} />
         )}
         {step === "loading" && <LoadingStep progress={progress} />}
         {step === "success" && <SuccessStep onInvite={handleInvite} />}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showQrModal && redirectUrl && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setShowQrModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-white rounded-3xl p-8 flex flex-col items-center gap-6 max-w-md w-full relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowQrModal(false)}
+                className="absolute top-4 right-4 text-black/50 hover:text-black transition-colors"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+
+              <h3 className="text-[2.4rem] font-bold text-black text-center leading-tight">
+                Scan to Connect
+              </h3>
+
+              <div className="p-4 bg-white rounded-xl shadow-sm border border-gray-100">
+                <QRCodeSVG
+                  value={redirectUrl}
+                  size={240}
+                  level="H"
+                  includeMargin={true}
+                />
+              </div>
+
+              <p className="text-[1.6rem] text-center text-gray-600">
+                Open your camera app to scan this code and connect your TikTok
+                account.
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
       <AnimatePresence>
         {showGeoModal && (
