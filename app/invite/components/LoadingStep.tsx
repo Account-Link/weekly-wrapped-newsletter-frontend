@@ -39,7 +39,7 @@ export const LoadingStep: React.FC<LoadingStepProps> = ({ progress }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.4 }}
-            className="text-[1.6rem] font-bold text-center"
+            className="text-[1.6rem] font-semibold text-center"
           >
             {messages[messageIndex]}
           </motion.p>
@@ -52,7 +52,15 @@ export const LoadingStep: React.FC<LoadingStepProps> = ({ progress }) => {
             className="object-contain animate-pulse w-[33.2rem] h-[19.8rem]"
           />
         </div>
-        <h2 className="text-[2.8rem] font-bold mb-2">{progress}%</h2>
+        <motion.h2
+          key={progress}
+          initial={{ scale: 0.9, opacity: 0.7 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="text-[2.4rem] font-black leading-none"
+        >
+          {progress}%
+        </motion.h2>
       </div>
     </motion.div>
   );
