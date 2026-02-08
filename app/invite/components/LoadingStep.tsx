@@ -39,13 +39,13 @@ export const LoadingStep: React.FC<LoadingStepProps> = ({ progress }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.4 }}
-            className="text-[2.4rem] font-bold text-center"
+            className="text-[1.6rem] font-bold text-center"
           >
             {messages[messageIndex]}
           </motion.p>
         </AnimatePresence>
         {/* Loading Graphic */}
-        <div className="relative w-full my-[4rem]">
+        <div className="relative w-full my-[2.4rem]">
           <Image
             src={LoadingGif}
             alt="Loading"
