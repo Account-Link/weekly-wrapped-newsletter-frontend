@@ -306,11 +306,19 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
       return;
     }
 
-    // 埋点：点击连接 TikTok
+    // 重要逻辑：点击连接 TikTok 时计算并单独上报三个时长指标
     const now = Date.now();
-    const duration = loadingCompleteTimeRef.current
-      ? now - loadingCompleteTimeRef.current
+    const landingClickTime = landingClickTimeRef.current;
+    const loadingCompleteTime = loadingCompleteTimeRef.current;
+    const duration = loadingCompleteTime ? now - loadingCompleteTime : 0;
+    const loadingDuration =
+      landingClickTime && loadingCompleteTime
+        ? loadingCompleteTime - landingClickTime
+        : 0;
+    const privacyReadDuration = loadingCompleteTime
+      ? now - loadingCompleteTime
       : 0;
+    const landingDuration = landingClickTime ? now - landingClickTime : 0;
 
     trackOnce("referral_processing_view", () => {
       trackEvent({ event: "referral_processing_view", uid });
@@ -322,6 +330,16 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
         uid,
         params: { duration },
       });
+    });
+
+    trackEvent({
+      event: "referral_duration_metrics",
+      uid,
+      params: {
+        loading_duration: loadingDuration,
+        privacy_read_duration: privacyReadDuration,
+        landing_to_oauth: landingDuration,
+      },
     });
 
     setOauthCompleted(false);
