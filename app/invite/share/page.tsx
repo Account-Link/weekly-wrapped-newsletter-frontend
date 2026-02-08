@@ -1,12 +1,21 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useShareInvite } from "@/hooks/useShareInvite";
 import Image from "next/image";
 import monkeyPng from "@/assets/figma/invite/monkey.png";
 
 export default function InviteSharePage() {
+  // 重要逻辑：用 Suspense 包裹 useSearchParams，避免 CSR bailout 报错
+  return (
+    <Suspense fallback={null}>
+      <InviteShareContent />
+    </Suspense>
+  );
+}
+
+function InviteShareContent() {
   const searchParams = useSearchParams();
   const { shareInvite } = useShareInvite();
 
