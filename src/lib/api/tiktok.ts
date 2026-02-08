@@ -77,7 +77,7 @@ apiClient.interceptors.response.use(
 
       // HTTP error response
       const status = error.response.status;
-      const errorData = error.response.data as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+      const errorData = error.response.data as ApiError; // eslint-disable-line @typescript-eslint/no-explicit-any
 
       // Handle 410 expired status: if response contains status field, treat as valid response
       if (
@@ -94,10 +94,40 @@ apiClient.interceptors.response.use(
         };
       }
 
-      // Extract error message
+      let code: ErrorCode = "unknown_error";
+      if (status === 401) {
+        code =
+          errorData.error === "invalid_device"
+            ? "invalid_device"
+            : "auth_failed";
+      } else if (status === 404) {
+        code = "job_not_found";
+      } else if (status === 410) {
+        code = "job_expired";
+      } else if (status === 429 || errorData.error === "queue_limit_reached") {
+        code =
+          errorData.error === "queue_limit_reached"
+            ? "queue_limit_reached"
+            : "rate_limit";
+      } else if (status >= 500 && status < 600) {
+        code = "server_error";
+      }
+
+      if (errorData.error) {
+        const errorCodeMap: Record<string, ErrorCode> = {
+          job_not_found: "job_not_found",
+          invalid_device: "invalid_device",
+          queue_limit_reached: "queue_limit_reached",
+          rate_limit: "rate_limit",
+          expired: "job_expired",
+        };
+        if (errorCodeMap[errorData.error]) {
+          code = errorCodeMap[errorData.error];
+        }
+      }
+
       const message =
         errorData.message || errorData.error || "Unknown error occurred";
-      const code = errorData.error || "server_error";
 
       throw new ApiRequestError(message, status, code);
     }
@@ -111,16 +141,34 @@ apiClient.interceptors.response.use(
 
 // --- Types ---
 
+type ErrorCode =
+  | "network_error"
+  | "timeout_error"
+  | "server_error"
+  | "job_not_found"
+  | "job_expired"
+  | "invalid_device"
+  | "rate_limit"
+  | "queue_limit_reached"
+  | "auth_failed"
+  | "unknown_error";
+
+type ApiError = {
+  error?: string;
+  message?: string;
+};
+
 export class ApiRequestError extends Error {
   status: number;
-  code: string;
+  code: ErrorCode;
   isNetworkError: boolean;
   isServerError: boolean;
+  isRetryable: boolean;
 
   constructor(
     message: string,
     status: number,
-    code: string = "unknown_error",
+    code: ErrorCode = "unknown_error",
     isNetworkError = false,
   ) {
     super(message);
@@ -129,6 +177,11 @@ export class ApiRequestError extends Error {
     this.code = code;
     this.isNetworkError = isNetworkError;
     this.isServerError = status >= 500 && status < 600;
+    this.isRetryable =
+      isNetworkError ||
+      this.isServerError ||
+      code === "rate_limit" ||
+      code === "queue_limit_reached";
   }
 }
 
@@ -151,13 +204,9 @@ export interface TikTokRedirectResponse {
 export async function startTikTokLink(
   email?: string,
 ): Promise<{ archive_job_id: string }> {
-  const response = await apiClient.post(
-    "/link/tiktok/start",
-    { email },
-    {
-      skipAuth: true,
-    } as CustomConfig,
-  );
+  const response = await apiClient.post("/link/tiktok/start", { email }, {
+    skipAuth: true,
+  } as CustomConfig);
   return response.data;
 }
 
