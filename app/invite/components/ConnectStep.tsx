@@ -22,18 +22,13 @@ export const ConnectStep: React.FC<ConnectStepProps> = ({
       className="w-full h-full flex flex-col items-center flex-grow "
     >
       {/* Background Image (Shared between Preparing and Connect) */}
-      <motion.div
-        initial={{ scale: 0.98, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-        className="pointer-events-none flex-1 w-full flex items-center justify-center absolute top-[45%] translate-y-[-50%] z-[0] px-[3.2rem]"
-      >
+      <div className="pointer-events-none flex-1 w-full flex items-center justify-center absolute top-[45%] translate-y-[-50%] z-[0] px-[3.2rem]">
         <Image
           src={ConnectGif}
           alt="Connecting"
           className="object-contain w-[33.5rem] h-[33.5rem]"
         />
-      </motion.div>
+      </div>
 
       {!redirectUrl ? (
         /* PREPARING STATE UI */
