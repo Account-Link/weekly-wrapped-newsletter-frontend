@@ -200,7 +200,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     uid: data.uid,
     emailId,
     type: "redirect",
-    action: "unsubscribe",
+    action: "click_unsubscribe",
     targetUrl: `/unsubscribe?${paramsString}`,
     extraData: {
       period_start: data.period_start,

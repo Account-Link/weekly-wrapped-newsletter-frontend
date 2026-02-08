@@ -36,7 +36,14 @@ export const trackShareSaved = async (payload: ShareSavedPayload) => {
   if (!supported) return;
 
   const analytics = getAnalytics(app);
-  logEvent(analytics, "share_saved", {
+  // 重要逻辑：将分享类型映射为具体的保存事件名，确保统计口径一致
+  const eventName =
+    payload.action === "share_week"
+      ? "share_week_saved"
+      : payload.action === "share_stats"
+        ? "share_stats_saved"
+        : "share_saved";
+  logEvent(analytics, eventName, {
     uid: payload.uid,
     email_id: payload.emailId,
     action: payload.action,
