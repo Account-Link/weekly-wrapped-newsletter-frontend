@@ -5,6 +5,14 @@ import { ToastProvider } from "@/context/ToastContext";
 import VConsoleComponent from "@/components/debug/VConsole";
 import { getAppBaseUrl } from "@/lib/config";
 import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
+
+const poppins = Poppins({
+  weight: ["400", "500", "600", "700", "900"],
+  subsets: ["latin"],
+  variable: "--font-poppins",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(getAppBaseUrl()),
@@ -56,7 +64,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={poppins.variable}>
       <meta
         name="viewport"
         content="width=device-width, initial-scale=1, viewport-fit=cover"
