@@ -590,9 +590,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   Who’s Feedling?
                 </Text>
                 <Text className="text-[14px] leading-[20px] text-white mb-[60px] mx-auto">
-                  Feeding is an app that turns your TikTok habits into a virtual
-                  pet you grow and nurture with your scrolling. We&apos;re
-                  launching soon!
+                  Feedling is an app that turns your TikTok habits into a
+                  virtual pet you grow and nurture with your scrolling.
+                  We&apos;re launching soon!!
                 </Text>
                 <EmailButton
                   href={"https://www.tiktok.com/@your.feedling"}
