@@ -6,6 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   startTikTokLink,
   pollTikTokRedirect,
+  registerEmail,
   ApiRequestError,
 } from "@/lib/api/tiktok";
 import { FeedlingState } from "@/domain/report/types";
@@ -164,21 +165,10 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     }
 
     try {
-      const { archive_job_id: newJobId } = await startTikTokLink(currentEmail);
-      trackOnce("referral_email_submit", () => {
-        trackEvent({ event: "referral_email_submit", uid });
-      });
+      const { archive_job_id: newJobId } = await startTikTokLink();
       setJobId(newJobId);
       startPolling(newJobId, currentEmail);
     } catch (error) {
-      if (error instanceof ApiRequestError) {
-        if (error.code === "email_duplicate") {
-          trackEvent({ event: "referral_email_duplicate", uid });
-        }
-        if (error.code === "invalid_email") {
-          trackEvent({ event: "referral_email_invalid", uid });
-        }
-      }
       console.error("Failed to start:", error);
       // Retry after delay
       setTimeout(() => startAndPoll(currentEmail), 2000);
@@ -292,6 +282,22 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     // }
 
     setEmail(inputEmail);
+    // 重要逻辑：注册邮箱成功后再进入连接流程
+    try {
+      await registerEmail(inputEmail);
+      trackOnce("referral_email_submit", () => {
+        trackEvent({ event: "referral_email_submit", uid });
+      });
+    } catch (error) {
+      if (error instanceof ApiRequestError) {
+        if (error.code === "email_duplicate") {
+          trackEvent({ event: "referral_email_duplicate", uid });
+          return;
+        }
+      }
+      console.error("Failed to register email:", error);
+      return;
+    }
     setOauthCompleted(false);
     setStep("connect");
     startAndPoll(inputEmail);

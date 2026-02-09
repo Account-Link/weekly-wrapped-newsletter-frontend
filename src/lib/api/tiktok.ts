@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig } from "axios";
 
 // --- Configuration ---
 const BACKEND_URL =
-  process.env.NEXT_PUBLIC_TIKTOK_API_BASE_URL || "http://localhost:8000";
+  process.env.NEXT_PUBLIC_REPORT_API_BASE_URL || "http://localhost:8000";
 
 // --- Helpers ---
 const getUserTimezone = () => {
@@ -62,6 +62,7 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
+    console.error("API Error:", error);
     if (axios.isAxiosError(error)) {
       // Network error (no response)
       if (!error.response) {
@@ -205,10 +206,8 @@ export interface TikTokRedirectResponse {
 
 // --- Endpoints ---
 
-export async function startTikTokLink(
-  email?: string,
-): Promise<{ archive_job_id: string }> {
-  const response = await apiClient.post("/link/tiktok/start", { email }, {
+export async function startTikTokLink(): Promise<{ archive_job_id: string }> {
+  const response = await apiClient.post("/link/tiktok/start", undefined, {
     skipAuth: true,
   } as CustomConfig);
   return response.data;
@@ -223,6 +222,14 @@ export async function pollTikTokRedirect(
       job_id,
       time_zone: timeZone,
     },
+    skipAuth: true,
+    includeDevice: true,
+  } as CustomConfig);
+  return response.data;
+}
+
+export async function registerEmail(email: string): Promise<ApiError> {
+  const response = await apiClient.post("/register-email", { email }, {
     skipAuth: true,
     includeDevice: true,
   } as CustomConfig);
