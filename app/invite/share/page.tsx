@@ -17,7 +17,10 @@ export default function InviteSharePage() {
 
 function InviteShareContent() {
   const searchParams = useSearchParams();
-  const { shareInvite } = useShareInvite();
+  const { shareInvite } = useShareInvite({
+    title: "Who's the trendsetter?",
+    text: "I just got my TikTok trend rank. Your turn.",
+  });
 
   const buildInviteUrl = useCallback(() => {
     if (typeof window === "undefined") return "";

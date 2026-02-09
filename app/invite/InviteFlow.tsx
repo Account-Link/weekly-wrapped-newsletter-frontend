@@ -40,7 +40,10 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [progress, setProgress] = useState(0);
   const [email, setEmail] = useState("");
   const { showToast } = useToast();
-  const { shareInvite } = useShareInvite();
+  const { shareInvite } = useShareInvite({
+    title: "Who's the trendsetter?",
+    text: "I just got my TikTok trend rank. Your turn.",
+  });
 
   // TikTok Connect State
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
