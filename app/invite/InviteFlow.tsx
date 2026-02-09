@@ -374,6 +374,12 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     await shareInvite(url);
   };
 
+  const handleRetry = () => {
+    setOauthCompleted(false);
+    setStep("connect");
+    startAndPoll(email);
+  };
+
   return (
     <main
       className="h-dvh w-[40.2rem] mx-auto bg-[#313131] text-white flex flex-col items-center relative overflow-hidden font-poppins"
@@ -401,7 +407,9 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
         {step === "connect" && (
           <ConnectStep redirectUrl={redirectUrl} onConnect={handleConnect} />
         )}
-        {step === "loading" && <LoadingStep progress={progress} />}
+        {step === "loading" && (
+          <LoadingStep progress={progress} onRetry={handleRetry} />
+        )}
         {step === "success" && <SuccessStep onInvite={handleInvite} />}
       </AnimatePresence>
       <AnimatePresence>

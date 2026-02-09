@@ -5,9 +5,13 @@ import LoadingGif from "@/assets/figma/invite/loading.gif";
 
 type LoadingStepProps = {
   progress: number;
+  onRetry: () => void;
 };
 
-export const LoadingStep: React.FC<LoadingStepProps> = ({ progress }) => {
+export const LoadingStep: React.FC<LoadingStepProps> = ({
+  progress,
+  onRetry,
+}) => {
   const messages = [
     "Reading your watch history...",
     "AI crunching the numbers...",
@@ -15,6 +19,7 @@ export const LoadingStep: React.FC<LoadingStepProps> = ({ progress }) => {
     "Generating your report...",
   ];
   const [messageIndex, setMessageIndex] = useState(0);
+  const [showRetry, setShowRetry] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -22,6 +27,13 @@ export const LoadingStep: React.FC<LoadingStepProps> = ({ progress }) => {
     }, 2000);
     return () => clearInterval(interval);
   }, [messages.length]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowRetry(true);
+    }, 15000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <motion.div
@@ -53,6 +65,25 @@ export const LoadingStep: React.FC<LoadingStepProps> = ({ progress }) => {
           />
         </div>
         <h2 className="text-[2.4rem] font-black leading-none">{progress}%</h2>
+
+        {/* Retry Button */}
+        <AnimatePresence>
+          {showRetry && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="absolute bottom-[2rem] w-full flex justify-center"
+            >
+              <button
+                onClick={onRetry}
+                className="w-[33.4rem] h-[5.6rem] bg-white gap-[0.8rem] rounded-full flex items-center justify-center text-black font-bold text-[1.6rem] hover:bg-gray-100 transition-colors"
+              >
+                Retry
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
