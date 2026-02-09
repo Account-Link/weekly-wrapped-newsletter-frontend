@@ -130,27 +130,34 @@ async function recordEvent(
 
   // 移除 undefined 字段，防止 Firestore 报错
   const cleanPayload = JSON.parse(JSON.stringify(payload));
-  const fallbackCommonParams = {
-    ...(cleanPayload.common_params || {}),
-    user_agent:
-      cleanPayload.common_params?.user_agent ||
-      request.headers.get("user-agent") ||
-      undefined,
-  };
-  const fallbackPageParams = {
-    ...(cleanPayload.page_params || {}),
-    referrer:
-      cleanPayload.page_params?.referrer ||
-      request.headers.get("referer") ||
-      undefined,
-  };
 
-  cleanPayload.common_params =
-    Object.keys(fallbackCommonParams).length > 0
-      ? fallbackCommonParams
-      : undefined;
-  cleanPayload.page_params =
-    Object.keys(fallbackPageParams).length > 0 ? fallbackPageParams : undefined;
+  // 处理 common_params
+  const commonParams = cleanPayload.common_params || {};
+  const userAgent =
+    commonParams.user_agent || request.headers.get("user-agent");
+  if (userAgent) {
+    commonParams.user_agent = userAgent;
+  }
+
+  // 处理 page_params
+  const pageParams = cleanPayload.page_params || {};
+  const referrer = pageParams.referrer || request.headers.get("referer");
+  if (referrer) {
+    pageParams.referrer = referrer;
+  }
+
+  // 更新 cleanPayload，避免设置 undefined
+  if (Object.keys(commonParams).length > 0) {
+    cleanPayload.common_params = commonParams;
+  } else {
+    delete cleanPayload.common_params;
+  }
+
+  if (Object.keys(pageParams).length > 0) {
+    cleanPayload.page_params = pageParams;
+  } else {
+    delete cleanPayload.page_params;
+  }
 
   const uidPart = payload.uid || "anon";
   const rawEid = (payload.params as Record<string, unknown> | undefined)?.eid;
@@ -194,6 +201,7 @@ async function recordEvent(
 }
 
 export async function GET(request: Request) {
+  console.log("requrest", request.url);
   const url = new URL(request.url);
   const payload = buildPayloadFromSearchParams(url.searchParams);
 
