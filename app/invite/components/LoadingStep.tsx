@@ -31,7 +31,7 @@ export const LoadingStep: React.FC<LoadingStepProps> = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowRetry(true);
-    }, 15000);
+    }, 30000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -73,13 +73,16 @@ export const LoadingStep: React.FC<LoadingStepProps> = ({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="absolute bottom-[2rem] w-full flex justify-center"
+              className="absolute bottom-[2rem] w-full flex flex-col items-center justify-center gap-[1.6rem]"
             >
+              <p className="text-[1.6rem] text-center leading-none ">
+                Taking too long?
+              </p>
               <button
                 onClick={onRetry}
                 className="w-[33.4rem] h-[5.6rem] bg-white gap-[0.8rem] rounded-full flex items-center justify-center text-black font-bold text-[1.6rem] hover:bg-gray-100 transition-colors"
               >
-                Retry
+                Try again
               </button>
             </motion.div>
           )}
