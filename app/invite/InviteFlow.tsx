@@ -53,10 +53,12 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   // Time Tracking Refs
   const landingClickTimeRef = useRef<number | null>(null);
   const loadingCompleteTimeRef = useRef<number | null>(null);
+  const loadingStartTimeRef = useRef<number | null>(null);
 
   const [tiktokToken, setTiktokToken] = useState<string | null>(null);
   const [appUserId, setAppUserId] = useState<string | null>(null);
   const [oauthCompleted, setOauthCompleted] = useState(false);
+  const oauthCompletedRef = useRef(false);
 
   // PC QR Code State
   const [isPc, setIsPc] = useState(false);
@@ -126,6 +128,10 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   useEffect(() => {
     trackEvent({ event: "referral_landing_view", uid });
   }, [uid]);
+
+  useEffect(() => {
+    oauthCompletedRef.current = oauthCompleted;
+  }, [oauthCompleted]);
 
   // Track Funnel Steps
   useEffect(() => {
@@ -249,23 +255,26 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   // Handle Loading Step
   useEffect(() => {
     if (step === "loading") {
+      loadingStartTimeRef.current = Date.now();
+      setProgress(0);
       const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (!oauthCompleted && prev >= 99) {
-            return 99;
-          }
-          const next = Math.min(prev + 2, 100);
-          if (oauthCompleted && next >= 100) {
-            clearInterval(interval);
-            setStep("success");
-            return 100;
-          }
-          return next;
-        });
+        const startTime = loadingStartTimeRef.current;
+        const elapsed = startTime ? Date.now() - startTime : 0;
+        const completed = oauthCompletedRef.current;
+        // 重要逻辑：10 秒内平滑到 99/100，超过 10 秒未完成时停在 99
+        const ratio = Math.min(elapsed / 10000, 1);
+        const maxProgress = completed ? 100 : 99;
+        const next = Math.floor(ratio * maxProgress);
+        setProgress((prev) => (next > prev ? next : prev));
+        if (completed && elapsed >= 10000) {
+          clearInterval(interval);
+          setProgress(100);
+          setStep("success");
+        }
       }, 100);
       return () => clearInterval(interval);
     }
-  }, [step, oauthCompleted]);
+  }, [step]);
 
   const handleFindOut = () => {
     // 埋点：点击 Find Out
