@@ -103,6 +103,8 @@ apiClient.interceptors.response.use(
             : "auth_failed";
       } else if (status === 404) {
         code = "job_not_found";
+      } else if (status === 409) {
+        code = "email_duplicate";
       } else if (status === 410) {
         code = "job_expired";
       } else if (status === 429 || errorData.error === "queue_limit_reached") {
