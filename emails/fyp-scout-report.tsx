@@ -613,7 +613,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   </Text>
                   <Link
                     className="text-white/70 ml-[4px]"
-                    href={privacyPolicyTrackingUrl}
+                    href="https://jjpi4asql2zl.jp.larksuite.com/wiki/Mt9VwGGZcimz1Skgqj2jsGa8pXe"
                     style={{ textDecoration: "underline", color: "#ffffffb3" }}
                   >
                     Privacy Policy

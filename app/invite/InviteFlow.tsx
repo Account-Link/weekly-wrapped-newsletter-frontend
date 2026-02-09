@@ -292,10 +292,16 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
       if (error instanceof ApiRequestError) {
         if (error.code === "email_duplicate") {
           trackEvent({ event: "referral_email_duplicate", uid });
+          showToast("This email has already been used");
+          return;
+        }
+        if (error.code === "invalid_email") {
+          showToast("Please enter a valid email address");
           return;
         }
       }
       console.error("Failed to register email:", error);
+      showToast("Email registration failed. Please try again.");
       return;
     }
     setOauthCompleted(false);
