@@ -150,13 +150,13 @@ export const TrendShareCard: React.FC<TrendShareCardProps> = ({
         >
           <span>You were</span>
           <span
-            style={{ color: "#FF5678", margin: "0 6px", fontWeight: "bold" }}
+            style={{ color: "#FF345D", margin: "0 6px", fontWeight: "bold" }}
           >
             #{discoveryRank}
           </span>
           <span>to discover out of</span>
           <span
-            style={{ color: "#FF5678", margin: "0 6px", fontWeight: "bold" }}
+            style={{ color: "#FF345D", margin: "0 6px", fontWeight: "bold" }}
           >
             {totalDiscovery}
           </span>

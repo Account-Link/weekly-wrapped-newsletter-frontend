@@ -127,7 +127,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           return (
             <span
               key={`discovery-${index}`}
-              className="text-brand text-[24px] font-bold mobile:text-[16px]"
+              className="text-trend text-[24px] font-bold mobile:text-[16px]"
             >
               {part}
             </span>
@@ -231,6 +231,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           brand: "#FF5678",
           bgDark: "#313131",
           bgWhite: "#E4E4E4",
+          trend: "#FF345D",
         },
         screens: {
           mobile: { max: "480px" },
@@ -254,9 +255,9 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           src={getImgUrl(imgSrc)}
           width="150"
           height="150"
-          className="w-[150px] mobile:w-[100px] h-[150px] mobile:h-[100px] rounded-full border-[1px] border-[#ffffff4d] mb-[10px]"
+          className="w-[150px] mobile:w-[100px] h-[150px] mobile:h-[100px] rounded-full border-[1px] border-[#ffffff4d]"
         />
-        <Text className="text-[16px] text-white font-bold mobile:text-[12px]">
+        <Text className="text-[16px] mb-[0px] mt-[16px] text-white font-bold mobile:text-[12px] mobile:mt-[8px]">
           {content.label}
         </Text>
       </Column>
@@ -294,7 +295,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
           >
             {/* OPENING SECTION */}
             <Section
-              className="pt-[30px] pb-[60px] px-5 text-center text-white box-border"
+              className="pt-[60px] pb-[90px] mobile:pt-[40px] mobile:pb-[60px] text-center text-white box-border"
               style={{
                 backgroundImage: `url(${getImgUrl(SplitBg.src)})`,
                 backgroundSize: "1080px 194px",
@@ -305,13 +306,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               <Img
                 width="520"
                 height="200"
-                className="mx-auto mb-[38px] w-[520px] h-[200px] mobile:w-[330px] mobile:h-[127px]"
+                className="mx-auto w-[520px] h-[200px] mobile:w-[330px] mobile:h-[127px]"
                 src={getImgUrl(
                   (catIconByState[data.feedlingState] || CatCuriousGif).src,
                 )}
                 alt="Opening Cat Icon"
               />
-              <Text className="text-[30px] w-[480px] mx-auto font-bold leading-[40px] mb-[0px] mobile:text-[24px] mobile:leading-[32px] mobile:w-[330px]">
+              <Text className="text-[30px] leading-[40px] my-[24px] w-[480px] mx-auto font-bold mobile:text-[24px] mobile:leading-[32px] mobile:w-[330px]">
                 {openingPrefix}
                 {openingHighlight ? (
                   <span
@@ -323,13 +324,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 ) : null}
                 {openingSuffix}
               </Text>
-              <Text className="text-[18px] text-white mb-10 mobile:text-[16px]">
+              <Text className="text-[18px] my-[0px] text-white mobile:text-[16px] leading-none">
                 {data.opening.dateRange}
               </Text>
             </Section>
 
             {/* TREND SECTION */}
-            <Section className="h-[570px] w-full text-center  text-black py-[40px] box-border bg-bgWhite">
+            <Section className="w-full text-center  text-black pt-[20px] pb-[60px] mobile:pt-[15px] mobile:pb-[30px] box-border bg-bgWhite">
               <Section
                 className="mx-auto mb-[0px] w-[126px] h-[113px] align-middle"
                 style={{
@@ -349,7 +350,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               <Text className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px]  text-black mobile:text-[24px] mobile:leading-[40px]">
                 {data.trend.topic}
               </Text>
-              <Text className="text-[18px] text-brand mt-[0px] font-bold mobile:text-[16px]">
+              <Text className="text-[18px] text-trend mt-[0px] font-bold mobile:text-[16px]">
                 {data.trend.statusText}
               </Text>
               <Text
@@ -411,7 +412,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
             </Section>
 
             {/* DIAGNOSIS SECTION */}
-            <Section className="w-[520px] mx-auto py-[40px] text-white text-center mobile:w-[330px] mobile:px-20 box-border">
+            <Section className="w-[520px] mx-auto pt-[56px] pb-[60px] mobile:pt-[45px] text-white text-center mobile:w-[330px] mobile:px-20 box-border">
               <Img
                 src={getImgUrl(StatsIcon.src)}
                 alt="Topic Sticker"
@@ -451,7 +452,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Column>
               </Row>
 
-              <Text className="text-[18px] mb-[30px] leading-[32px] font-bold mobile:text-[16px]">
+              <Text className="text-[18px] mt-[0px] mb-[30px] leading-[32px] font-bold mobile:text-[16px]">
                 {data.diagnosis.comparisonDiff && (
                   <span className="text-[24px] text-brand mobile:text-[22px]">
                     {data.diagnosis.comparisonDiff}{" "}
@@ -479,7 +480,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 ) : null}
               </Section>
 
-              <Text className="text-[20px] font-bold text-white leading-none mt-[40px] mb-[30px] mobile:text-[16px]">
+              <Text className="text-[20px] font-bold text-white leading-none mt-[50px] mb-[30px] mobile:text-[16px]">
                 • New contents you got into •
               </Text>
               {contentCount > 0 ? (
@@ -515,16 +516,16 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
               {rabbitHoleCount > 0 ? (
                 <>
-                  <Text className="text-[20px] font-bold text-white my-[30px] mb-[30px] mobile:text-[16px]">
+                  <Text className="text-[20px] font-bold text-white mt-[56px] mb-[30px] mobile:text-[16px]">
                     • Deepest rabbit hole •
                   </Text>
                   <Section className="text-left mb-[60px]">
                     <Row>
                       <Column style={{ width: "60%" }}>
-                        <Text className="text-[18px] text-brand font-bold mb-[16px] mobile:text-[16px]">
+                        <Text className="text-[18px] text-brand font-bold mt-[0px] mb-[16px] mobile:text-[16px]">
                           {data.rabbitHole.timeLabel}
                         </Text>
-                        <Text className="text-[30px] font-bold text-white leading-[40px] mobile:text-[24px] mobile-leading-[36px]">
+                        <Text className="text-[30px] font-bold mb-[0px] text-white leading-[40px] mobile:text-[24px] mobile-leading-[36px]">
                           {data.rabbitHole.description}
                         </Text>
                       </Column>
@@ -557,7 +558,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 <Text className="text-[30px] leading-[40px] font-bold mt-[0px] mb-[60px] text-center mobile:text-[24px] mobile-leading-[36px]">
                   {data.weeklyNudge.title}
                 </Text>
-                <Text className="text-[18px] text-center mobile:text-[16px] mobile-leading-[24px] text-black">
+                <Text className="text-[18px] leading-none mt-[0px] text-center mobile:text-[16px] text-black">
                   {data.weeklyNudge.message}
                 </Text>
                 <EmailButton
@@ -571,25 +572,25 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
             {/* FOOTER */}
             <Section
-              className="w-full text-center pb-[160px] box-border"
+              className="w-full text-center pb-[60px] box-border"
               style={{
                 backgroundImage: `url(${getImgUrl(BottomBg.src)})`,
-                backgroundSize: "1080px 258px",
+                backgroundSize: "1080px 167px",
                 backgroundPosition: "bottom center",
                 backgroundRepeat: "no-repeat",
               }}
             >
-              <Section className="w-[520px] mx-auto py-[40px] text-center text-white mobile:w-[330px]">
+              <Section className="w-[520px] mx-auto py-[60px] text-center text-white mobile:w-[330px]">
                 <Img
                   src={getImgUrl(FeedlingIcon.src)}
                   width="120"
                   height="120"
-                  className="rounded-[10px] mb-[10px] mx-auto"
+                  className="rounded-[10px] mx-auto"
                 />
-                <Text className="text-[30px] font-bold mb-[30px] mobile:text-[24px]">
+                <Text className="text-[30px] leading-none font-bold mt-[60px] mb-[30px] mobile:text-[24px]">
                   Who’s Feedling?
                 </Text>
-                <Text className="text-[14px] leading-[20px] text-white mb-[60px] mx-auto">
+                <Text className="text-[14px] my-[0px] leading-[20px] text-white mb-[60px] mx-auto">
                   Feedling is an app that turns your TikTok habits into a
                   virtual pet you grow and nurture with your scrolling.
                   We&apos;re launching soon!!
@@ -602,23 +603,23 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 />
                 <Section className="text-white/70 text-center text-[14px] leading-[20px] mt-[30px]">
                   <Link
-                    className="text-white/70 mr-[4px]"
+                    className="text-white/70 mr-[2px] leading-none"
                     href={unsubscribeTrackingUrl}
-                    style={{ textDecoration: "underline", color: "#ffffffb3" }}
+                    style={{ color: "#ffffffb3" }}
                   >
                     Unsubscribe
                   </Link>
-                  <Text className="inline-block m-[0px] mx-[8px] text-white/70">
-                    |
+                  <Text className="inline-block m-[0px] leading-none text-white/70">
+                    ·
                   </Text>
                   <Link
-                    className="text-white/70 ml-[4px]"
+                    className="text-white/70 ml-[2px] leading-none"
                     href="https://jjpi4asql2zl.jp.larksuite.com/wiki/Mt9VwGGZcimz1Skgqj2jsGa8pXe"
-                    style={{ textDecoration: "underline", color: "#ffffffb3" }}
+                    style={{ color: "#ffffffb3" }}
                   >
                     Privacy Policy
                   </Link>
-                  <Text className="text-white/70 text-[14px] text-center mobile:text-[12px] mt-[30px]">
+                  <Text className="text-white/70 text-[14px] leading-[20px] text-center mobile:text-[12px] mt-[30px] mb-[0px]">
                     @ Honey Badger Cooperation Labs, Inc.
                     <br />
                     123 Main St, San Francisco, CA 94102
