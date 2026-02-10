@@ -38,7 +38,11 @@ type Step = "landing" | "email" | "connect" | "loading" | "success";
 export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [step, setStep] = useState<Step>("landing");
   const [progress, setProgress] = useState(0);
-  const [email, setEmail] = useState("");
+  const [hasEmailSubmitted, setHasEmailSubmitted] = useState(false);
+  const [isRegisteringEmail, setIsRegisteringEmail] = useState(false);
+  const [loadingPhase, setLoadingPhase] = useState<
+    "preconnect" | "postoauth" | null
+  >(null);
   const { showToast } = useToast();
   const { shareInvite } = useShareInvite({
     title: "Who's the trendsetter?",
@@ -49,11 +53,15 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const startPollingRef = useRef<(jobId: string) => void>(() => {});
+  const stepRef = useRef<Step>("landing");
+  const loadingPhaseRef = useRef<"preconnect" | "postoauth" | null>(null);
 
   // Time Tracking Refs
   const landingClickTimeRef = useRef<number | null>(null);
   const loadingCompleteTimeRef = useRef<number | null>(null);
   const loadingStartTimeRef = useRef<number | null>(null);
+  const pendingOauthCompletedRef = useRef(false);
 
   const [tiktokToken, setTiktokToken] = useState<string | null>(null);
   const [appUserId, setAppUserId] = useState<string | null>(null);
@@ -113,25 +121,20 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     [uid],
   );
 
-  // Check if PC
-  useEffect(() => {
-    setIsPc(window.innerWidth >= 1024);
+  const startSession = useCallback(async (): Promise<string> => {
+    // 重要逻辑：start 失败时持续重试直到成功
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      try {
+        const { archive_job_id: newJobId } = await startTikTokLink();
+        setJobId(newJobId);
+        return newJobId;
+      } catch (error) {
+        console.error("Failed to start:", error);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    }
   }, []);
-
-  // Cleanup polling on unmount
-  useEffect(() => {
-    return () => {
-      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
-    trackEvent({ event: "referral_landing_view", uid });
-  }, [uid]);
-
-  useEffect(() => {
-    oauthCompletedRef.current = oauthCompleted;
-  }, [oauthCompleted]);
 
   // Track Funnel Steps
   useEffect(() => {
@@ -165,30 +168,32 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     }
   }, [step, redirectUrl, uid, trackOnce]);
 
-  const startAndPoll = async (currentEmail: string) => {
+  const startAndPoll = useCallback(async () => {
     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
 
     // Reset redirectUrl to show Preparing state if retrying
-    if (redirectUrl) {
-      setRedirectUrl(null);
-    }
+    setRedirectUrl((prev) => (prev ? null : prev));
 
-    try {
-      const { archive_job_id: newJobId } = await startTikTokLink();
-      setJobId(newJobId);
-      startPolling(newJobId, currentEmail);
-    } catch (error) {
-      console.error("Failed to start:", error);
-      // Retry after delay
-      setTimeout(() => startAndPoll(currentEmail), 2000);
-    }
-  };
+    const newJobId = await startSession();
+    startPollingRef.current(newJobId);
+  }, [startSession]);
 
-  const startPolling = (currentJobId: string, currentEmail: string) => {
-    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+  const resetToConnectAndRetry = useCallback(() => {
+    setOauthCompleted(false);
+    setLoadingPhase(null);
+    setRedirectUrl(null);
+    setShowQrModal(false);
+    stepRef.current = "connect";
+    loadingPhaseRef.current = null;
+    setStep("connect");
+    startAndPoll();
+  }, [startAndPoll]);
 
-    pollIntervalRef.current = setInterval(async () => {
-      try {
+  const startPolling = useCallback(
+    (currentJobId: string) => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+
+      const pollOnce = async () => {
         const statusRes = await pollTikTokRedirect(currentJobId);
         console.log("Poll status:", statusRes.status);
 
@@ -215,7 +220,12 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           });
           setOauthCompleted(true);
           setShowQrModal(false);
-          setStep("loading");
+          if (hasEmailSubmitted) {
+            setLoadingPhase("postoauth");
+            setStep("loading");
+          } else {
+            pendingOauthCompletedRef.current = true;
+          }
         }
 
         // 3. Error/Expired state: Auto Retry
@@ -239,18 +249,91 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           }
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
           setJobId(null);
-          startAndPoll(currentEmail);
+          if (
+            stepRef.current === "loading" &&
+            loadingPhaseRef.current === "postoauth"
+          ) {
+            // 重要逻辑：connect 后进度页失败/过期时提示并回退重试
+            showToast("Request timed out. Try again.");
+            resetToConnectAndRetry();
+            return;
+          }
+          startAndPoll();
         }
-      } catch (error) {
-        console.error("Polling error:", error);
+      };
 
-        // Error handling: Auto Retry
-        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-        setJobId(null);
-        startAndPoll(currentEmail);
-      }
-    }, 2000); // Poll every 2s
-  };
+      pollIntervalRef.current = setInterval(async () => {
+        try {
+          await pollOnce();
+        } catch (error) {
+          console.error("Polling error:", error);
+
+          // Error handling: Auto Retry
+          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+          setJobId(null);
+          if (
+            stepRef.current === "loading" &&
+            loadingPhaseRef.current === "postoauth"
+          ) {
+            // 重要逻辑：connect 后进度页请求失败时提示并回退重试
+            showToast("Request timed out. Try again.");
+            resetToConnectAndRetry();
+            return;
+          }
+          startAndPoll();
+        }
+      }, 2000); // Poll every 2s
+
+      void pollOnce();
+    },
+    [
+      hasEmailSubmitted,
+      loadingPhase,
+      resetToConnectAndRetry,
+      showToast,
+      startAndPoll,
+      step,
+      trackOnce,
+      uid,
+    ],
+  );
+
+  useEffect(() => {
+    startPollingRef.current = startPolling;
+  }, [startPolling]);
+
+  // Check if PC
+  useEffect(() => {
+    setIsPc(window.innerWidth >= 1024);
+  }, []);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    trackEvent({ event: "referral_landing_view", uid });
+  }, [uid]);
+
+  useEffect(() => {
+    oauthCompletedRef.current = oauthCompleted;
+  }, [oauthCompleted]);
+
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
+
+  useEffect(() => {
+    loadingPhaseRef.current = loadingPhase;
+  }, [loadingPhase]);
+
+  useEffect(() => {
+    // 重要逻辑：开局 start 后立即进入 polling
+    void startAndPoll();
+  }, [startAndPoll]);
 
   // Handle Loading Step
   useEffect(() => {
@@ -261,12 +344,13 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
         const startTime = loadingStartTimeRef.current;
         const elapsed = startTime ? Date.now() - startTime : 0;
         const completed = oauthCompletedRef.current;
-        // 重要逻辑：10 秒内平滑到 99/100，超过 10 秒未完成时停在 99
+        // 重要逻辑：loading 不同阶段的进度规则
+        const isPostOauth = loadingPhase === "postoauth";
         const ratio = Math.min(elapsed / 10000, 1);
-        const maxProgress = completed ? 100 : 99;
+        const maxProgress = isPostOauth && completed ? 100 : 99;
         const next = Math.floor(ratio * maxProgress);
         setProgress((prev) => (next > prev ? next : prev));
-        if (completed && elapsed >= 10000) {
+        if (isPostOauth && completed && elapsed >= 10000) {
           clearInterval(interval);
           setProgress(100);
           setStep("success");
@@ -274,7 +358,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
       }, 100);
       return () => clearInterval(interval);
     }
-  }, [step]);
+  }, [step, loadingPhase]);
 
   const handleFindOut = () => {
     // 埋点：点击 Find Out
@@ -293,7 +377,8 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     //   return;
     // }
 
-    setEmail(inputEmail);
+    if (isRegisteringEmail) return;
+    setIsRegisteringEmail(true);
     // 重要逻辑：注册邮箱成功后再进入连接流程
     try {
       await registerEmail(inputEmail);
@@ -315,10 +400,20 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
       console.error("Failed to register email:", error);
       showToast("Email registration failed. Please try again.");
       return;
+    } finally {
+      setIsRegisteringEmail(false);
     }
-    setOauthCompleted(false);
+    setHasEmailSubmitted(true);
+    if (pendingOauthCompletedRef.current) {
+      pendingOauthCompletedRef.current = false;
+      setLoadingPhase("postoauth");
+      setStep("loading");
+      return;
+    }
+    const ensuredJobId = jobId || (await startSession());
+    startPolling(ensuredJobId);
+    setLoadingPhase(null);
     setStep("connect");
-    startAndPoll(inputEmail);
   };
 
   const handleConnect = () => {
@@ -326,7 +421,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
     // Retry logic: If no job_id (cleared by error), restart session
     if (!jobId) {
-      startAndPoll(email);
+      startAndPoll();
       return;
     }
 
@@ -368,6 +463,9 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
     setOauthCompleted(false);
     setProgress(0);
+    stepRef.current = "loading";
+    loadingPhaseRef.current = "postoauth";
+    setLoadingPhase("postoauth");
     setStep("loading");
 
     if (isPc) {
@@ -388,8 +486,9 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
   const handleRetry = () => {
     setOauthCompleted(false);
+    setLoadingPhase(null);
     setStep("connect");
-    startAndPoll(email);
+    startAndPoll();
   };
 
   return (
@@ -407,6 +506,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
         {step === "email" && (
           <EmailStep
             onContinue={handleEmailContinue}
+            isSubmitting={isRegisteringEmail}
             onInvalid={(reason) => {
               trackEvent({
                 event: "referral_email_invalid",

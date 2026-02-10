@@ -7,11 +7,13 @@ import RocketIcon from "@/assets/figma/invite/rocket.png";
 type EmailStepProps = {
   onContinue: (email: string) => void;
   onInvalid?: (reason: "empty" | "format") => void;
+  isSubmitting?: boolean;
 };
 
 export const EmailStep: React.FC<EmailStepProps> = ({
   onContinue,
   onInvalid,
+  isSubmitting = false,
 }) => {
   const [email, setEmail] = useState("");
   const { showToast } = useToast();
@@ -22,6 +24,7 @@ export const EmailStep: React.FC<EmailStepProps> = ({
   };
 
   const handleContinue = () => {
+    if (isSubmitting) return;
     if (!email) {
       onInvalid?.("empty");
       showToast("Please enter your email");
@@ -74,9 +77,10 @@ export const EmailStep: React.FC<EmailStepProps> = ({
 
           <button
             onClick={handleContinue}
-            className="w-full h-[5.6rem] bg-white rounded-full flex items-center justify-center text-black font-bold text-[1.6rem] hover:bg-gray-100 transition-colors"
+            disabled={isSubmitting}
+            className={`w-full h-[5.6rem] bg-white rounded-full flex items-center justify-center text-black font-bold text-[1.6rem] transition-colors ${isSubmitting ? "opacity-60 cursor-not-allowed" : "hover:bg-gray-100"}`}
           >
-            Continue
+            {isSubmitting ? "Submitting..." : "Continue"}
           </button>
         </div>
       </div>
