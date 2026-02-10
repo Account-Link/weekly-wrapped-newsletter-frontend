@@ -57,7 +57,7 @@
 **自测步骤**
 1. 访问：
    ```
-   http://localhost:3000/api/redirect?uid=u_test&eid=e_test&type=redirect&action=invite_click&targetUrl=%2Finvite%3Fuid%3Du_test
+   http://localhost:3000/api/redirect?uid=u_test&eid=e_test&type=redirect&action=invite_click&targetUrl=%2Finvitation%3Fuid%3Du_test
    ```
 
 **期望结果**

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useToast } from "@/context/ToastContext";
-import RocketIcon from "@/assets/figma/invite/rocket.png";
+import RocketIcon from "@/assets/figma/invitation/rocket.png";
 
 type EmailStepProps = {
   onContinue: (email: string) => void;

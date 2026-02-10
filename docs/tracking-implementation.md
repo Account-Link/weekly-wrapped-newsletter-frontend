@@ -8,7 +8,7 @@ All tracking events are sent via our unified `trackEvent` (Server-side API) or `
 
 ### 1.1 Referral Flow (Invite + OAuth)
 
-**File:** `app/invite/InviteFlow.tsx`
+**File:** `app/invitation/InviteFlow.tsx`
 
 | Event                       | Trigger                | Deduplication Strategy       | Scope                                    |
 | --------------------------- | ---------------------- | ---------------------------- | ---------------------------------------- |

@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import YouAreInGif from "@/assets/figma/invite/you-are-in.gif";
+import YouAreInGif from "@/assets/figma/invitation/you-are-in.gif";
 
 type SuccessStepProps = {
   onInvite: () => void;

@@ -227,7 +227,7 @@ function buildWeeklyNudge(
   uid: string,
   baseUrl: string,
 ): WeeklyNudge {
-  let linkUrl = `${baseUrl}/invite/share?uid=${uid}`;
+  let linkUrl = `${baseUrl}/invitation/share?uid=${uid}`;
   if (report.periodStart) linkUrl += `&period_start=${report.periodStart}`;
   if (report.periodEnd) linkUrl += `&period_end=${report.periodEnd}`;
 

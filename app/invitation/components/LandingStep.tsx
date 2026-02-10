@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import FindOutGif from "@/assets/figma/invite/find-out.gif";
+import FindOutGif from "@/assets/figma/invitation/find-out.gif";
 
 type LandingStepProps = {
   trend: {

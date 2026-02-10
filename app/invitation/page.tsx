@@ -19,7 +19,7 @@ export async function generateMetadata({
     openGraph: {
       title: "FYP Scout - Your TikTok Wrapped",
       description: "Discover your TikTok persona and weekly insights!",
-      url: `${baseUrl}/invite?uid=${resolvedUid || ""}`,
+      url: `${baseUrl}/invitation?uid=${resolvedUid || ""}`,
       images: [
         {
           url: imageUrl,

@@ -188,10 +188,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
   const inviteTrackingUrl = getClickTrackingUrl({
     uid: data.uid,
     event: "invite_click",
-    targetUrl: `/invite/share?${paramsString}`,
+    targetUrl: `/invitation/share?${paramsString}`,
     params: {
       eid: emailId,
-      targetUrl: `/invite/share?${paramsString}`,
+      targetUrl: `/invitation/share?${paramsString}`,
       period_start: data.period_start,
       period_end: data.period_end,
     },
@@ -203,19 +203,6 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     params: {
       eid: emailId,
       targetUrl: `/unsubscribe?${paramsString}`,
-      period_start: data.period_start,
-      period_end: data.period_end,
-    },
-  });
-  const privacyPolicyTrackingUrl = getClickTrackingUrl({
-    uid: data.uid,
-    event: "click_privacy_policy",
-    targetUrl:
-      "https://jjpi4asql2zl.jp.larksuite.com/wiki/Mt9VwGGZcimz1Skgqj2jsGa8pXe",
-    params: {
-      eid: emailId,
-      targetUrl:
-        "https://jjpi4asql2zl.jp.larksuite.com/wiki/Mt9VwGGZcimz1Skgqj2jsGa8pXe",
       period_start: data.period_start,
       period_end: data.period_end,
     },

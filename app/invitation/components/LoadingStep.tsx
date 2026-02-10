@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import LoadingGif from "@/assets/figma/invite/loading.gif";
+import LoadingGif from "@/assets/figma/invitation/loading.gif";
 
 type LoadingStepProps = {
   progress: number;

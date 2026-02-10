@@ -4,7 +4,7 @@ import React, { Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useShareInvite } from "@/hooks/useShareInvite";
 import Image from "next/image";
-import monkeyPng from "@/assets/figma/invite/monkey.png";
+import monkeyPng from "@/assets/figma/invitation/monkey.png";
 
 export default function InviteSharePage() {
   // 重要逻辑：用 Suspense 包裹 useSearchParams，避免 CSR bailout 报错
@@ -33,7 +33,7 @@ function InviteShareContent() {
     if (periodStart) params.set("period_start", periodStart);
     if (periodEnd) params.set("period_end", periodEnd);
 
-    const inviteUrl = new URL("/invite", window.location.origin);
+    const inviteUrl = new URL("/invitation", window.location.origin);
     inviteUrl.search = params.toString();
     return inviteUrl.toString();
   }, [searchParams]);

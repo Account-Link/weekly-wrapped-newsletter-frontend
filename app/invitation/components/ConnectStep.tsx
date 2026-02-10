@@ -1,8 +1,8 @@
 import React from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import ConnectGif from "@/assets/figma/invite/connect.gif";
-import TiktokIcon from "@/assets/figma/invite/tiktok-icon.svg";
+import ConnectGif from "@/assets/figma/invitation/connect.gif";
+import TiktokIcon from "@/assets/figma/invitation/tiktok-icon.svg";
 
 type ConnectStepProps = {
   redirectUrl: string | null;
