@@ -1,3 +1,5 @@
+import { getAnalytics, logEvent, isSupported } from "firebase/analytics";
+import { getFirebaseApp } from "@/lib/firebase-client";
 import { TrackEventPayload } from "./types";
 
 /**
@@ -78,6 +80,7 @@ export const trackEvent = async (payload: TrackEventPayload) => {
   // 重要逻辑：所有非默认字段由调用方放入 params，客户端仅透传与自动采集默认参数
   const params = payload.params || {};
 
+  // 1. 发送给后端 Firestore (原有逻辑)
   const body = {
     event,
     uid: payload.uid,
@@ -89,25 +92,42 @@ export const trackEvent = async (payload: TrackEventPayload) => {
     params: Object.keys(params).length ? params : undefined,
   };
 
-  try {
-    const res = await fetch("/api/track", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-      keepalive: true,
-    });
+  const fetchPromise = fetch("/api/track", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+    keepalive: true,
+  }).catch((err) => {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Tracking failed:", err);
+    }
+  });
 
-    if (!res.ok) {
+  // 2. 发送给 Google Analytics (新增逻辑)
+  // 重要逻辑：仅在客户端环境执行
+  if (typeof window !== "undefined") {
+    try {
+      const app = getFirebaseApp();
+      if (app && (await isSupported())) {
+        const analytics = getAnalytics(app);
+        logEvent(analytics, event, {
+          ...params,
+          uid: payload.uid,
+          session_id,
+          // GA4 自动采集 page_location/title, 这里无需重复
+        });
+      }
+    } catch (err) {
+      // GA 上报失败不应阻塞主流程，静默失败即可
       if (process.env.NODE_ENV === "development") {
-        console.error("Tracking failed:", res.statusText);
+        console.warn("GA tracking failed:", err);
       }
     }
-  } catch (error) {
-    // Ensure tracking errors never block the main application flow
-    if (process.env.NODE_ENV === "development") {
-      console.error("Tracking error:", error);
-    }
   }
+
+  // 等待 fetch 完成 (可选，通常不需要 await fetch，因为它使用了 keepalive)
+  // 但为了兼容旧代码的 await 调用习惯，我们返回 fetchPromise
+  return fetchPromise;
 };
