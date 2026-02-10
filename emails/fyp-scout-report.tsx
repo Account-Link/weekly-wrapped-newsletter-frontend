@@ -251,12 +251,14 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     }
     return (
       <Column className="text-center w-[150px] mobile:w-[100px]" align="center">
-        <Img
-          src={getImgUrl(imgSrc)}
-          width="150"
-          height="150"
-          className="w-[150px] mobile:w-[100px] h-[150px] mobile:h-[100px] rounded-full border-[1px] border-[#ffffff4d]"
-        />
+        <Section className="w-[150px] mobile:w-[100px] h-[150px] mobile:h-[100px] rounded-full border-[1px] border-[#ffffff4d]">
+          <Img
+            src={getImgUrl(imgSrc)}
+            width="112"
+            height="112"
+            className="w-[112px] mobile:w-[75px] h-[112px] mobile:h-[75px] rounded-full mx-auto my-[19px] mobile:my-[12.5px]"
+          />
+        </Section>
         <Text className="text-[16px] mb-[0px] mt-[16px] text-white font-bold mobile:text-[12px] mobile:mt-[8px]">
           {content.label}
         </Text>

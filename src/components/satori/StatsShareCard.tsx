@@ -271,16 +271,18 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
                     display: "flex",
                     borderRadius: "9999px",
                     border: "1px solid rgba(255,255,254,0.3)",
-                    overflow: "hidden",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   {content.icon ? (
                     <img
                       src={content.icon}
                       style={{
-                        width: "100%",
-                        height: "100%",
+                        width: "75%",
+                        height: "75%",
                         objectFit: "contain",
+                        borderRadius: "9999px",
                       }}
                       alt={content.label}
                     />
