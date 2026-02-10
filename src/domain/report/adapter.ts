@@ -192,10 +192,13 @@ function buildDiagnosis(report: WeeklyReportData): WeeklyDiagnosis {
 
 // 方法功能：构建本周新内容模块数据
 function buildNewContents(report: WeeklyReportData): WeeklyNewContent[] {
-  return report.newTopics.slice(0, 3).map((topicItem) => ({
-    label: topicItem.topic,
-    stickerUrl: topicItem.picUrl || "",
-  }));
+  return (report.newTopics || [])
+    .filter((topicItem) => topicItem.picUrl) // 重要逻辑：过滤掉图片 URL 为空的项
+    .slice(0, 3)
+    .map((topicItem) => ({
+      label: topicItem.topic,
+      stickerUrl: topicItem.picUrl || "",
+    }));
 }
 
 // 方法功能：构建 rabbit hole 模块数据
