@@ -142,11 +142,7 @@ function buildTrend(report: WeeklyReportData): WeeklyTrend {
     startPercent: `${report.trend.penetrationStart}%`,
     endTag: report.trend.endText || "Everywhere",
     endPercent: `${report.trend.penetrationEnd}%`,
-    trendProgress: calculateTrendProgress(
-      report.trend.penetrationStart,
-      report.trend.penetrationEnd,
-      report.trend.currentReach,
-    ),
+    trendProgress: report.trend.currentReach ?? 0,
     type: report.trend.type,
     ctaLabel: "Share My Week",
   };
@@ -295,18 +291,4 @@ function formatTotalTimeDisplay(totalMinutes: number) {
     totalTimeValue: `${hours.toLocaleString()} h ${minutes}`,
     totalTimeUnit: "min",
   };
-}
-
-// 方法功能：计算趋势进度百分比
-function calculateTrendProgress(
-  start: number,
-  end: number,
-  current?: number,
-): number {
-  // 重要逻辑：确保范围合法并限制在 0-100
-  if (current === undefined || current === null) return 0;
-  const range = end - start;
-  if (range <= 0) return 0;
-  const raw = ((current - start) / range) * 100;
-  return Math.max(0, Math.min(100, Math.round(raw)));
 }

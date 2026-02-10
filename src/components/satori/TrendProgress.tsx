@@ -19,7 +19,7 @@ export const TrendProgress: React.FC<TrendProgressProps> = ({
   fireIconData,
   width,
 }) => {
-  // 重要逻辑：保证渲染安全值，避免样式异常
+  // 重要逻辑：直接使用 progress 作为当前进度百分比
   const safeProgress = clampPercent(progress);
 
   return (

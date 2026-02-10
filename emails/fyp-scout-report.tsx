@@ -336,14 +336,14 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   className="mx-auto align-middle"
                 />
               </Section>
-              <Text className="text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px]  text-black mobile:text-[24px] mobile:leading-[40px]">
+              <Text className="w-[520px] mobile:w-[330px] mx-auto text-[30px] leading-[36px] font-bold mt-[0px] mb-[0px]  text-black mobile:text-[24px] mobile:leading-[40px]">
                 {data.trend.topic}
               </Text>
-              <Text className="text-[18px] text-trend mt-[0px] font-bold mobile:text-[16px]">
+              <Text className="w-[520px] mobile:w-[330px] mx-auto text-[18px] text-trend mt-[0px] font-bold mobile:text-[16px]">
                 {data.trend.statusText}
               </Text>
               <Text
-                className="text-[18px] font-bold mb-[10px] text-black mobile:text-[16px] "
+                className="w-[520px] mobile:w-[330px] mx-auto text-[18px] font-bold mb-[10px] text-black mobile:text-[16px] "
                 style={{ color: "#111" }}
               >
                 {data.trend.rank !== null
