@@ -251,7 +251,9 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
             style={{
               display: "flex",
               width: "330px",
-              justifyContent: "space-between",
+              justifyContent:
+                contents.length === 2 ? "center" : "space-between",
+              gap: contents.length === 2 ? "35px" : 0,
             }}
           >
             {contents.map((content, idx) => (
@@ -262,6 +264,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
                   flexDirection: "column",
                   alignItems: "center",
                   gap: 6,
+                  justifyContent: "flex-start",
                 }}
               >
                 <div

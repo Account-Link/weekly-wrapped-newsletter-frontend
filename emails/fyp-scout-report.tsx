@@ -237,7 +237,11 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
       imgSrc = (contentStickers[index] || ContentSticker1).src;
     }
     return (
-      <Column className="text-center w-[150px] mobile:w-[100px]" align="center">
+      <Column
+        className="text-center w-[150px] mobile:w-[100px]"
+        align="center"
+        valign="top"
+      >
         <Section className="w-[150px] mobile:w-[100px] h-[150px] mobile:h-[100px] rounded-full border-[1px] border-[#ffffff4d]">
           <Img
             src={getImgUrl(imgSrc)}
@@ -486,9 +490,11 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                   ) : null}
                   {contentCount === 2 ? (
                     <>
+                      <Column className="w-[35px] mobile:w-[15px]"></Column>
                       {renderNewContent(newContents[0], 0)}
-                      <Column className="w-[220px] mobile:w-[130px]"></Column>
+                      <Column className="w-[35px] mobile:w-[15px]"></Column>
                       {renderNewContent(newContents[1], 1)}
+                      <Column className="w-[35px] mobile:w-[15px]"></Column>
                     </>
                   ) : null}
                   {contentCount === 3 ? (
