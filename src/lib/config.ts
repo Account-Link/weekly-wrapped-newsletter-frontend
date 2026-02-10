@@ -5,8 +5,8 @@
 
 export const getAppBaseUrl = () => {
   // 1. 显式配置的 Base URL (通常包含协议头，如 https://myapp.com)
-  if (process.env.EMAIL_ASSET_BASE_URL) {
-    return process.env.EMAIL_ASSET_BASE_URL.replace(/\/+$/, "");
+  if (process.env.WEB_URL) {
+    return process.env.WEB_URL;
   }
 
   // 2. Vercel 自动注入的 URL (不含协议头，如 myapp.vercel.app)
@@ -27,4 +27,3 @@ export const getAssetBaseUrl = () => {
 export const getTrackingBaseUrl = () => {
   return getAppBaseUrl();
 };
-
