@@ -8,7 +8,16 @@ const nextConfig = {
       type: "asset/resource"
     });
     return config;
-  }
+  },
+  async redirects() {
+    return [
+      {
+        source: "/invite",
+        destination: "/invitation",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
