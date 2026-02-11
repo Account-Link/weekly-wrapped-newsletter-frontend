@@ -55,25 +55,25 @@ export const ConnectStep: React.FC<ConnectStepProps> = ({
           </h2>
 
           <div className="relative z-[1]">
-            <div className="w-full flex flex-col gap-8 pb-[2.4rem]">
+            <div className="w-full flex flex-col gap-[0.8rem] pb-[2.4rem]">
               {/* Item 1 */}
-              <div className="flex items-center gap-3">
-                <div className="w-[12px] h-[12px] rounded-full bg-[#FF5678] shrink-0" />
-                <p className="text-[16px] leading-[1.2]">
+              <div className="flex items-center gap-[1.2rem]">
+                <div className="w-[1.2rem] h-[1.2rem] rounded-full bg-[#FF5678] shrink-0" />
+                <p className="text-[1.6rem] leading-[1.8rem]">
                   We can&apos;t post, DM, or touch your account
                 </p>
               </div>
               {/* Item 2 */}
-              <div className="flex items-center gap-3">
-                <div className="w-[12px] h-[12px] rounded-full bg-[#651AE9] shrink-0" />
-                <p className="text-[16px] leading-[1.2]">
+              <div className="flex items-center gap-[1.2rem]">
+                <div className="w-[1.2rem] h-[1.2rem] rounded-full bg-[#651AE9] shrink-0" />
+                <p className="text-[1.6rem] leading-[1.8rem]">
                   AI processes your history data, then deletes it — no trace
                 </p>
               </div>
               {/* Item 3 */}
-              <div className="flex items-center gap-3">
-                <div className="w-[12px] h-[12px] rounded-full bg-[#22C083] shrink-0" />
-                <p className="text-[16px] leading-[1.2]">
+              <div className="flex items-center gap-[1.2rem]">
+                <div className="w-[1.2rem] h-[1.2rem] rounded-full bg-[#22C083] shrink-0" />
+                <p className="text-[1.6rem] leading-[1.8rem]">
                   No human can see your data. Not even us
                 </p>
               </div>
@@ -82,8 +82,8 @@ export const ConnectStep: React.FC<ConnectStepProps> = ({
               onClick={onConnect}
               className={`w-[33.4rem] h-[5.6rem] bg-white rounded-full flex items-center justify-center gap-[0.8rem] text-black font-bold text-[1.6rem] transition-colors mt-auto hover:bg-gray-100`}
             >
-              <Image src={TiktokIcon} width={18} height={21} alt="TikTok" />
               Connect TikTok
+              <Image src={TiktokIcon} width={18} height={21} alt="TikTok" />
             </button>
           </div>
         </motion.div>

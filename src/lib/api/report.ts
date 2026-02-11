@@ -48,3 +48,12 @@ export async function resubscribe(
   });
   return response.data;
 }
+
+export async function disconnect(
+  uid: string,
+): Promise<{ success: boolean; message?: string }> {
+  const response = await reportClient.post("/weekly-report/disconnect", {
+    app_user_id: uid,
+  });
+  return response.data;
+}
