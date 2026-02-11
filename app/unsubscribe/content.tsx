@@ -358,7 +358,7 @@ export default function UnsubscribeClient() {
                 </div>
                 {/* Item 2 */}
                 <div className="flex items-center gap-[1.2rem]">
-                  <div className="w-[1.2rem] h-[1.2rem] rounded-full bg-[#651AE9] shrink-0" />
+                  <div className="w-[1.2rem] h-[1.2rem] rounded-full bg-[##22C083] shrink-0" />
                   <p className="text-[1.6rem] leading-[1.8rem]">
                     You&apos;ll need to reconnect to use our service again.
                   </p>
