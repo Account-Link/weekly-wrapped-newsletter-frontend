@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import TopicIcon from "@/assets/figma/unsubscribe/topic.png";
+import CatLandingGif from "@/assets/figma/unsubscribe/cat_landing.gif";
 import BannedIcon from "@/assets/figma/unsubscribe/banned.png";
 import CatIcon from "@/assets/figma/unsubscribe/cat.gif";
 import LockIcon from "@/assets/figma/unsubscribe/lock.png";
@@ -15,6 +15,7 @@ import { unsubscribe, resubscribe, disconnect } from "@/lib/api/report";
 import { useToast } from "@/context/ToastContext";
 import { trackEvent } from "@/lib/tracking";
 import ConnectGif from "@/assets/figma/invitation/connect.gif";
+import CatBgLanding from "@/assets/figma/unsubscribe/cat-bg_landing.png";
 
 type UnsubscribeState =
   | "confirm"
@@ -160,6 +161,14 @@ export default function UnsubscribeClient() {
     }
   };
 
+  const handleConnect = () => {
+    // 携带 uid 和 emailId 跳转到 invitation 路由
+    const params = new URLSearchParams();
+    if (uid) params.set("uid", uid);
+    if (emailId) params.set("eid", emailId);
+    window.location.href = `/invitation?${params.toString()}`;
+  };
+
   return (
     <AnimatePresence mode="wait">
       {state !== "confirm" && state !== "disconnecting" && (
@@ -193,11 +202,23 @@ export default function UnsubscribeClient() {
           }}
         >
           <div className="flex flex-col justify-end items-center h-full">
-            <Image
-              src={TopicIcon}
-              className="absolute z-[0] object-contain left-0 top-0 w-[50.9rem] h-auto"
-              alt=""
-            />
+            <div
+              className="absolute z-[0] object-contain left-0 w-[35.6rem] h-[50.5rem]"
+              style={{
+                backgroundImage: `url(${CatBgLanding.src})`,
+                backgroundSize: "contain",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                top: `calc(env(safe-area-inset-top) + 2rem)`,
+              }}
+            >
+              <Image
+                src={CatLandingGif}
+                className="w-[30rem] h-auto translate-y-[13rem] transform scale-x-[-1]"
+                alt="unsubscribe cat"
+              />
+            </div>
+
             <div className="w-full flex flex-col items-center text-center relative z-[1]">
               <h1 className="text-[2.8rem] leading-[3.4rem] font-bold mb-[4rem]">
                 Are you sure you want to{" "}
@@ -251,7 +272,7 @@ export default function UnsubscribeClient() {
           }}
         >
           <div className="h-full w-full flex flex-col justify-end items-center text-center px-[3.4rem]">
-            <div className="absolute w-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="absolute w-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pb-[3rem]">
               <div className="inline-block mb-[3rem] text-center">
                 <Image
                   src={BannedIcon}
@@ -263,12 +284,12 @@ export default function UnsubscribeClient() {
                 You&apos;ve been{" "}
                 <span className="text-[#FF4F7A]">unsubscribed</span>.
               </h1>
-              <p className="text-[1.6rem] leading-[2.2rem] text-white/70 mb-[3.2rem] whitespace-pre-line">
+              <p className="text-[1.6rem] leading-[2.2rem] text-white whitespace-pre-line">
                 You won&apos;t receive TikTok Weekly Scout Reports anymore.
               </p>
             </div>
-            <div className="w-full flex flex-col items-center justify-center mb-">
-              <p className="w-[33.4rem] text-[1.4rem] leading-[2.4rem] text-white/60 mb-[3.2rem] whitespace-pre-line">
+            <div className="w-full flex flex-col items-center justify-center">
+              <p className="w-[33.4rem] text-[1.4rem] leading-[2.4rem] text-white/60 mb-[1.2rem] whitespace-pre-line">
                 Change your mind?{" "}
                 <span
                   className="text-white underline"
@@ -304,18 +325,18 @@ export default function UnsubscribeClient() {
           }}
         >
           <div className="relative h-full w-full flex flex-col items-center text-center px-[3.4rem] py-[2rem]">
-            <div className="absolute w-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="absolute w-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pb-[3rem]">
               <div className="inline-block mb-[1rem] text-center">
                 <Image
                   src={CatIcon}
                   alt="Subscribed cat"
-                  className="w-[24rem] h-[24rem] object-contain"
+                  className="w-[14rem] h-[14rem] object-contain"
                 />
               </div>
               <h1 className="text-[2.8rem] font-bold mb-[1.6rem] leading-none text-[#FF4F7A]">
                 You&apos;re subscribed!
               </h1>
-              <p className="text-[1.6rem] leading-[2.2rem] text-white/70 mb-[3.2rem] whitespace-pre-line">
+              <p className="text-[1.6rem] leading-[2.2rem] text-white whitespace-pre-line">
                 Your next report arrives Monday.
               </p>
             </div>
@@ -336,7 +357,7 @@ export default function UnsubscribeClient() {
           }}
         >
           <div className="h-full w-full flex flex-col justify-end items-center text-center px-[3.4rem]">
-            <div className="absolute w-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="absolute w-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pb-[3rem]">
               <div className="inline-block mb-[1.6rem] text-center">
                 <Image
                   src={BannedTikTokIcon}
@@ -358,7 +379,7 @@ export default function UnsubscribeClient() {
                 </div>
                 {/* Item 2 */}
                 <div className="flex items-center gap-[1.2rem]">
-                  <div className="w-[1.2rem] h-[1.2rem] rounded-full bg-[##22C083] shrink-0" />
+                  <div className="w-[1.2rem] h-[1.2rem] rounded-full bg-[#22C083] shrink-0" />
                   <p className="text-[1.6rem] leading-[1.8rem]">
                     You&apos;ll need to reconnect to use our service again.
                   </p>
@@ -431,7 +452,13 @@ export default function UnsubscribeClient() {
             <div className="w-full flex flex-col items-center justify-center mb-">
               <p className="w-[33.4rem] text-[1.4rem] leading-[2.4rem] text-white/60 mb-[3.2rem] whitespace-pre-line">
                 Want to reconnect?
-                <span className="text-white underline"> Connect TikTok→</span>
+                <span
+                  className="text-white underline cursor-pointer"
+                  onClick={handleConnect}
+                >
+                  {" "}
+                  Connect TikTok→
+                </span>
               </p>
             </div>
           </div>
