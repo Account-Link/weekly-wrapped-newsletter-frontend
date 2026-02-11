@@ -14,6 +14,7 @@ import { useToast } from "@/context/ToastContext";
 import { useShareInvite } from "@/hooks/useShareInvite";
 // import { useUSCheck } from "@/hooks/useUSCheck";
 import { trackEvent } from "@/lib/tracking";
+import { checkIsPc } from "@/lib/utils/device";
 
 import { LandingStep } from "./components/LandingStep";
 import { EmailStep } from "./components/EmailStep";
@@ -304,7 +305,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
   // Check if PC
   useEffect(() => {
-    setIsPc(window.innerWidth >= 1024);
+    setIsPc(checkIsPc());
   }, []);
 
   // Cleanup polling on unmount
