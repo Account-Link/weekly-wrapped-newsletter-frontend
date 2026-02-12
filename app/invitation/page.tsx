@@ -1,6 +1,5 @@
 import React from "react";
 import type { Metadata } from "next";
-import { isAxiosError } from "axios";
 import { getAppBaseUrl } from "@/lib/config";
 import InviteFlow from "./InviteFlow";
 import {
@@ -14,16 +13,17 @@ export async function generateMetadata({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
-  const { uid } = await searchParams;
+  const { eid, uid: paramUid } = await searchParams;
   const baseUrl = getAppBaseUrl();
-  const resolvedUid = Array.isArray(uid) ? uid[0] : uid;
+  const resolvedEid = Array.isArray(eid) ? eid[0] : eid;
+  const resolvedUid = Array.isArray(paramUid) ? paramUid[0] : paramUid;
   const imageUrl = `${baseUrl}/images/og-image.png`;
 
   return {
     openGraph: {
       title: "Who's the trendsetter?",
       description: "I just got my TikTok trend rank. Your turn.",
-      url: `${baseUrl}/invitation?uid=${resolvedUid || ""}`,
+      url: `${baseUrl}/invitation?eid=${resolvedEid || ""}&uid=${resolvedUid || ""}`,
       images: [
         {
           url: imageUrl,
