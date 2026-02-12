@@ -7,6 +7,11 @@ const nextConfig = {
       test: /\.ttf$/,
       type: "asset/resource"
     });
+    // 重要逻辑：允许 .riv 二进制资源参与打包，用于 Rive 动画
+    config.module.rules.push({
+      test: /\.riv$/,
+      type: "asset/resource"
+    });
     return config;
   },
   async redirects() {
