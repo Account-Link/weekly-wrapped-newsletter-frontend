@@ -3,6 +3,7 @@
 import "./globals.css";
 import { ToastProvider } from "@/context/ToastContext";
 import VConsoleComponent from "@/components/debug/VConsole";
+import PerformanceReporter from "@/components/PerformanceReporter";
 import { getAppBaseUrl } from "@/lib/config";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
@@ -79,6 +80,7 @@ export default function RootLayout({
         <ToastProvider>
           {children}
           <VConsoleComponent />
+          <PerformanceReporter />
         </ToastProvider>
         <GoogleAnalytics
           gaId={process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || ""}
