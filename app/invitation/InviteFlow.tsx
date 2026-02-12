@@ -9,7 +9,6 @@ import {
   registerEmail,
   ApiRequestError,
 } from "@/lib/api/tiktok";
-import { FeedlingState } from "@/domain/report/types";
 import { useToast } from "@/context/ToastContext";
 import { useShareInvite } from "@/hooks/useShareInvite";
 // import { useUSCheck } from "@/hooks/useUSCheck";
@@ -30,7 +29,6 @@ type InviteFlowProps = {
       rank: number | null;
       totalDiscoverers: number;
     };
-    feedlingState: FeedlingState;
   };
 };
 
@@ -75,6 +73,8 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [showGeoModal, setShowGeoModal] = useState(false);
 
   const { trend } = data;
+  // 重要逻辑：无 uid 时使用默认文案展示，避免空数据体验
+  const hasUid = Boolean(uid);
   // const { checkUS } = useUSCheck();
 
   const trackOnce = useCallback(
@@ -502,7 +502,12 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     >
       <AnimatePresence mode="wait">
         {step === "landing" && (
-          <LandingStep trend={trend} onFindOut={handleFindOut} />
+          <LandingStep
+            trend={trend}
+            useDefaultCopy={!hasUid}
+            defaultTrendLabel="xxxx"
+            onFindOut={handleFindOut}
+          />
         )}
         {step === "email" && (
           <EmailStep

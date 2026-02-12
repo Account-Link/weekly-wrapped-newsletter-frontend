@@ -9,17 +9,23 @@ type LandingStepProps = {
     rank: number | null;
     totalDiscoverers: number;
   };
+  useDefaultCopy?: boolean;
+  defaultTrendLabel?: string;
   onFindOut: () => void;
 };
 
 export const LandingStep: React.FC<LandingStepProps> = ({
   trend,
+  useDefaultCopy = false,
+  defaultTrendLabel = "xxxx",
   onFindOut,
 }) => {
   const rankStr = trend.rank ? trend.rank.toLocaleString() : "N/A";
   const totalStr = trend.totalDiscoverers
     ? trend.totalDiscoverers.toLocaleString()
     : "N/A";
+  // 重要逻辑：无 uid 时使用默认文案与占位趋势名，后续可替换为接口结果
+  const trendLabel = useDefaultCopy ? defaultTrendLabel : trend.topic;
 
   return (
     <motion.div
@@ -36,7 +42,7 @@ export const LandingStep: React.FC<LandingStepProps> = ({
           {/* Trend Topic */}
           <div className="relative mt-[4.5rem] transform -rotate-6 z-[1]">
             <h2 className="text-[4rem] leading-[1.1] text-[#FF5678] drop-shadow-lg font-invite-title">
-              {trend.topic}
+              {trendLabel}
             </h2>
             <p className="text-[2.4rem] font-bold text-white mt-[1rem]">
               blew up this week
@@ -58,9 +64,20 @@ export const LandingStep: React.FC<LandingStepProps> = ({
         {/* Bottom Section */}
         <div className="w-full flex flex-col items-center relative z-[1]">
           <p className="text-[2.4rem] leading-[1.2] text-center text-white font-invite-title">
-            Your friend was <span className="text-[#FF5678]">{rankStr}</span> to
-            discover out of <span className="text-[#FF5678]">{totalStr}</span>{" "}
-            people. Were you earlier ?
+            {useDefaultCopy ? (
+              <>
+                Did your FYP{" "}
+                <span className="text-[#FF5678]">catch it early? </span> Find
+                out your trend rank.
+              </>
+            ) : (
+              <>
+                Your friend was{" "}
+                <span className="text-[#FF5678]">{rankStr}</span> to discover
+                out of <span className="text-[#FF5678]">{totalStr}</span>{" "}
+                people. Were you earlier ?
+              </>
+            )}
           </p>
 
           <button
