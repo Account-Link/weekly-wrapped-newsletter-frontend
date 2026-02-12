@@ -3,7 +3,11 @@ import type { Metadata } from "next";
 import { isAxiosError } from "axios";
 import { getAppBaseUrl } from "@/lib/config";
 import InviteFlow from "./InviteFlow";
-import { getWeeklyDataByReportId, getTrendTopHashtag } from "@/lib/api/report";
+import {
+  getWeeklyDataByReportId,
+  getTrendTopHashtag,
+  getWeeklyReport,
+} from "@/lib/api/report";
 
 export async function generateMetadata({
   searchParams,
@@ -43,14 +47,41 @@ export default async function InvitePage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const { eid } = await searchParams;
+  const { eid, uid: paramUid } = await searchParams;
   const resolvedEid = Array.isArray(eid) ? eid[0] : eid;
-  let uid;
-
+  const resolvedUid = Array.isArray(paramUid) ? paramUid[0] : paramUid;
+  let uid = "";
   let data;
-  if (!resolvedEid) {
+
+  try {
+    if (resolvedEid) {
+      const result = await getWeeklyDataByReportId(resolvedEid);
+      uid = result.app_user_id;
+      data = {
+        trend: {
+          topic: `”${result.trend_name || ""}”`,
+          rank: result.discovery_rank || 0,
+          totalDiscoverers: result.total_discoverers || 0,
+        },
+      };
+    } else if (resolvedUid) {
+      const result = await getWeeklyReport(resolvedUid);
+      uid = result.app_user_id;
+      data = {
+        trend: {
+          topic: `”${result.trend_name || ""}”`,
+          rank: result.discovery_rank || 0,
+          totalDiscoverers: result.total_discoverers || 0,
+        },
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching weekly data:", error);
+  }
+
+  if (!data) {
     // /weekly-report/trends/hashtag/top
-    const { hashtag_name } = await getTrendTopHashtag(resolvedEid);
+    const { hashtag_name } = await getTrendTopHashtag();
     uid = "";
     data = {
       trend: {
@@ -59,27 +90,6 @@ export default async function InvitePage({
         totalDiscoverers: 0,
       },
     };
-    return <InviteFlow uid={uid} data={data} />;
-  }
-
-  try {
-    const result = await getWeeklyDataByReportId(resolvedEid);
-    uid = result.app_user_id;
-    data = {
-      trend: {
-        topic: `”${result.trend_name || ""}”`,
-        rank: result.discovery_rank || 0,
-        totalDiscoverers: result.total_discoverers || 0,
-      },
-    };
-  } catch (error) {
-    console.error("Error fetching weekly data:", error);
-    const is404 = isAxiosError(error) && error.response?.status === 404;
-    return (
-      <div className="h-dvh w-[40.2rem] bg-[#313131] flex items-center justify-center text-white">
-        {is404 ? "Report not found" : "Failed to load report"}
-      </div>
-    );
   }
 
   return <InviteFlow uid={uid} data={data} />;
