@@ -223,12 +223,15 @@ function buildRabbitHole(
 // 方法功能：构建 nudge 模块数据
 function buildWeeklyNudge(
   report: WeeklyReportData,
-  uid: string,
   baseUrl: string,
 ): WeeklyNudge {
-  let linkUrl = `${baseUrl}/invitation/share?uid=${uid}`;
-  if (report.periodStart) linkUrl += `&period_start=${report.periodStart}`;
-  if (report.periodEnd) linkUrl += `&period_end=${report.periodEnd}`;
+  // 重要逻辑：邀请页仅携带 eid 参数，避免额外 URL 噪音
+  const emailId = report.id ? String(report.id) : "";
+  const params = new URLSearchParams();
+  if (emailId) params.set("eid", emailId);
+  const linkUrl = params.toString()
+    ? `${baseUrl}/invitation/share?${params.toString()}`
+    : `${baseUrl}/invitation/share`;
 
   return {
     title: report.nudge.text || "👍🏻 Weekly Nudge 👍🏻",
@@ -251,7 +254,7 @@ export function mapReportToWeeklyData(
   const diagnosis = buildDiagnosis(report);
   const newContents = buildNewContents(report);
   const rabbitHole = buildRabbitHole(report, assetBaseUrl);
-  const weeklyNudge = buildWeeklyNudge(report, uid, assetBaseUrl);
+  const weeklyNudge = buildWeeklyNudge(report, assetBaseUrl);
 
   return {
     id: report.id,

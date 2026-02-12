@@ -48,7 +48,6 @@ export default function UnsubscribeClient() {
   const [isDisconnectingRequest, setIsDisconnectingRequest] = useState(false);
   const { showToast } = useToast();
   const uid = searchParams.get("uid") ?? "";
-  const emailId = searchParams.get("eid") || searchParams.get("email_id") || "";
 
   const [state, setState] = useState<UnsubscribeState>(() =>
     resolveState(searchParams.get("state")),
@@ -105,9 +104,8 @@ export default function UnsubscribeClient() {
     trackEvent({
       event: "unsubscribe_page_view",
       uid,
-      params: { eid: emailId },
     });
-  }, [uid, emailId]);
+  }, [uid]);
 
   const handleUnsubscribe = async () => {
     if (!uid) {
@@ -122,7 +120,6 @@ export default function UnsubscribeClient() {
       trackEvent({
         event: "unsubscribe_confirm",
         uid,
-        params: { eid: emailId },
       });
       const now = new Date();
       const pad = (n: number) => n.toString().padStart(2, "0");
@@ -157,7 +154,6 @@ export default function UnsubscribeClient() {
     trackEvent({
       event: "resubscribe",
       uid,
-      params: { eid: emailId },
     });
 
     try {
@@ -186,7 +182,6 @@ export default function UnsubscribeClient() {
     trackEvent({
       event: "disconnect_tiktok",
       uid,
-      params: { eid: emailId },
     });
 
     try {
@@ -267,9 +262,7 @@ export default function UnsubscribeClient() {
                       trackEvent({
                         event: "unsubscribe_cancel",
                         uid,
-                        params: { eid: emailId },
                       });
-                      hasTrackedCancel.current = true;
                     }
                     setState("subscribed");
                   }}

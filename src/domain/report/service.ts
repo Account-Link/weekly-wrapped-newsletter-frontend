@@ -9,6 +9,7 @@
 import { getWeeklyData as fetchWeeklyReport } from "@/lib/api/report";
 import type { WeeklyData } from "@/domain/report/types";
 import { createLogger } from "@/lib/logger";
+import { mockReports } from "@/domain/report/mock";
 
 const logger = createLogger("Domain/ReportService");
 
@@ -32,8 +33,41 @@ export async function getWeeklyData(
   period_end?: string,
 ): Promise<WeeklyData> {
   return logger.measure(`getWeeklyData(uid=${uid})`, async () => {
-    logger.info("Fetching raw report from API...");
-    const apiReport = await fetchWeeklyReport(uid, period_start, period_end);
+    let apiReport;
+
+    // Development Mock Logic
+    // Support direct state access: ?uid=curious
+    // Support variants: ?uid=mock-curious-norank
+    const isDev = process.env.NODE_ENV !== "production";
+    const isMockRequest = uid.startsWith("mock-") || uid in mockReports;
+
+    if (isDev && isMockRequest) {
+      logger.info(`Using mock data for uid=${uid}`);
+      let baseState = uid;
+      let variant = "";
+
+      if (uid.startsWith("mock-")) {
+        const parts = uid.replace("mock-", "").split("-");
+        baseState = parts[0];
+        variant = parts[1];
+      }
+
+      if (baseState in mockReports) {
+        apiReport = { ...mockReports[baseState] };
+        apiReport.app_user_id = uid; // Sync UID
+
+        // Apply variants
+        if (variant === "norank") {
+          apiReport.discovery_rank = null;
+        }
+      }
+    }
+
+    if (!apiReport) {
+      logger.info("Fetching raw report from API...");
+      apiReport = await fetchWeeklyReport(uid, period_start, period_end);
+    }
+
     logger.info(`API report fetched: ${JSON.stringify(apiReport)}`);
     logger.info("Adapting report data...");
     const { mapApiReportToWeeklyReportData, mapReportToWeeklyData } =

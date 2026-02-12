@@ -12,6 +12,8 @@ const reportClient = axios.create({
   baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
+    // 重要逻辑：所有后端接口统一携带固定 Authorization
+    Authorization: "Bearer 11ce3f87b326b0aa",
   },
 });
 
@@ -21,8 +23,6 @@ export async function getWeeklyData(
   periodEnd?: string,
 ): Promise<WeeklyReportApiResponse> {
   const params: Record<string, string> = {};
-  if (periodStart) params.period_start = periodStart;
-  if (periodEnd) params.period_end = periodEnd;
 
   const response = await reportClient.get<WeeklyReportApiResponse>(
     `/weekly-report/${uid}`,
@@ -55,5 +55,14 @@ export async function disconnect(
   const response = await reportClient.post("/weekly-report/disconnect", {
     app_user_id: uid,
   });
+  return response.data;
+}
+
+export async function getWeeklyDataByReportId(
+  report_id: string,
+): Promise<WeeklyReportApiResponse> {
+  const response = await reportClient.get<WeeklyReportApiResponse>(
+    `/weekly-report/id/${report_id}`,
+  );
   return response.data;
 }

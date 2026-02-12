@@ -33,6 +33,10 @@ export async function uploadPngToNewApi(buffer: Buffer, fileName: string) {
 
   const response = await fetch(`${uploadBaseUrl}/upload`, {
     method: "POST",
+    // 重要逻辑：所有后端接口统一携带固定 Authorization
+    headers: {
+      Authorization: "Bearer 11ce3f87b326b0aa",
+    },
     body: formData,
   });
 

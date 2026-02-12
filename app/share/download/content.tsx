@@ -13,10 +13,8 @@ export default function DownloadContent() {
   const url = searchParams.get("url");
   const filename = searchParams.get("filename") || "image.png";
   const type = searchParams.get("type") || "unknown";
-  const uid = searchParams.get("uid") || "anonymous";
-  const weekStart = searchParams.get("weekStart");
-  const periodStart = searchParams.get("period_start");
-  const periodEnd = searchParams.get("period_end");
+  const uid = "anonymous";
+  const emailId = searchParams.get("eid") || "unknown";
   const [isDownloading, setIsDownloading] = useState(false);
 
   // 重要逻辑：根据下载类型映射分享动作，保持统计口径一致
@@ -26,7 +24,6 @@ export default function DownloadContent() {
     }
     return "share_week" as const;
   };
-  const emailId = weekStart || "unknown";
   const shareAction = resolveShareAction(type);
   const resolveShareSavedEvent = (action: string) => {
     if (action === "share_week") return "share_week_saved";
@@ -95,8 +92,6 @@ export default function DownloadContent() {
         const apiUrl = new URL("/api/download", window.location.origin);
         apiUrl.searchParams.set("url", url);
         apiUrl.searchParams.set("filename", filename);
-        if (periodStart) apiUrl.searchParams.set("period_start", periodStart);
-        if (periodEnd) apiUrl.searchParams.set("period_end", periodEnd);
         link.href = apiUrl.toString();
       }
       link.download = filename;

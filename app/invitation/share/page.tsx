@@ -25,13 +25,8 @@ function InviteShareContent() {
   const buildInviteUrl = useCallback(() => {
     if (typeof window === "undefined") return "";
     const params = new URLSearchParams();
-    const uid = searchParams.get("uid");
-    const periodStart = searchParams.get("period_start");
-    const periodEnd = searchParams.get("period_end");
-
-    if (uid) params.set("uid", uid);
-    if (periodStart) params.set("period_start", periodStart);
-    if (periodEnd) params.set("period_end", periodEnd);
+    const eid = searchParams.get("eid");
+    if (eid) params.set("eid", eid);
 
     const inviteUrl = new URL("/invitation", window.location.origin);
     inviteUrl.search = params.toString();

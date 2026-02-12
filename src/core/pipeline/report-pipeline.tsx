@@ -160,14 +160,13 @@ async function attachShareAssetsAndLinks(
   await logger.measure("attachShareAssetsAndLinks", async () => {
     const { uploadTarget = "api", assetBaseUrl } = options;
 
-    // Common query params for all share links
+    // 重要逻辑：下载页仅保留 eid 参数，避免多余 URL 参数
+    const emailId = data.id ? String(data.id) : data.weekStart;
+    const downloadQueryParams = `eid=${encodeURIComponent(emailId)}`;
     const encodedUid = encodeURIComponent(data.uid);
-    const encodedWeekStart = encodeURIComponent(data.weekStart);
-    let baseQueryParams = `uid=${encodedUid}&weekStart=${encodedWeekStart}`;
-    if (data.period_start)
-      baseQueryParams += `&period_start=${encodeURIComponent(data.period_start)}`;
-    if (data.period_end)
-      baseQueryParams += `&period_end=${encodeURIComponent(data.period_end)}`;
+    const redirectQueryParams = `uid=${encodedUid}&eid=${encodeURIComponent(
+      emailId,
+    )}`;
 
     // Server-Side Generation (Legacy/Stable)
     // Renders images on server, uploads them, and embeds URLs.
@@ -188,22 +187,22 @@ async function attachShareAssetsAndLinks(
 
     data.trend.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
       trendCardUrl,
-    )}&filename=trend-card.png&type=trend_share_card&${baseQueryParams}&theme=dark`;
+    )}&filename=trend-card.png&type=trend_share_card&${downloadQueryParams}`;
     data.diagnosis.shareUrl = `${assetBaseUrl}/share/download?url=${encodeURIComponent(
       statsCardUrl,
-    )}&filename=stats-card.png&type=stats_share_card&${baseQueryParams}&theme=light`;
+    )}&filename=stats-card.png&type=stats_share_card&${downloadQueryParams}`;
 
     // Inject trackable redirect links for other actions
     if (data.weeklyNudge.linkUrl) {
       data.weeklyNudge.linkUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
         data.weeklyNudge.linkUrl,
-      )}&type=nudge_invite&${baseQueryParams}`;
+      )}&type=nudge_invite&${redirectQueryParams}`;
     }
 
     if (data.footer?.tiktokUrl) {
       data.footer.tiktokUrl = `${assetBaseUrl}/share/redirect?url=${encodeURIComponent(
         data.footer.tiktokUrl,
-      )}&type=footer_tiktok&${baseQueryParams}`;
+      )}&type=footer_tiktok&${redirectQueryParams}`;
     }
   });
 }

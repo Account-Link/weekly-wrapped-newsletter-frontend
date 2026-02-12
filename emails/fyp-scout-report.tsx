@@ -140,21 +140,14 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     openingCopy,
     highlightTarget,
   );
-  // 辅助函数：注入通用参数到目标 URL
-  const targetParams = new URLSearchParams();
-  targetParams.set("uid", data.uid);
-  if (data.period_start) targetParams.set("period_start", data.period_start);
-  if (data.period_end) targetParams.set("period_end", data.period_end);
-  const paramsString = targetParams.toString();
-
-  const appendParams = (url: string) => {
-    if (!url) return "";
-    const hasQuery = url.includes("?");
-    return `${url}${hasQuery ? "&" : "?"}${paramsString}`;
-  };
-
   // 重要逻辑：使用 weekStart 作为 emailId，保证同一封邮件的去重一致
   const emailId = data.id ? String(data.id) : data.weekStart;
+  const inviteParams = new URLSearchParams();
+  inviteParams.set("eid", emailId);
+  const inviteParamsString = inviteParams.toString();
+  const unsubscribeParams = new URLSearchParams();
+  unsubscribeParams.set("uid", data.uid);
+  const unsubscribeParamsString = unsubscribeParams.toString();
 
   // 重要逻辑：生成打开埋点像素 URL
   const trackingPixelUrl = getOpenPixelUrl(data.uid, emailId);
@@ -163,12 +156,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     ? getClickTrackingUrl({
         uid: data.uid,
         event: "share_week",
-        targetUrl: appendParams(data.trend.shareUrl),
+        targetUrl: data.trend.shareUrl,
         params: {
           eid: emailId,
-          targetUrl: appendParams(data.trend.shareUrl),
-          period_start: data.period_start,
-          period_end: data.period_end,
+          targetUrl: data.trend.shareUrl,
         },
       })
     : data.trend.shareUrl || "";
@@ -176,35 +167,28 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
     ? getClickTrackingUrl({
         uid: data.uid,
         event: "share_stats",
-        targetUrl: appendParams(data.diagnosis.shareUrl),
+        targetUrl: data.diagnosis.shareUrl,
         params: {
           eid: emailId,
-          targetUrl: appendParams(data.diagnosis.shareUrl),
-          period_start: data.period_start,
-          period_end: data.period_end,
+          targetUrl: data.diagnosis.shareUrl,
         },
       })
     : data.diagnosis.shareUrl || "";
   const inviteTrackingUrl = getClickTrackingUrl({
     uid: data.uid,
     event: "invite_click",
-    targetUrl: `/invitation/share?${paramsString}`,
+    targetUrl: `/invitation/share?${inviteParamsString}`,
     params: {
       eid: emailId,
-      targetUrl: `/invitation/share?${paramsString}`,
-      period_start: data.period_start,
-      period_end: data.period_end,
+      targetUrl: `/invitation/share?${inviteParamsString}`,
     },
   });
   const unsubscribeTrackingUrl = getClickTrackingUrl({
     uid: data.uid,
     event: "click_unsubscribe",
-    targetUrl: `/unsubscribe?${paramsString}`,
+    targetUrl: `/unsubscribe?${unsubscribeParamsString}`,
     params: {
-      eid: emailId,
-      targetUrl: `/unsubscribe?${paramsString}`,
-      period_start: data.period_start,
-      period_end: data.period_end,
+      targetUrl: `/unsubscribe?${unsubscribeParamsString}`,
     },
   });
   const tailwindConfig = {

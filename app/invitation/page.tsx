@@ -43,14 +43,11 @@ export default async function InvitePage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const { uid, period_start, period_end } = await searchParams;
-  const resolvedUid = Array.isArray(uid) ? uid[0] : uid;
+  const { eid } = await searchParams;
+  const resolvedEid = Array.isArray(eid) ? eid[0] : eid;
 
   let data;
-  const start = Array.isArray(period_start) ? period_start[0] : period_start;
-  const end = Array.isArray(period_end) ? period_end[0] : period_end;
-
-  if (!resolvedUid) {
+  if (!resolvedEid) {
     data = {
       trend: {
         topic: "xxxx",
@@ -62,7 +59,7 @@ export default async function InvitePage({
   }
 
   try {
-    data = await getWeeklyData(resolvedUid, start, end);
+    data = await getWeeklyData(resolvedEid);
   } catch (error) {
     console.error("Error fetching weekly data:", error);
     const is404 = isAxiosError(error) && error.response?.status === 404;
@@ -73,5 +70,5 @@ export default async function InvitePage({
     );
   }
 
-  return <InviteFlow uid={resolvedUid} data={data} />;
+  return <InviteFlow uid={resolvedEid} data={data} />;
 }
