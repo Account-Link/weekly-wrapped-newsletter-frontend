@@ -51,11 +51,10 @@ export default async function InvitePage({
   if (!resolvedEid) {
     // /weekly-report/trends/hashtag/top
     const { hashtag_name } = await getTrendTopHashtag(resolvedEid);
-    console.log("hashtag_name", hashtag_name);
     uid = "";
     data = {
       trend: {
-        topic: `”${hashtag_name}”`,
+        topic: `”${hashtag_name.replace(/^#/, "")}”`,
         rank: 0,
         totalDiscoverers: 0,
       },

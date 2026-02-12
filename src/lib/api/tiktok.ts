@@ -109,6 +109,8 @@ apiClient.interceptors.response.use(
         code = "email_duplicate";
       } else if (status === 410) {
         code = "job_expired";
+      } else if (status === 422) {
+        code = "validation_error";
       } else if (status === 429 || errorData.error === "queue_limit_reached") {
         code =
           errorData.error === "queue_limit_reached"
@@ -161,6 +163,7 @@ type ErrorCode =
   | "email_duplicate"
   | "invalid_email"
   | "user_not_found"
+  | "validation_error"
   | "unknown_error";
 
 type ApiError = {

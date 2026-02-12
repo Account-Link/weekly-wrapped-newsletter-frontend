@@ -388,12 +388,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
       });
     } catch (error) {
       if (error instanceof ApiRequestError) {
-        if (error.code === "email_duplicate") {
-          trackEvent({ event: "referral_email_duplicate", uid });
-          showToast("This email has already been used");
-          return;
-        }
-        if (error.code === "invalid_email") {
+        if (error.code === "validation_error") {
           showToast("Please enter a valid email address");
           return;
         }

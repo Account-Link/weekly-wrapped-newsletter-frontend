@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { trackEvent } from "@/lib/tracking";
 import { trackShareSaved } from "@/lib/client-analytics";
+import { useToast } from "@/context/ToastContext";
 
 // 方法功能：渲染分享下载页面内容
 export default function DownloadContent() {
@@ -16,6 +17,7 @@ export default function DownloadContent() {
   const uid = "anonymous";
   const emailId = searchParams.get("eid") || "unknown";
   const [isDownloading, setIsDownloading] = useState(false);
+  const { showToast } = useToast();
 
   // 重要逻辑：根据下载类型映射分享动作，保持统计口径一致
   const resolveShareAction = (value: string) => {
@@ -30,7 +32,6 @@ export default function DownloadContent() {
     if (action === "share_stats") return "share_stats_saved";
     return "share_saved";
   };
-
   useEffect(() => {
     // 重要逻辑：打开下载页即上报埋点
     if (!url) {
@@ -98,9 +99,9 @@ export default function DownloadContent() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (error) {
-      console.error("Download failed:", error);
-      alert("Download failed. Please try again or right-click to save.");
+    } catch {
+      // 下载失败，请重试或者长按保存
+      showToast("Download failed. Please try again or right-click to save.");
     } finally {
       setIsDownloading(false);
     }

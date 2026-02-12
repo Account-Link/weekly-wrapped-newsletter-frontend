@@ -13,7 +13,7 @@ import BannedTikTokIcon from "@/assets/figma/unsubscribe/banned-tiktok.png";
 import TiktokIcon from "@/assets/figma/invitation/tiktok-icon.svg";
 import BackIcon from "@/assets/figma/unsubscribe/back.svg";
 import { unsubscribe, resubscribe } from "@/lib/api/report";
-import { disconnectTikTokLink } from "@/lib/api/tiktok";
+import { ApiRequestError, disconnectTikTokLink } from "@/lib/api/tiktok";
 import { useToast } from "@/context/ToastContext";
 import { trackEvent } from "@/lib/tracking";
 import CatBgLanding from "@/assets/figma/unsubscribe/cat-bg_landing.png";
@@ -137,8 +137,18 @@ export default function UnsubscribeClient() {
         return;
       }
       setState("unsubscribed");
-    } catch {
-      showToast("Unsubscribe failed. Please try again.");
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        if (err.isNetworkError) {
+          showToast("Network error. Please check your connection.");
+        } else if (err.isServerError) {
+          showToast("Server is busy. Please try again.");
+        } else {
+          showToast("Unsubscribe failed. Please try again.");
+        }
+      } else {
+        showToast("Server is busy. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -164,8 +174,18 @@ export default function UnsubscribeClient() {
         return;
       }
       setState("subscribed");
-    } catch {
-      showToast("Re-subscribe failed. Please try again.");
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        if (err.isNetworkError) {
+          showToast("Network error. Please check your connection.");
+        } else if (err.isServerError) {
+          showToast("Server is busy. Please try again.");
+        } else {
+          showToast("Re-subscribe failed. Please try again.");
+        }
+      } else {
+        showToast("Server is busy. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -193,14 +213,22 @@ export default function UnsubscribeClient() {
       }
       // 重要逻辑：请求完成后再进入动画页
       setState("disconnecting");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Disconnect failed";
-      if (errorMessage === "user_not_found") {
-        showToast("User not found.");
-        return;
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        if (err.isNetworkError) {
+          showToast("Network error. Please check your connection.");
+        } else if (err.isServerError) {
+          showToast("Server is busy. Please try again.");
+        } else {
+          if (err.code === "user_not_found") {
+            showToast("User not found. Please try again.");
+            return;
+          }
+          showToast(err.message || "Disconnect failed. Please try again.");
+        }
+      } else {
+        showToast("Server is busy. Please try again.");
       }
-      showToast(errorMessage || "Disconnect failed. Please try again.");
     } finally {
       setIsDisconnectingRequest(false);
     }

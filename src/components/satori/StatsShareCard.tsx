@@ -147,7 +147,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
                 fontSize: 12,
                 lineHeight: 1,
                 fontWeight: 700,
-                marginTop: 8,
+                marginTop: 10,
               }}
             >
               Total Videos
@@ -184,7 +184,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
                 fontSize: 12,
                 lineHeight: 1,
                 fontWeight: 700,
-                marginTop: 8,
+                marginTop: 10,
               }}
             >
               Total Time
