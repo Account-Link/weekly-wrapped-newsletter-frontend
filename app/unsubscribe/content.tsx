@@ -13,6 +13,7 @@ import BannedTikTokIcon from "@/assets/figma/unsubscribe/banned-tiktok.png";
 import TiktokIcon from "@/assets/figma/invitation/tiktok-icon.svg";
 import BackIcon from "@/assets/figma/unsubscribe/back.svg";
 import { unsubscribe, resubscribe } from "@/lib/api/report";
+import { disconnectTikTokLink } from "@/lib/api/tiktok";
 import { useToast } from "@/context/ToastContext";
 import { trackEvent } from "@/lib/tracking";
 import CatBgLanding from "@/assets/figma/unsubscribe/cat-bg_landing.png";
@@ -185,10 +186,7 @@ export default function UnsubscribeClient() {
     });
 
     try {
-      // 重要逻辑：后端未接入前使用模拟 Promise，接入后替换为真实接口
-      const { success } = await new Promise<{ success: boolean }>((resolve) => {
-        setTimeout(() => resolve({ success: true }), 300);
-      });
+      const { success } = await disconnectTikTokLink(uid);
       if (!success) {
         showToast("Disconnect failed. Please try again.");
         return;
