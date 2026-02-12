@@ -214,27 +214,6 @@ export default function UnsubscribeClient() {
   return (
     <>
       <AnimatePresence mode="wait">
-        {state !== "confirm" && state !== "disconnecting" && (
-          <motion.div
-            key="back"
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 0.6, x: 0 }}
-            exit={{ opacity: 0, x: 10 }}
-            transition={{ duration: 0.3 }}
-            className="absolute left-[3.4rem] cursor-pointer w-[6.2rem] h-[3.8rem] flex items-center justify-between z-[1] text-white text-[2rem] opacity-60"
-            style={{
-              top: `calc(env(safe-area-inset-top) + 2rem)`,
-            }}
-            onClick={() => setState("confirm")}
-          >
-            <Image
-              src={BackIcon}
-              alt="back"
-              className="w-[0.9rem] h-[1.6rem]"
-            />
-            Back
-          </motion.div>
-        )}
         {state === "confirm" && (
           <motion.div
             key="confirm"
@@ -497,7 +476,23 @@ export default function UnsubscribeClient() {
           </motion.div>
         )}
       </AnimatePresence>
-
+      {state !== "confirm" && state !== "disconnecting" && (
+        <motion.div
+          key="back"
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 0.6, x: 0 }}
+          exit={{ opacity: 0, x: 10 }}
+          transition={{ duration: 0.3 }}
+          className="absolute left-[3.4rem] cursor-pointer w-[6.2rem] h-[3.8rem] flex items-center justify-between z-[1] text-white text-[2rem] opacity-60"
+          style={{
+            top: `calc(env(safe-area-inset-top) + 2rem)`,
+          }}
+          onClick={() => setState("confirm")}
+        >
+          <Image src={BackIcon} alt="back" className="w-[0.9rem] h-[1.6rem]" />
+          Back
+        </motion.div>
+      )}
       {/* 重要逻辑：始终渲染 Rive 组件以确保 Canvas 初始化，通过 motion.div 控制显示，避免播放失败 */}
       <motion.div
         className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
