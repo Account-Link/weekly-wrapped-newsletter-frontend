@@ -6,10 +6,9 @@
  * Acts as an intermediary between the raw API layer and the presentation/email layer.
  * (处理获取和适配周报数据的业务逻辑。充当原始 API 层和展示/邮件层之间的中介。)
  */
-import { getWeeklyData as fetchWeeklyReport } from "@/lib/api/report";
+import { getWeeklyReport } from "@/lib/api/report";
 import type { WeeklyData } from "@/domain/report/types";
 import { createLogger } from "@/lib/logger";
-import { mockReports } from "@/domain/report/mock";
 
 const logger = createLogger("Domain/ReportService");
 
@@ -23,76 +22,42 @@ const logger = createLogger("Domain/ReportService");
  * 3. Maps the domain model to the `WeeklyData` structure required by the email template. (将领域模型映射为邮件模板所需的 `WeeklyData` 结构。)
  *
  * @param uid - The user ID to fetch the report for. (要获取报告的用户 ID。)
- * @param period_start - Optional start date for the report period. (可选的报告周期开始日期。)
- * @param period_end - Optional end date for the report period. (可选的报告周期结束日期。)
+ * @param global_report_id - Optional global report id for precise fetch. (可选的全局报告 ID。)
  * @returns A promise resolving to the fully populated `WeeklyData`. (解析为填充完整的 `WeeklyData` 的 Promise。)
  */
 export async function getWeeklyData(
   uid: string,
-  period_start?: string,
-  period_end?: string,
+  global_report_id?: string,
 ): Promise<WeeklyData> {
-  return logger.measure(`getWeeklyData(uid=${uid})`, async () => {
-    let apiReport;
+  return logger.measure(
+    `getWeeklyData(uid=${uid}, global_report_id=${global_report_id ?? "n/a"})`,
+    async () => {
+      let apiReport;
 
-    // Development Mock Logic
-    // Support direct state access: ?uid=curious
-    // Support variants: ?uid=mock-curious-norank
-    const isDev = process.env.NODE_ENV !== "production";
-    const isMockRequest = uid.startsWith("mock-") || uid in mockReports;
-
-    if (isDev && isMockRequest) {
-      logger.info(`Using mock data for uid=${uid}`);
-      let baseState = uid;
-      let variant = "";
-
-      if (uid.startsWith("mock-")) {
-        const parts = uid.replace("mock-", "").split("-");
-        baseState = parts[0];
-        variant = parts[1];
+      if (!apiReport) {
+        logger.info("Fetching raw report from API...");
+        // 重要逻辑：改用 global_report_id 作为查询条件，替代 period_start/period_end
+        apiReport = await getWeeklyReport(uid, global_report_id);
       }
 
-      if (baseState in mockReports) {
-        apiReport = { ...mockReports[baseState] };
-        apiReport.app_user_id = uid; // Sync UID
+      logger.info(`API report fetched: ${JSON.stringify(apiReport)}`);
+      logger.info("Adapting report data...");
+      const { mapApiReportToWeeklyReportData, mapReportToWeeklyData } =
+        await import("@/domain/report/adapter");
+      const { getAssetBaseUrl } = await import("@/lib/config");
 
-        // Apply variants
-        if (variant === "norank") {
-          apiReport.discovery_rank = null;
-        }
-      }
-    }
+      const report = mapApiReportToWeeklyReportData(apiReport);
+      const assetBaseUrl = getAssetBaseUrl();
 
-    if (!apiReport) {
-      logger.info("Fetching raw report from API...");
-      apiReport = await fetchWeeklyReport(uid, period_start, period_end);
-    }
+      const weeklyData = mapReportToWeeklyData(
+        apiReport.app_user_id || uid,
+        report,
+        {
+          assetBaseUrl,
+        },
+      );
 
-    logger.info(`API report fetched: ${JSON.stringify(apiReport)}`);
-    logger.info("Adapting report data...");
-    const { mapApiReportToWeeklyReportData, mapReportToWeeklyData } =
-      await import("@/domain/report/adapter");
-    const { getAssetBaseUrl } = await import("@/lib/config");
-
-    const report = mapApiReportToWeeklyReportData(apiReport);
-    const assetBaseUrl = getAssetBaseUrl();
-
-    const weeklyData = mapReportToWeeklyData(
-      apiReport.app_user_id || uid,
-      report,
-      {
-        assetBaseUrl,
-      },
-    );
-
-    // Inject period params if present (used for tracking/links)
-    if (period_start) {
-      weeklyData.period_start = period_start;
-    }
-    if (period_end) {
-      weeklyData.period_end = period_end;
-    }
-
-    return weeklyData;
-  });
+      return weeklyData;
+    },
+  );
 }

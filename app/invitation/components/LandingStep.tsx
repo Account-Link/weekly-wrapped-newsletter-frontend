@@ -17,16 +17,12 @@ type LandingStepProps = {
 export const LandingStep: React.FC<LandingStepProps> = ({
   trend,
   useDefaultCopy = false,
-  defaultTrendLabel = "xxxx",
   onFindOut,
 }) => {
   const rankStr = trend.rank ? trend.rank.toLocaleString() : "N/A";
   const totalStr = trend.totalDiscoverers
     ? trend.totalDiscoverers.toLocaleString()
     : "N/A";
-  // 重要逻辑：无 uid 时使用默认文案与占位趋势名，后续可替换为接口结果
-  const trendLabel = useDefaultCopy ? defaultTrendLabel : trend.topic;
-
   return (
     <motion.div
       key="step1"
@@ -42,7 +38,7 @@ export const LandingStep: React.FC<LandingStepProps> = ({
           {/* Trend Topic */}
           <div className="relative mt-[4.5rem] transform -rotate-6 z-[1]">
             <h2 className="text-[4rem] leading-[1.1] text-[#FF5678] drop-shadow-lg font-invite-title">
-              {trendLabel}
+              {trend.topic}
             </h2>
             <p className="text-[2.4rem] font-bold text-white mt-[1rem]">
               blew up this week

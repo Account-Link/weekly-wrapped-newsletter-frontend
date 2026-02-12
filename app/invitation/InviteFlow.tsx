@@ -505,7 +505,6 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           <LandingStep
             trend={trend}
             useDefaultCopy={!hasUid}
-            defaultTrendLabel="xxxx"
             onFindOut={handleFindOut}
           />
         )}

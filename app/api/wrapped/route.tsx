@@ -51,7 +51,6 @@ export async function GET(request: Request) {
     const caseKey = url.searchParams.get("case");
     const useMock = mockParam === "true" || Boolean(caseKey);
     const assetBaseUrl = getAssetBaseUrl();
-    const trackingBaseUrl = getTrackingBaseUrl();
     let weeklyData;
 
     if (useMock) {
@@ -120,7 +119,6 @@ export async function POST(request: Request) {
       `Received POST request. uid=${body.uid}, params=${JSON.stringify(body.params)}`,
     );
 
-    const enableUidFetch = process.env.WRAPPED_UID_FETCH_ENABLED === "true";
     const assetBaseUrl = getAssetBaseUrl();
 
     let weeklyData;
@@ -130,20 +128,6 @@ export async function POST(request: Request) {
         assetBaseUrl,
         uidOverride: body.uid,
       });
-    } else if (enableUidFetch) {
-      if (!body?.uid) {
-        return NextResponse.json({ error: "Missing uid" }, { status: 400 });
-      }
-
-      logger.info(`Fetching data from service for uid=${body.uid}`);
-
-      const { getWeeklyData } =
-        await import("../../../src/domain/report/service");
-
-      weeklyData = await getWeeklyData(body.uid);
-      logger.success(
-        `Data fetched successfully. weekStart=${weeklyData.weekStart}`,
-      );
     } else {
       return NextResponse.json(
         { error: "Missing params or UID fetch disabled" },

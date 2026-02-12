@@ -1,9 +1,9 @@
 import React from "react";
 import type { Metadata } from "next";
 import { isAxiosError } from "axios";
-import { getWeeklyData } from "@/domain/report/service";
 import { getAppBaseUrl } from "@/lib/config";
 import InviteFlow from "./InviteFlow";
+import { getWeeklyDataByReportId, getTrendTopHashtag } from "@/lib/api/report";
 
 export async function generateMetadata({
   searchParams,
@@ -45,21 +45,34 @@ export default async function InvitePage({
 }) {
   const { eid } = await searchParams;
   const resolvedEid = Array.isArray(eid) ? eid[0] : eid;
+  let uid;
 
   let data;
   if (!resolvedEid) {
+    // /weekly-report/trends/hashtag/top
+    const { hashtag_name } = await getTrendTopHashtag(resolvedEid);
+    console.log("hashtag_name", hashtag_name);
+    uid = "";
     data = {
       trend: {
-        topic: "xxxx",
-        rank: null,
+        topic: `”${hashtag_name}”`,
+        rank: 0,
         totalDiscoverers: 0,
       },
     };
-    return <InviteFlow uid="" data={data} />;
+    return <InviteFlow uid={uid} data={data} />;
   }
 
   try {
-    data = await getWeeklyData(resolvedEid);
+    const result = await getWeeklyDataByReportId(resolvedEid);
+    uid = result.app_user_id;
+    data = {
+      trend: {
+        topic: `”${result.trend_name || ""}”`,
+        rank: result.discovery_rank || 0,
+        totalDiscoverers: result.total_discoverers || 0,
+      },
+    };
   } catch (error) {
     console.error("Error fetching weekly data:", error);
     const is404 = isAxiosError(error) && error.response?.status === 404;
@@ -70,5 +83,5 @@ export default async function InvitePage({
     );
   }
 
-  return <InviteFlow uid={resolvedEid} data={data} />;
+  return <InviteFlow uid={uid} data={data} />;
 }

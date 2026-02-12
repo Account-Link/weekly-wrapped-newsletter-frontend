@@ -17,12 +17,13 @@ const reportClient = axios.create({
   },
 });
 
-export async function getWeeklyData(
+export async function getWeeklyReport(
   uid: string,
-  periodStart?: string,
-  periodEnd?: string,
+  globalReportId?: string,
 ): Promise<WeeklyReportApiResponse> {
   const params: Record<string, string> = {};
+  // 重要逻辑：使用 global_report_id 作为唯一查询条件，替代 period_start/period_end
+  if (globalReportId) params.global_report_id = globalReportId;
 
   const response = await reportClient.get<WeeklyReportApiResponse>(
     `/weekly-report/${uid}`,
@@ -63,6 +64,20 @@ export async function getWeeklyDataByReportId(
 ): Promise<WeeklyReportApiResponse> {
   const response = await reportClient.get<WeeklyReportApiResponse>(
     `/weekly-report/id/${report_id}`,
+  );
+  return response.data;
+}
+
+export async function getTrendTopHashtag(
+  globalReportId?: string,
+): Promise<{ hashtag_name: string }> {
+  const params: Record<string, string> = {};
+  // 重要逻辑：使用 global_report_id 作为唯一查询条件，替代 period_start/period_end
+  if (globalReportId) params.global_report_id = globalReportId;
+
+  const response = await reportClient.get<{ hashtag_name: string }>(
+    "/weekly-report/trends/hashtag/top",
+    { params },
   );
   return response.data;
 }
