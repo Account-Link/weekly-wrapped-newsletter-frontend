@@ -243,7 +243,7 @@ export async function registerEmail(email: string): Promise<ApiError> {
 
 export async function disconnectTikTokLink(
   appUserId: string,
-): Promise<{ success: boolean; message?: string }> {
+): Promise<{ result: string }> {
   const response = await apiClient.delete("/link/tiktok/disconnect", {
     params: { app_user_id: appUserId },
   });

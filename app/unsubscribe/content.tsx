@@ -193,12 +193,14 @@ export default function UnsubscribeClient() {
       }
       // 重要逻辑：请求完成后再进入动画页
       setState("disconnecting");
-    } catch (error: any) {
-      if (error.message === "user_not_found") {
-        showToast("User not found. Please try again.");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Disconnect failed";
+      if (errorMessage === "user_not_found") {
+        showToast("User not found.");
         return;
       }
-      showToast(error.message || "Disconnect failed. Please try again.");
+      showToast(errorMessage || "Disconnect failed. Please try again.");
     } finally {
       setIsDisconnectingRequest(false);
     }
