@@ -208,11 +208,7 @@ export default function UnsubscribeClient() {
   };
 
   const handleConnect = () => {
-    // 携带 uid 和 emailId 跳转到 invitation 路由
-    const params = new URLSearchParams();
-    if (uid) params.set("uid", uid);
-    if (emailId) params.set("eid", emailId);
-    window.location.href = `/invitation?${params.toString()}`;
+    window.location.href = `/invitation`;
   };
 
   return (
