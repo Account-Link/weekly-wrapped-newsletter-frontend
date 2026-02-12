@@ -217,7 +217,11 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
           // 埋点：连接成功
           trackOnce("referral_oauth_success", () => {
-            trackEvent({ event: "referral_oauth_success", uid });
+            trackEvent({
+              event: "referral_oauth_success",
+              uid,
+              params: { new_user_id: statusRes.app_user_id },
+            });
           });
           setOauthCompleted(true);
           setShowQrModal(false);
@@ -472,10 +476,18 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
   };
 
   const handleInvite = async () => {
-    const url = window.location.href;
+    let url = window.location.href;
+    const targetUid = appUserId || uid;
+
+    if (appUserId) {
+      const urlObj = new URL(url);
+      urlObj.searchParams.delete("eid");
+      urlObj.searchParams.set("uid", appUserId);
+      url = urlObj.toString();
+    }
 
     // 埋点：点击邀请/分享
-    trackEvent({ event: "referral_invite_click", uid });
+    trackEvent({ event: "referral_invite_click", uid: targetUid });
 
     await shareInvite(url);
   };
