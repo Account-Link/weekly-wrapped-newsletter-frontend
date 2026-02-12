@@ -127,12 +127,12 @@ apiClient.interceptors.response.use(
           expired: "job_expired",
           email_duplicate: "email_duplicate",
           invalid_email: "invalid_email",
+          user_not_found: "user_not_found",
         };
         if (errorCodeMap[errorData.error]) {
           code = errorCodeMap[errorData.error];
         }
       }
-
       const message =
         errorData.message || errorData.error || "Unknown error occurred";
 
@@ -160,6 +160,7 @@ type ErrorCode =
   | "auth_failed"
   | "email_duplicate"
   | "invalid_email"
+  | "user_not_found"
   | "unknown_error";
 
 type ApiError = {

@@ -186,15 +186,19 @@ export default function UnsubscribeClient() {
     });
 
     try {
-      const { success } = await disconnectTikTokLink(uid);
-      if (!success) {
+      const { result } = await disconnectTikTokLink(uid);
+      if (result !== "disconnected") {
         showToast("Disconnect failed. Please try again.");
         return;
       }
       // 重要逻辑：请求完成后再进入动画页
       setState("disconnecting");
-    } catch {
-      showToast("Disconnect failed. Please try again.");
+    } catch (error: any) {
+      if (error.message === "user_not_found") {
+        showToast("User not found. Please try again.");
+        return;
+      }
+      showToast(error.message || "Disconnect failed. Please try again.");
     } finally {
       setIsDisconnectingRequest(false);
     }
