@@ -458,7 +458,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 ) : null}
               </Section> */}
 
-              <Text className="text-[20px] font-bold text-white leading-none mt-[50px] mobile:text-[16px]">
+              <Text className="text-[20px] font-bold text-white leading-none mt-[50px] mb-[30px] mobile:text-[16px]">
                 • New Niches You Explored •
               </Text>
               {contentCount > 0 ? (
@@ -496,7 +496,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
 
               {rabbitHoleCount > 0 ? (
                 <>
-                  <Text className="text-[20px] font-bold text-white mt-[56px] mb-[30px] mobile:text-[16px]">
+                  <Text className="text-[20px] font-bold text-white mt-[56px] mobile:text-[16px]">
                     • Deepest rabbit hole •
                   </Text>
                   <Section className="text-left mb-[60px]">
