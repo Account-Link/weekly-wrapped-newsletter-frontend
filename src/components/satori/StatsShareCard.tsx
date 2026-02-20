@@ -245,7 +245,7 @@ export const StatsShareCard: React.FC<StatsShareCardProps> = ({
               marginBottom: 20,
             }}
           >
-            • New contents you got into •
+            • New Niches You Explored •
           </span>
           <div
             style={{

@@ -429,7 +429,8 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </Column>
               </Row>
 
-              <Text className="text-[18px] mt-[0px] mb-[30px] leading-[32px] font-bold mobile:text-[16px]">
+              {/* 暂时隐藏掉相关图表 */}
+              {/* <Text className="text-[18px] mt-[0px] mb-[30px] leading-[32px] font-bold mobile:text-[16px]">
                 {data.diagnosis.comparisonDiff && (
                   <span className="text-[24px] text-brand mobile:text-[22px]">
                     {data.diagnosis.comparisonDiff}{" "}
@@ -455,10 +456,10 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                     className="block w-[520px] mx-auto mobile:w-[330px]"
                   />
                 ) : null}
-              </Section>
+              </Section> */}
 
               <Text className="text-[20px] font-bold text-white leading-none mt-[50px] mb-[30px] mobile:text-[16px]">
-                • New contents you got into •
+                • New Niches You Explored •
               </Text>
               {contentCount > 0 ? (
                 <Row
@@ -520,12 +521,13 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </>
               ) : null}
 
-              <EmailButton
+              {/* 暂时隐藏 */}
+              {/* <EmailButton
                 href={statsShareTrackingUrl}
                 label={data.weeklyNudge.ctaLabel}
                 imageUrl={getImgUrl(BtnStats.src)}
                 height={61}
-              />
+              /> */}
             </Section>
 
             {/* NUDGE SECTION */}
