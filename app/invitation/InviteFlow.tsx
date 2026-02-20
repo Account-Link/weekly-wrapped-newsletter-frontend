@@ -396,6 +396,12 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           showToast("Please enter a valid email address");
           return;
         }
+        if (error.code === "email_duplicate") {
+          // 重要逻辑：重复邮箱需提示用户并记录埋点，方便定位转化瓶颈
+          showToast("This email is already registered");
+          trackEvent({ event: "referral_email_duplicate", uid });
+          return;
+        }
       }
       console.error("Failed to register email:", error);
       showToast("Email registration failed. Please try again.");
