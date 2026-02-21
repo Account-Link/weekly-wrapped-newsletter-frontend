@@ -56,24 +56,42 @@ export default async function InvitePage({
   try {
     if (resolvedEid) {
       const result = await getWeeklyDataByReportId(resolvedEid);
-      uid = result.app_user_id;
-      data = {
-        trend: {
-          topic: `”${result.trend_name || ""}”`,
-          rank: result.discovery_rank || 0,
-          totalDiscoverers: result.total_discoverers || 0,
-        },
-      };
+      if (
+        result.discovery_rank === null ||
+        result.discovery_rank === undefined ||
+        !result.discovery_rank
+      ) {
+        uid = "";
+        data = undefined;
+      } else {
+        uid = result.app_user_id;
+        data = {
+          trend: {
+            topic: `”${result.trend_name || ""}”`,
+            rank: result.discovery_rank,
+            totalDiscoverers: result.total_discoverers || 0,
+          },
+        };
+      }
     } else if (resolvedUid) {
       const result = await getWeeklyReport(resolvedUid);
-      uid = result.app_user_id;
-      data = {
-        trend: {
-          topic: `”${result.trend_name || ""}”`,
-          rank: result.discovery_rank || 0,
-          totalDiscoverers: result.total_discoverers || 0,
-        },
-      };
+      if (
+        result.discovery_rank === null ||
+        result.discovery_rank === undefined ||
+        !result.discovery_rank
+      ) {
+        uid = "";
+        data = undefined;
+      } else {
+        uid = result.app_user_id;
+        data = {
+          trend: {
+            topic: `”${result.trend_name || ""}”`,
+            rank: result.discovery_rank,
+            totalDiscoverers: result.total_discoverers || 0,
+          },
+        };
+      }
     }
   } catch (error) {
     console.error("Error fetching weekly data:", error);
