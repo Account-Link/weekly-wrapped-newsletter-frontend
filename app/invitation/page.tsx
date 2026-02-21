@@ -103,7 +103,7 @@ export default async function InvitePage({
     uid = "";
     data = {
       trend: {
-        topic: `”${hashtag_name.replace(/^#/, "")}”`,
+        topic: `”${hashtag_name}”`,
         rank: 0,
         totalDiscoverers: 0,
       },
