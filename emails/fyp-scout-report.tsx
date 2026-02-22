@@ -430,14 +430,14 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
               </Row>
 
               {/* 暂时隐藏掉相关图表 */}
-              {/* <Text className="text-[18px] mt-[0px] mb-[30px] leading-[32px] font-bold mobile:text-[16px]">
-                {data.diagnosis.comparisonDiff && (
+              <Text className="text-[18px] mt-[0px] mb-[30px] leading-[32px] font-bold mobile:text-[16px]">
+                {/* {data.diagnosis.comparisonDiff && (
                   <span className="text-[24px] text-brand mobile:text-[22px]">
                     {data.diagnosis.comparisonDiff}{" "}
                   </span>
                 )}
                 {data.diagnosis.comparisonText}
-                <br />
+                <br /> */}
                 <span>
                   Your thumb scrolled{" "}
                   <span className="text-[24px] text-brand mobile:text-[22px]">
@@ -447,7 +447,7 @@ export function FypScoutReportEmail({ data }: FypScoutReportEmailProps) {
                 </span>
               </Text>
 
-              <Section className="mx-auto mb-[40px] align-bottom">
+              {/* <Section className="mx-auto mb-[40px] align-bottom">
                 {data.diagnosis.barChartImageUrl ? (
                   <Img
                     src={data.diagnosis.barChartImageUrl}
