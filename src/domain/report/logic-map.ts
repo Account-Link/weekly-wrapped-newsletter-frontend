@@ -87,40 +87,117 @@ export function getScrolledDistanceText(feet: number): {
   const roundedFeet = Math.round(feet);
   const formattedFeet = `${roundedFeet.toLocaleString()} ft`;
 
-  if (roundedFeet < 600) {
-    return { valueText: formattedFeet, comment: "— a short hallway." };
-  }
-  if (roundedFeet < 800) {
+  if (roundedFeet <= 30) {
     return {
       valueText: formattedFeet,
-      comment: "— two Statues of Liberty stacked.",
+      comment: "— You barely scrolled - great job!",
     };
   }
-  if (roundedFeet < 1100) {
+  if (roundedFeet <= 50) {
     return {
       valueText: formattedFeet,
-      comment: "— three Statues of Liberty stacked.",
+      comment: "— About the length of a city bus.",
     };
   }
-  if (roundedFeet < 1500) {
+  if (roundedFeet <= 100) {
     return {
       valueText: formattedFeet,
-      comment: "— taller than the Eiffel Tower.",
+      comment: "— About the length of a blue whale.",
     };
   }
-  if (roundedFeet < 2000) {
+  if (roundedFeet <= 200) {
     return {
       valueText: formattedFeet,
-      comment: "— taller than Empire State Building.",
+      comment: "— Two blue whales laid end to end.",
     };
   }
-  if (roundedFeet < 3000) {
-    return { valueText: formattedFeet, comment: "— almost a kilometer." };
+  if (roundedFeet <= 220) {
+    return {
+      valueText: formattedFeet,
+      comment: "— About two basketball courts laid end to end.",
+    };
+  }
+  if (roundedFeet <= 260) {
+    return {
+      valueText: formattedFeet,
+      comment: "— About two and a half basketball courts laid end to end.",
+    };
+  }
+  if (roundedFeet <= 299) {
+    return {
+      valueText: formattedFeet,
+      comment: "— About three basketball courts laid end to end.",
+    };
+  }
+  if (roundedFeet <= 380) {
+    return {
+      valueText: formattedFeet,
+      comment: "— About the height of the Statue of Liberty.",
+    };
+  }
+  if (roundedFeet <= 480) {
+    return {
+      valueText: formattedFeet,
+      comment: "— About the height of the Great Pyramid of Giza in Egypt.",
+    };
+  }
+  if (roundedFeet <= 600) {
+    return {
+      valueText: formattedFeet,
+      comment: "— About the height of the Washington Monument in DC.",
+    };
+  }
+  if (roundedFeet <= 800) {
+    return {
+      valueText: formattedFeet,
+      comment: "— About the height of the Space Needle in Seattle.",
+    };
+  }
+  if (roundedFeet <= 1100) {
+    return {
+      valueText: formattedFeet,
+      comment: "— About the height of the Eiffel Tower in Paris.",
+    };
+  }
+  if (roundedFeet <= 1454) {
+    return {
+      valueText: formattedFeet,
+      comment:
+        "— About the height of the Empire State Building in New York City.",
+    };
+  }
+  if (roundedFeet <= 2000) {
+    return {
+      valueText: formattedFeet,
+      comment: "— About the height of One World Trade Center in New York City.",
+    };
+  }
+  if (roundedFeet <= 2999) {
+    return {
+      valueText: formattedFeet,
+      comment:
+        "— Around the height of two Empire State Buildings stacked on top of one another",
+    };
+  }
+  if (roundedFeet <= 4000) {
+    return {
+      valueText: formattedFeet,
+      comment:
+        "— Around the height of two World Trade Centers stacked on top of one another.",
+    };
+  }
+  if (roundedFeet <= 4500) {
+    return {
+      valueText: formattedFeet,
+      comment:
+        "— Around the height of four Eiffel Towers stacked on top of one another.",
+    };
   }
   if (roundedFeet < 5280) {
     return {
       valueText: formattedFeet,
-      comment: "— longer than 10 football fields.",
+      comment:
+        "— Around the height of three World Trade Centers stacked on top of one another",
     };
   }
 
