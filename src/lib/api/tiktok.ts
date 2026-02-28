@@ -256,7 +256,7 @@ export async function disconnectTikTokLink(
 export async function getPlatformUsername(
   email: string,
 ): Promise<{ platform_username: string }> {
-  const response = await apiClient.get<{ username: string }>(
+  const response = await apiClient.get<{ platform_username: string }>(
     "/users/platform-username",
     {
       params: { email },
