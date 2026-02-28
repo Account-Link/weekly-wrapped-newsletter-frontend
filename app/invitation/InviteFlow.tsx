@@ -7,6 +7,7 @@ import {
   startTikTokLink,
   pollTikTokRedirect,
   registerEmail,
+  getPlatformUsername,
   ApiRequestError,
 } from "@/lib/api/tiktok";
 import { useToast } from "@/context/ToastContext";
@@ -20,6 +21,7 @@ import { EmailStep } from "./components/EmailStep";
 import { ConnectStep } from "./components/ConnectStep";
 import { LoadingStep } from "./components/LoadingStep";
 import { SuccessStep } from "./components/SuccessStep";
+import { DuplicateStep } from "./components/DuplicateStep";
 
 type InviteFlowProps = {
   uid: string;
@@ -32,13 +34,21 @@ type InviteFlowProps = {
   };
 };
 
-type Step = "landing" | "email" | "connect" | "loading" | "success";
+type Step =
+  | "landing"
+  | "email"
+  | "connect"
+  | "loading"
+  | "success"
+  | "duplicate";
 
 export default function InviteFlow({ uid, data }: InviteFlowProps) {
   const [step, setStep] = useState<Step>("landing");
   const [progress, setProgress] = useState(0);
   const [hasEmailSubmitted, setHasEmailSubmitted] = useState(false);
   const [isRegisteringEmail, setIsRegisteringEmail] = useState(false);
+  const [currentEmail, setCurrentEmail] = useState("");
+  const [platformUsername, setPlatformUsername] = useState<string | null>(null);
   const [loadingPhase, setLoadingPhase] = useState<
     "preconnect" | "postoauth" | null
   >(null);
@@ -384,6 +394,7 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
 
     if (isRegisteringEmail) return;
     setIsRegisteringEmail(true);
+    setCurrentEmail(inputEmail);
     // 重要逻辑：注册邮箱成功后再进入连接流程
     try {
       await registerEmail(inputEmail);
@@ -393,13 +404,22 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     } catch (error) {
       if (error instanceof ApiRequestError) {
         if (error.code === "validation_error") {
-          showToast("Please enter a valid email address");
+          showToast("Opps! Please enter a valid email address.");
           return;
         }
         if (error.code === "email_duplicate") {
           // 重要逻辑：重复邮箱需提示用户并记录埋点，方便定位转化瓶颈
-          showToast("This email is already registered");
           trackEvent({ event: "referral_email_duplicate", uid });
+
+          try {
+            const { platform_username } = await getPlatformUsername(inputEmail);
+            setPlatformUsername(platform_username);
+          } catch (e) {
+            console.error("Failed to get platform username:", e);
+            setPlatformUsername(null);
+          }
+
+          setStep("duplicate");
           return;
         }
       }
@@ -509,8 +529,8 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
     <main
       className="h-dvh w-[40.2rem] mx-auto bg-[#313131] text-white flex flex-col items-center relative overflow-hidden font-poppins"
       style={{
-        paddingTop: `calc(env(safe-area-inset-top) + 2rem)`,
-        paddingBottom: `calc(env(safe-area-inset-bottom) + 2rem)`,
+        paddingTop: `calc(env(safe-area-inset-top) + 3.2rem)`,
+        paddingBottom: `calc(env(safe-area-inset-bottom) + 3.2rem)`,
       }}
     >
       <AnimatePresence mode="wait">
@@ -541,6 +561,15 @@ export default function InviteFlow({ uid, data }: InviteFlowProps) {
           <LoadingStep progress={progress} onRetry={handleRetry} />
         )}
         {step === "success" && <SuccessStep onInvite={handleInvite} />}
+        {step === "duplicate" && (
+          <DuplicateStep
+            email={currentEmail}
+            username={platformUsername || undefined}
+            onRetry={() => {
+              setStep("email");
+            }}
+          />
+        )}
       </AnimatePresence>
       <AnimatePresence>
         {showQrModal && redirectUrl && (

@@ -252,3 +252,16 @@ export async function disconnectTikTokLink(
   });
   return response.data;
 }
+
+export async function getPlatformUsername(
+  email: string,
+): Promise<{ platform_username: string }> {
+  const response = await apiClient.get<{ username: string }>(
+    "/users/platform-username",
+    {
+      params: { email },
+      skipAuth: true,
+    } as CustomConfig,
+  );
+  return response.data;
+}

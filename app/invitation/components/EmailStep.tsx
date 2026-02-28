@@ -33,7 +33,7 @@ export const EmailStep: React.FC<EmailStepProps> = ({
 
     if (!validateEmail(email)) {
       onInvalid?.("format");
-      showToast("Please enter a valid email address");
+      showToast("Opps! Please enter a valid email address.");
       return;
     }
 
